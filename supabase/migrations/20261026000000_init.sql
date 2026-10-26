@@ -205,7 +205,7 @@ create trigger answers_pulse after insert or update or delete on public.answers
   for each row execute function public.bump_pulse();
 
 create or replace function public.touch_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at := now();
   return new;
