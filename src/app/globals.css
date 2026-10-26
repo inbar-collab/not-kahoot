@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/* One palette: charcoal / near-black, off-white text, one accent (warm gold). */
+@theme {
+  --color-ink-950: #0b0b0c;
+  --color-ink-900: #121214;
+  --color-ink-850: #18181b;
+  --color-ink-800: #1f1f23;
+  --color-ink-700: #2b2b30;
+  --color-ink-600: #3b3b41;
+  --color-ink-500: #5a5a62;
+  --color-mute: #a7a299;
+  --color-cream: #f3eee4;
+  --color-gold: #d6b06b;
+  --color-gold-soft: #e8cd96;
+  --color-gold-deep: #9f7c3c;
+
+  --font-display: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
+  --font-body: var(--font-assistant), "Assistant", system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-ink-950);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Visible focus for keyboard users everywhere. */
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink-950);
+}
+
+/* Subtle grain-free vignette used behind big screens. */
+.stage-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgb(214 176 107 / 0.07), transparent 70%),
+    var(--color-ink-950);
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
