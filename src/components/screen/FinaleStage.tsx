@@ -45,7 +45,7 @@ export function FinaleStage({
   });
 
   return (
-    <div className="flex h-full flex-col px-[3vw] py-[3vh]">
+    <div className="flex h-full flex-col px-[3vw] pb-[2vh] pt-[3vh]">
       <AnimatePresence mode="wait">
         {teasing ? (
           <motion.div
@@ -74,18 +74,15 @@ export function FinaleStage({
             </div>
           </motion.div>
         ) : (
-          <motion.div key="reveal" className="flex flex-1 flex-col" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {/* Winner name(s) */}
-            <motion.div
-              layout
-              className={`flex flex-col items-center text-center ${showPodium ? "" : "flex-1 justify-center"}`}
-            >
-              {winners.length === 0 ? (
-                <h1 className="font-display text-[min(7vh,6vw)] font-bold text-gold-soft">{s.scrFinaleNone}</h1>
-              ) : (
-                <>
-                  {!showPodium && (
-                    <div className="mb-[3vh] flex gap-[2vw]">
+          <motion.div key="reveal" className="flex min-h-0 flex-1 flex-col" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {!showPodium ? (
+              // The big moment: the winner alone, centered.
+              <div className="flex flex-1 flex-col items-center justify-center text-center">
+                {winners.length === 0 ? (
+                  <h1 className="font-display text-[min(8vh,7vw)] font-bold text-gold-soft">{s.scrFinaleNone}</h1>
+                ) : (
+                  <>
+                    <div className="mb-[4vh] flex gap-[2vw]">
                       {winners.slice(0, 4).map((w) => (
                         <motion.div
                           key={w.player.id}
@@ -93,42 +90,44 @@ export function FinaleStage({
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ type: "spring", stiffness: 200, damping: 12 }}
                         >
-                          <Avatar player={w.player} size={200} ring className="!h-[min(26vh,24vw)] !w-[min(26vh,24vw)]" />
+                          <Avatar player={w.player} size={200} ring className="!h-[min(28vh,24vw)] !w-[min(28vh,24vw)]" />
                         </motion.div>
                       ))}
                     </div>
-                  )}
-                  {winners.length > 1 && <p className="font-display text-[min(3.6vh,3.6vw)] text-mute">{s.scrFinaleTie}</p>}
-                  <motion.h1
-                    layout
-                    className={`font-display font-black leading-tight text-gold ${showPodium ? "text-[min(6vh,5vw)]" : "text-[min(11vh,9vw)]"}`}
-                    initial={{ scale: 0.6, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 160, damping: 14 }}
-                  >
-                    {winners.map((w, i) => (
-                      <span key={w.player.id}>
-                        {i > 0 && " & "}
-                        <bdi>{w.player.name}</bdi>
-                      </span>
-                    ))}
-                  </motion.h1>
-                </>
-              )}
-            </motion.div>
-
-            {showPodium && (
-              <div className="mt-[2vh] grid flex-1 grid-cols-1 items-end gap-[3vw] md:grid-cols-[1.7fr_1fr]">
-                <div className="pt-[22vh]">
-                  <Podium standings={standings} variant="tv" />
-                </div>
-                <div className="flex max-h-[68vh] flex-col overflow-hidden">
-                  {showList && (
-                    <>
-                      <p className="mb-[1.5vh] font-display text-[min(3.4vh,3.4vw)] font-bold text-gold-soft">{s.scrFullRanking}</p>
-                      <Ranking standings={standings} size="lg" />
-                    </>
-                  )}
+                    {winners.length > 1 && <p className="font-display text-[min(4vh,4vw)] text-mute">{s.scrFinaleTie}</p>}
+                    <motion.h1
+                      className="font-display text-[min(12vh,9vw)] font-black leading-tight text-gold"
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.2 }}
+                    >
+                      <WinnerNames winners={winners} />
+                    </motion.h1>
+                  </>
+                )}
+              </div>
+            ) : (
+              // Podium on one side, the full ranking on the other.
+              <div className="flex min-h-0 flex-1 flex-col">
+                <motion.h1
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center font-display text-[min(6vh,5vw)] font-black text-gold"
+                >
+                  {winners.length === 0 ? s.scrFinaleNone : <>🏆 <WinnerNames winners={winners} /></>}
+                </motion.h1>
+                <div className="grid min-h-0 flex-1 grid-cols-1 gap-[3vw] md:grid-cols-[1.7fr_1fr]">
+                  <div className="flex min-h-0 items-end">
+                    <Podium standings={standings} variant="tv" />
+                  </div>
+                  <div className="flex min-h-0 flex-col justify-center overflow-hidden">
+                    {showList && (
+                      <>
+                        <p className="mb-[1.5vh] font-display text-[min(3.4vh,3.4vw)] font-bold text-gold-soft">{s.scrFullRanking}</p>
+                        <Ranking standings={standings.slice(0, 12)} size="lg" />
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -136,5 +135,18 @@ export function FinaleStage({
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function WinnerNames({ winners }: { winners: { player: { id: string; name: string } }[] }) {
+  return (
+    <>
+      {winners.map((w, i) => (
+        <span key={w.player.id}>
+          {i > 0 && " & "}
+          <bdi>{w.player.name}</bdi>
+        </span>
+      ))}
+    </>
   );
 }

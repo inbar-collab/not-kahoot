@@ -91,7 +91,7 @@ export function getStrings(gender: Gender = "female", name = "") {
 
     // ---------- guest ----------
     joinTitle: (title: string) => title,
-    joinSubtitle: g(`בואו נראה כמה טוב אתם מכירים את ${who}`, `בואו נראה כמה טוב אתם מכירים את ${who}`),
+    joinSubtitle: g(`${who} חוגגת! מי מכיר אותה הכי טוב?`, `${who} חוגג! מי מכיר אותו הכי טוב?`),
     joinNameLabel: "איך קוראים לך?",
     joinNamePlaceholder: "השם שלך",
     joinAvatarLabel: "תמונה או אימוג׳י (לא חובה)",
@@ -110,7 +110,7 @@ export function getStrings(gender: Gender = "female", name = "") {
     guestPlayersIn: (n: number) => (n === 1 ? "שחקן אחד במשחק" : `${n} שחקנים במשחק`),
     guestIntro: "מתחילים! תתכוננו…",
     guestPickPrompt: g("מה לדעתך היא תבחר?", "מה לדעתך הוא יבחר?"),
-    guestRegistered: "נרשם ✓",
+    guestRegistered: "נרשם!",
     guestYourAnswer: "התשובה שלך:",
     guestNoAnswer: "לא הספקת לענות על השאלה הזו.",
     guestWaitReveal: "ההצבעה נסגרה. מחכים לחשיפה…",

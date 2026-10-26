@@ -67,14 +67,14 @@ export function AdminApp({
             </p>
           </div>
         </div>
-        <nav className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-2 pb-2" aria-label={s.adminTitle}>
+        <nav className="mx-auto grid max-w-3xl grid-cols-5 gap-1 px-2 pb-2" aria-label={s.adminTitle}>
           {tabs.map(([id, label]) => (
             <button
               key={id}
               type="button"
               aria-current={tab === id ? "page" : undefined}
               onClick={() => setTab(id)}
-              className={`min-h-[48px] shrink-0 rounded-xl px-4 text-lg font-bold transition ${
+              className={`min-h-[48px] rounded-xl px-1 text-base font-bold transition sm:text-lg ${
                 tab === id ? "bg-gold text-ink-950" : "text-mute hover:bg-ink-800 hover:text-cream"
               }`}
             >

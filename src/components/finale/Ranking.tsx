@@ -33,14 +33,14 @@ export function Ranking({
             }`}
           >
             <span
-              className={`w-10 shrink-0 text-center font-display font-bold ${st.rank === 1 ? "text-gold" : "text-mute"} ${lg ? "text-[3vh]" : "text-xl"}`}
+              className={`w-10 shrink-0 text-center font-display font-bold ${st.rank === 1 ? "text-gold" : "text-mute"} ${lg ? "text-[3vh] leading-none" : "text-xl"}`}
               aria-label={s.place(st.rank)}
             >
               {st.rank}
             </span>
-            <Avatar player={st.player} size={lg ? 44 : 36} />
-            <bdi className={`min-w-0 flex-1 truncate font-bold ${lg ? "text-[2.6vh]" : "text-lg"}`}>{st.player.name}</bdi>
-            <span className={`shrink-0 font-display font-bold tabular-nums text-gold-soft ${lg ? "text-[3vh]" : "text-xl"}`}>
+            <Avatar player={st.player} size={lg ? 44 : 36} className={lg ? "!h-[4.2vh] !w-[4.2vh]" : ""} />
+            <span className={`min-w-0 flex-1 truncate font-bold ${lg ? "text-[2.6vh]" : "text-lg"}`}><bdi>{st.player.name}</bdi></span>
+            <span className={`shrink-0 font-display font-bold tabular-nums text-gold-soft ${lg ? "text-[3vh] leading-none" : "text-xl"}`}>
               {st.score}
             </span>
           </motion.li>

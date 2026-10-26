@@ -41,10 +41,11 @@ export function QuestionStage({ snap, s }: { snap: ScreenSnapshot; s: Strings })
           {round.text}
         </motion.h1>
         {round.photoUrl && (
+          // Shown whole (object-contain): family photos are never cropped or altered.
           <motion.img
             src={round.photoUrl}
             alt=""
-            className="hidden max-h-[44vh] w-full rounded-[3vh] object-cover shadow-2xl md:block"
+            className="mx-auto hidden h-auto max-h-[44vh] w-auto max-w-full rounded-[3vh] shadow-2xl md:block"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}

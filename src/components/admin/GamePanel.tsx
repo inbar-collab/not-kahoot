@@ -207,7 +207,7 @@ export function GamePanel({
                     />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <bdi className="block truncate text-lg font-bold">{p.name}</bdi>
+                    <span className="block truncate text-lg font-bold"><bdi>{p.name}</bdi></span>
                     <span className="text-sm text-mute">
                       {p.isFake ? `${s.adminFake} · ` : ""}
                       {isOnline ? s.adminOnline : p.isFake ? "" : s.adminOffline}

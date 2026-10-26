@@ -74,7 +74,7 @@ export function GuestPlay({ snap, s, token, refresh, msInState }: Props) {
     <main className="stage-bg flex min-h-dvh flex-col">
       <header className="flex items-center gap-3 border-b border-ink-800 px-4 py-3">
         <Avatar player={me.player} size={40} />
-        <bdi className="min-w-0 flex-1 truncate text-lg font-bold">{me.player.name}</bdi>
+        <span className="min-w-0 flex-1 truncate text-lg font-bold"><bdi>{me.player.name}</bdi></span>
         <span className="rounded-full bg-ink-800 px-4 py-1 text-lg font-bold text-gold-soft" aria-live="polite">
           {s.guestScore(me.score)}
         </span>

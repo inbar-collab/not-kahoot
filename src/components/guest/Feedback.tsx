@@ -10,7 +10,7 @@ export function CorrectBadge() {
       transition={{ type: "spring", stiffness: 300, damping: 12 }}
       className="flex h-36 w-36 items-center justify-center rounded-full bg-gold text-ink-950 shadow-[0_0_80px_-10px_rgb(214_176_107/0.8)]"
     >
-      <span className="font-display text-6xl font-black">+1</span>
+      <bdi dir="ltr" className="font-display text-6xl font-black">+1</bdi>
     </motion.div>
   );
 }

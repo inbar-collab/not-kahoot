@@ -4,7 +4,7 @@ import { podiumGroups } from "@/lib/scoring";
 import type { Standing } from "@/lib/types";
 import { Figure } from "./Figure";
 
-const HEIGHTS = { 1: 1, 2: 0.72, 3: 0.52 } as const;
+const HEIGHTS = { 1: 1, 2: 0.76, 3: 0.6 } as const;
 const MAX_FIGURES = 3;
 
 /**
@@ -24,7 +24,7 @@ export function Podium({
 }) {
   const groups = podiumGroups(standings);
   const tv = variant === "tv";
-  const blockH = tv ? "min(30vh, 320px)" : "120px";
+  const blockH = tv ? "min(27vh, 300px)" : "120px";
   // Classic layout: 2nd on the left, 1st in the middle, 3rd on the right.
   const order = [2, 1, 3] as const;
   // Rise from the bottom: 3rd, then 2nd, then 1st.
@@ -37,7 +37,8 @@ export function Podium({
         const shown = group.slice(0, MAX_FIGURES);
         const extra = group.length - shown.length;
         const n = Math.max(1, shown.length);
-        const figW = tv ? `calc(min(13vw, 230px) / ${n === 1 ? 1 : n * 0.72})` : `calc(84px / ${n === 1 ? 1 : n * 0.72})`;
+        const shrink = n === 1 ? 1 : n * 0.72;
+        const figW = tv ? `calc(min(14vh, 12vw) / ${shrink})` : `calc(84px / ${shrink})`;
         const d = baseDelay + riseDelay[place];
         return (
           <div key={place} className="flex w-[30%] max-w-[420px] flex-col items-center">
@@ -70,21 +71,25 @@ export function Podium({
             >
               <span
                 className={`font-display font-black leading-none ${place === 1 ? "text-gold" : "text-mute"}`}
-                style={{ fontSize: tv ? "min(9vh, 96px)" : "40px", marginTop: tv ? "2vh" : "6px" }}
+                style={{
+                  fontSize: tv ? (place === 1 ? "min(8vh, 88px)" : "min(5.5vh, 60px)") : place === 1 ? "40px" : "30px",
+                  marginTop: tv ? "1.5vh" : "6px",
+                }}
               >
                 {place}
               </span>
-              <div dir="rtl" className="mt-1 flex flex-wrap justify-center gap-x-2 px-2 text-center">
+              <div dir="rtl" className="mt-1 flex flex-wrap justify-center gap-x-1 px-2 text-center leading-snug">
                 {group.length === 0 ? (
                   <span className="text-ink-500">—</span>
                 ) : (
-                  group.map((s) => (
+                  group.map((s, k) => (
                     <bdi
                       key={s.player.id}
                       className={`font-bold ${s.player.id === highlightId ? "text-gold-soft underline decoration-gold decoration-2 underline-offset-4" : "text-cream"}`}
-                      style={{ fontSize: tv ? "min(3vh, 30px)" : "15px" }}
+                      style={{ fontSize: tv ? "min(2.6vh, 28px)" : "15px" }}
                     >
                       {s.player.name}
+                      {k < group.length - 1 && <span className="text-mute">,</span>}
                     </bdi>
                   ))
                 )}

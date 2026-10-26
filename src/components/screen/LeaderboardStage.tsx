@@ -20,14 +20,14 @@ export function LeaderboardStage({ snap, s }: { snap: ScreenSnapshot; s: Strings
         (a, b) => (a.previousRank ?? a.rank) - (b.previousRank ?? b.rank) || a.player.name.localeCompare(b.player.name, "he"),
       );
   const visible = rows.slice(0, 10);
-  const crowded = visible.length > 7;
+  const crowded = visible.length > 6;
 
   return (
-    <div className="flex h-full flex-col items-center px-[6vw] py-[5vh]">
-      <h1 className="font-display text-[min(7vh,6vw)] font-bold text-gold-soft">{s.scrLeaderboard}</h1>
-      <div className="gold-rule mb-[3vh] mt-[1.5vh] w-[30vw]" />
+    <div className={`flex h-full flex-col items-center px-[6vw] ${crowded ? "py-[3vh]" : "py-[5vh]"}`}>
+      <h1 className={`font-display font-bold text-gold-soft ${crowded ? "text-[min(5.5vh,5vw)]" : "text-[min(7vh,6vw)]"}`}>{s.scrLeaderboard}</h1>
+      <div className={`gold-rule mt-[1.5vh] w-[30vw] ${crowded ? "mb-[2vh]" : "mb-[3vh]"}`} />
       {standings.length === 0 && <p className="text-[3vh] text-mute">{s.scrNoPlayers}</p>}
-      <ol className={`flex w-full max-w-[1200px] flex-col ${crowded ? "gap-[1vh]" : "gap-[1.6vh]"}`}>
+      <ol className={`flex w-full max-w-[1200px] flex-col ${crowded ? "gap-[0.8vh]" : "gap-[1.6vh]"}`}>
         {visible.map((st) => {
           const score = settled ? st.score : st.previousScore;
           const moved = st.previousRank !== null && st.previousRank > st.rank;
@@ -36,26 +36,32 @@ export function LeaderboardStage({ snap, s }: { snap: ScreenSnapshot; s: Strings
               key={st.player.id}
               layout
               transition={{ type: "spring", stiffness: 140, damping: 22 }}
-              className={`flex items-center gap-[1.6vw] rounded-[2vh] border px-[2vw] ${crowded ? "py-[0.8vh]" : "py-[1.4vh]"} ${
+              className={`flex items-center gap-[1.6vw] rounded-[2vh] border px-[2vw] ${crowded ? "py-[0.4vh]" : "py-[1.4vh]"} ${
                 st.rank === 1 && settled ? "border-gold/70 bg-gold/10" : "border-ink-700 bg-ink-850"
               }`}
             >
-              <span className={`w-[4vw] text-center font-display text-[min(4.4vh,4vw)] font-black ${st.rank === 1 ? "text-gold" : "text-mute"}`}>
+              <span className={`w-[4vw] text-center font-display text-[min(4.4vh,4vw)] font-black leading-none ${st.rank === 1 ? "text-gold" : "text-mute"}`}>
                 {settled ? st.rank : (st.previousRank ?? st.rank)}
               </span>
-              <Avatar player={st.player} size={60} className="!h-[min(6.4vh,6vw)] !w-[min(6.4vh,6vw)]" />
-              <bdi className="min-w-0 flex-1 truncate text-[min(3.8vh,3.6vw)] font-bold">{st.player.name}</bdi>
+              <Avatar
+                player={st.player}
+                size={60}
+                className={crowded ? "!h-[min(5.4vh,5vw)] !w-[min(5.4vh,5vw)]" : "!h-[min(6.4vh,6vw)] !w-[min(6.4vh,6vw)]"}
+              />
+              <span className={`min-w-0 flex-1 truncate font-bold ${crowded ? "text-[min(3.2vh,3.2vw)]" : "text-[min(3.8vh,3.6vw)]"}`}><bdi>
+                {st.player.name}
+              </bdi></span>
               {st.streak >= 3 && <span className="text-[min(2.8vh,2.8vw)] text-gold-soft">{s.streak(st.streak)}</span>}
               {settled && moved && (
                 <motion.span initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-[min(2.8vh,2.8vw)] text-gold">
-                  ▲{st.previousRank! - st.rank}
+                  <bdi dir="ltr">▲{st.previousRank! - st.rank}</bdi>
                 </motion.span>
               )}
               <motion.span
                 key={score}
                 initial={{ scale: 1.5, color: "#e8cd96" }}
                 animate={{ scale: 1, color: "#f3eee4" }}
-                className="w-[6vw] text-center font-display text-[min(4.6vh,4.4vw)] font-bold tabular-nums"
+                className="w-[6vw] text-center font-display text-[min(4.6vh,4.4vw)] font-bold leading-none tabular-nums"
               >
                 {score}
               </motion.span>
