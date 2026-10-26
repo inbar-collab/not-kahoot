@@ -96,7 +96,7 @@ npx supabase db push
 
 4. Click **Deploy** and wait for it to finish. You'll get an address like `https://not-kahoot-xyz.vercel.app`.
 5. *(Recommended)* Go to **Settings → Environment Variables**, set `APP_BASE_URL` to that address (no trailing `/`), then **Deployments → ⋯ → Redeploy**. This makes the QR code and links use the right address.
-6. *(Optional, for speed)* In **Settings → Functions → Function Region**, choose the region closest to your Supabase project (e.g. Frankfurt `fra1`).
+6. *(Speed)* The server region is set in `vercel.json` (`sin1`, Singapore, next to this game's Supabase project). If your Supabase project is elsewhere, change it to the closest Vercel region (e.g. Frankfurt `fra1`).
 
 > Whenever you change an environment variable in Vercel, you must **redeploy** for it to take effect.
 
