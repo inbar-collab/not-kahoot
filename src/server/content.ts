@@ -77,6 +77,7 @@ export async function saveQuestion(game: GameRow, input: Record<string, unknown>
     await getQuestion(game, input.id);
     const { error } = await db().from("questions").update(q).eq("id", input.id as string);
     if (error) throw error;
+    if (typeof input.practice === "boolean") await setQuestionPractice(game, input.id, input.practice);
     return input.id as string;
   }
   const { data: last } = await db()
@@ -92,6 +93,7 @@ export async function saveQuestion(game: GameRow, input: Record<string, unknown>
     .select("id")
     .single();
   if (error) throw error;
+  if (input.practice === true) await setQuestionPractice(game, data.id, true);
   return data.id;
 }
 
@@ -113,11 +115,28 @@ export async function setQuestionActive(game: GameRow, id: unknown, active: bool
   if (error) throw error;
 }
 
+/** Marks one question as the practice question (only one per game) or unmarks it. */
+export async function setQuestionPractice(game: GameRow, id: unknown, practice: boolean) {
+  const q = await getQuestion(game, id);
+  if (practice) {
+    const { error: e } = await db()
+      .from("questions")
+      .update({ is_practice: false })
+      .eq("game_id", game.id)
+      .eq("is_practice", true)
+      .neq("id", q.id);
+    if (e) throw e;
+  }
+  const { error } = await db().from("questions").update({ is_practice: practice }).eq("id", q.id);
+  if (error) throw error;
+}
+
 export async function moveQuestion(game: GameRow, id: unknown, direction: "up" | "down") {
   const { data, error } = await db()
     .from("questions")
     .select("id, position, created_at")
     .eq("game_id", game.id)
+    .eq("is_practice", false) // the practice question always plays first, wherever it sits
     .order("position")
     .order("created_at");
   if (error) throw error;

@@ -37,6 +37,7 @@ function publicGame(b: GameBundle): PublicGame {
     stateChangedAt: g.state_changed_at,
     currentIndex: g.current_index,
     totalRounds: b.rounds.length,
+    practiceRounds: b.rounds.filter((r) => r.is_practice).length,
     soundsEnabled: g.sounds_enabled,
     allowLateJoin: g.allow_late_join,
     serverNow: new Date().toISOString(),
@@ -60,6 +61,7 @@ function roundBase(r: RoundRow): RoundBase {
     text: r.text,
     options: r.options,
     photoUrl: publicPhotoUrl(r.photo_path),
+    practice: r.is_practice,
   };
 }
 
@@ -70,6 +72,7 @@ function scoringRounds(b: GameBundle): ScoringRound[] {
     revealed: !!r.revealed_at,
     birthdayChoices: r.birthday_choices,
     optionCount: r.options.length,
+    practice: r.is_practice,
   }));
 }
 
@@ -225,6 +228,7 @@ export function adminSnapshot(b: AdminBundle): AdminSnapshot {
       opened: !!x.opened_at,
       revealed: !!x.revealed_at,
       birthdayLocked: !!x.birthday_locked_at,
+      practice: x.is_practice,
     })),
     standings: standings(b),
     questions: b.questions.map((q) => ({
@@ -235,9 +239,10 @@ export function adminSnapshot(b: AdminBundle): AdminSnapshot {
       photoUrl: publicPhotoUrl(q.photo_path),
       photoPath: q.photo_path,
       active: q.active,
+      practice: q.is_practice,
     })),
     library: b.library.map((p) => ({ id: p.id, url: publicPhotoUrl(p.path)! })),
-    activeQuestionCount: b.questions.filter((q) => q.active).length,
+    activeQuestionCount: b.questions.filter((q) => q.active && !q.is_practice).length,
     plannedRoundCount: plannedRoundCount(g, b.questions),
   };
 }

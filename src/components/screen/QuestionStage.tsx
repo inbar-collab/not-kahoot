@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "motion/react";
 import { useAutoFit } from "@/hooks/useAutoFit";
-import type { Strings } from "@/lib/strings";
+import { roundLabel, type Strings } from "@/lib/strings";
 import { OPTION_MARKS } from "@/lib/timing";
 import type { ScreenSnapshot } from "@/lib/types";
 import { Portrait } from "../ui/Portrait";
@@ -132,7 +132,7 @@ export function QuestionHeader({
   return (
     <div className="flex items-center justify-between gap-4">
       <span className="rounded-full border border-gold/50 px-5 py-1.5 text-[min(3vh,3.4vw)] font-bold text-gold">
-        {s.questionOf(snap.game.currentIndex + 1, snap.game.totalRounds)}
+        {roundLabel(s, snap.game.currentIndex, snap.game)}
       </span>
       {children}
     </div>

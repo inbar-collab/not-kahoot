@@ -6,6 +6,7 @@ import {
   moveQuestion,
   saveQuestion,
   setQuestionActive,
+  setQuestionPractice,
   setQuestionPhoto,
   updateSettings,
 } from "@/server/content";
@@ -63,6 +64,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
         break;
       case "setQuestionActive":
         await setQuestionActive(game, body.id, !!body.active);
+        break;
+      case "setQuestionPractice":
+        await setQuestionPractice(game, body.id, !!body.practice);
         break;
       case "moveQuestion":
         await moveQuestion(game, body.id, body.direction === "up" ? "up" : "down");

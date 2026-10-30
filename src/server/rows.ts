@@ -30,6 +30,7 @@ export interface QuestionRow {
   options: string[];
   photo_path: string | null;
   active: boolean;
+  is_practice: boolean;
   created_at: string;
 }
 
@@ -66,6 +67,7 @@ export interface RoundRow {
   opened_at: string | null;
   closed_at: string | null;
   revealed_at: string | null;
+  is_practice: boolean;
 }
 
 export interface AnswerRow {

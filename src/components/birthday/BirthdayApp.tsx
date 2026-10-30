@@ -3,7 +3,7 @@ import { use, useCallback, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useLiveGame } from "@/hooks/useLiveGame";
 import { api, ClientApiError, gamePath } from "@/lib/api";
-import { getStrings, type Strings } from "@/lib/strings";
+import { getStrings, roundLabel, type Strings } from "@/lib/strings";
 import { OPTION_MARKS } from "@/lib/timing";
 import type { BirthdaySnapshot } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
@@ -195,7 +195,7 @@ function AnswerFlow({
     <div className="flex flex-1 flex-col p-5">
       <div className="flex items-center gap-3">
         <Portrait url={snap.game.birthdayPhotoUrl} name={snap.game.birthdayName} size={48} />
-        <p className="text-lg font-bold text-gold">{s.questionOf(round.index + 1, snap.game.totalRounds)}</p>
+        <p className="text-lg font-bold text-gold">{roundLabel(s, round.index, snap.game)}</p>
       </div>
       {snap.game.state === "WAITING_FOR_BIRTHDAY" && (
         <p className="mt-3 rounded-2xl bg-gold/10 px-4 py-2 text-lg text-gold-soft">{s.bdEveryoneWaiting}</p>

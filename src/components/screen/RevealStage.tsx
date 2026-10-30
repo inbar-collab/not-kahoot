@@ -5,7 +5,7 @@ import { useAutoFit } from "@/hooks/useAutoFit";
 import { useElapsed } from "@/hooks/useElapsed";
 import { burst } from "@/lib/confetti";
 import type { SoundName } from "@/lib/sound";
-import type { Strings } from "@/lib/strings";
+import { roundLabel, type Strings } from "@/lib/strings";
 import { OPTION_MARKS, REVEAL_ANSWER_MS, REVEAL_COUNT_MS, REVEAL_COUNTDOWN_MS } from "@/lib/timing";
 import type { ScreenSnapshot } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
@@ -55,7 +55,7 @@ export function RevealStage({
   return (
     <div className="flex h-full flex-col items-center justify-center px-[5vw] pb-[3vh] pt-[18vh] text-center">
       <p className="absolute top-[4vh] text-[min(3vh,3.4vw)] font-bold text-gold">
-        {s.questionOf(round.index + 1, game.totalRounds)}
+        {roundLabel(s, round.index, game)}
       </p>
       <h2 className="absolute top-[9vh] line-clamp-2 max-w-[80vw] font-display text-[min(4vh,4vw)] leading-tight text-mute">
         {round.text}

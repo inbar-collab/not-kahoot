@@ -8,6 +8,8 @@ export interface RoundStatus {
   opened: boolean;
   revealed: boolean;
   birthdayLocked: boolean;
+  /** The practice question: played first, never scored. */
+  practice?: boolean;
 }
 
 export interface MachineContext {
@@ -50,10 +52,13 @@ function enterRound(ctx: MachineContext, i: number): PlanResult {
   return go("QUESTION_OPEN", i, i, "open");
 }
 
+/** Counts scored questions only, so the practice question never triggers it. */
 export function isLeaderboardDue(ctx: MachineContext): boolean {
-  const total = ctx.rounds.length;
   const i = ctx.currentIndex;
-  return ctx.leaderboardEvery > 0 && i < total - 1 && (i + 1) % ctx.leaderboardEvery === 0;
+  if (ctx.rounds[i]?.practice) return false;
+  const done = ctx.rounds.slice(0, i + 1).filter((r) => !r.practice).length;
+  const total = ctx.rounds.filter((r) => !r.practice).length;
+  return ctx.leaderboardEvery > 0 && done < total && done % ctx.leaderboardEvery === 0;
 }
 
 export function planTransition(ctx: MachineContext, action: ControlAction): PlanResult {

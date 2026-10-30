@@ -44,6 +44,8 @@ export interface PublicGame {
   stateChangedAt: string;
   currentIndex: number;
   totalRounds: number;
+  /** Rounds at the start that are practice (0 or 1); they come before question 1. */
+  practiceRounds: number;
   soundsEnabled: boolean;
   allowLateJoin: boolean;
   /** Server clock at the time the snapshot was built (ISO). */
@@ -76,6 +78,7 @@ export interface RoundBase {
   text: string;
   options: string[];
   photoUrl: string | null;
+  practice: boolean;
 }
 
 export interface RoundReveal {
@@ -133,6 +136,7 @@ export interface AdminQuestion {
   photoUrl: string | null;
   photoPath: string | null;
   active: boolean;
+  practice: boolean;
 }
 
 export interface AdminLibraryPhoto {
@@ -146,6 +150,7 @@ export interface AdminRoundSummary {
   opened: boolean;
   revealed: boolean;
   birthdayLocked: boolean;
+  practice: boolean;
 }
 
 export interface AdminSettings {

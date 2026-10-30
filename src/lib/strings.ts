@@ -32,6 +32,7 @@ export function getStrings(gender: Gender = "female", name = "") {
     placeOrdinal: (rank: number) => ["", "ראשון", "שני", "שלישי"][rank] ?? `${rank}`,
     age: (n: number) => g(`חוגגת ${n}`, `חוגג ${n}`),
     questionOf: (i: number, total: number) => `שאלה ${i} מתוך ${total}`,
+    practiceLabel: "🎯 שאלת תרגול · לא נספרת בניקוד",
     answeredOf: (n: number, total: number) => `${n} מתוך ${total} ענו`,
     streak: (n: number) => `🔥 ${n} ברצף`,
 
@@ -117,6 +118,7 @@ export function getStrings(gender: Gender = "female", name = "") {
     guestWaitBirthday: g("מחכים שהחוגגת תענה…", "מחכים שהחוגג יענה…"),
     guestCorrectTitle: "אתם על אותו גל!",
     guestCorrectPoints: "+1",
+    guestPracticeNote: "זו הייתה שאלת תרגול – הניקוד מתחיל מהשאלה הבאה 😉",
     guestWrongTitle: "אוי, לא הפעם…",
     guestSheChose: g("היא בחרה:", "הוא בחר:"),
     guestScore: (n: number) => `הניקוד שלך: ${n}`,
@@ -223,6 +225,7 @@ export function getStrings(gender: Gender = "female", name = "") {
     adminNextLeaderboard: "לטבלת המובילים ◀",
     adminNextFinale: "🏆 לגמר!",
     adminOpenFirst: "פתיחת שאלה 1",
+    adminOpenPractice: "🎯 פתיחת שאלת התרגול",
     adminWaitingBirthday: g("מחכים לחוגגת…", "מחכים לחוגג…"),
     adminConfirmEnd: "לסיים את המשחק עכשיו ולעבור לגמר?",
     adminConfirmReset: "לאפס את המשחק? כל התשובות והניקוד יימחקו. השחקנים והשאלות יישארו.",
@@ -253,12 +256,20 @@ export function getStrings(gender: Gender = "female", name = "") {
     adminNoQuestionsWarn: "אין שאלות פעילות – אי אפשר להתחיל.",
     adminNoPlayersWarn: "עוד אין שחקנים – אפשר להתחיל, ואורחים יוכלו להצטרף באמצע אם זה מאופשר.",
     adminPlannedRounds: (n: number) => `יישאלו ${n} שאלות`,
+    adminPlusPractice: "ולפניהן שאלת תרגול 🎯 (לא נספרת בניקוד)",
+    adminPracticeShort: "🎯 תרגול",
     adminSoundOn: "🔊 צלילים פועלים",
     adminSoundOff: "🔇 צלילים כבויים",
     adminDistributionHidden: "התפלגות ההצבעות תוצג אחרי החשיפה.",
 
     // questions editor
     qAdd: "➕ שאלה חדשה",
+    qAddPractice: "🎯 שאלת תרגול חדשה",
+    qPractice: "🎯 שאלת תרגול",
+    qPracticeHint: "שאלת התרגול תמיד נשאלת ראשונה, כדי שכולם יבינו איך משחקים, ולא נספרת בניקוד. יכולה להיות רק אחת.",
+    qMakePractice: "🎯 להפוך לתרגול",
+    qUnmakePractice: "ביטול תרגול",
+    qPracticeCheckbox: "שאלת תרגול (נשאלת ראשונה, לא נספרת בניקוד)",
     qText: "השאלה",
     qOption: (i: number) => `תשובה ${i}`,
     qAddOption: "➕ תשובה",
@@ -315,6 +326,12 @@ export function getStrings(gender: Gender = "female", name = "") {
 }
 
 export type Strings = ReturnType<typeof getStrings>;
+
+/** "שאלה 3 מתוך 25", or the practice label. The practice round is not numbered. */
+export function roundLabel(s: Strings, index: number, game: { totalRounds: number; practiceRounds: number }): string {
+  if (index < game.practiceRounds) return s.practiceLabel;
+  return s.questionOf(index + 1 - game.practiceRounds, game.totalRounds - game.practiceRounds);
+}
 
 export const AVATAR_EMOJIS = ["🎂", "🌸", "🦊", "🐼", "🌟", "🍉", "🎈", "🐢", "🌻", "🦋", "🐱", "🐶", "🦁", "🐸", "🍕", "☕", "🎩", "👑", "🌈", "🍰"];
 

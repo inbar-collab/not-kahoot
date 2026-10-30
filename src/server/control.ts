@@ -29,6 +29,7 @@ export function machineContext(game: GameRow, rounds: RoundRow[], questions: Que
       opened: !!r.opened_at,
       revealed: !!r.revealed_at,
       birthdayLocked: !!r.birthday_locked_at,
+      practice: r.is_practice,
     })),
     leaderboardEvery: game.leaderboard_every,
     plannedRoundCount: plannedRoundCount(game, questions),

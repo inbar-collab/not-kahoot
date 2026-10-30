@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useElapsed } from "@/hooks/useElapsed";
 import { api, ClientApiError, gamePath } from "@/lib/api";
 import { burst } from "@/lib/confetti";
-import type { Strings } from "@/lib/strings";
+import { roundLabel, type Strings } from "@/lib/strings";
 import { OPTION_MARKS, REVEAL_ANSWER_MS, REVEAL_COUNTDOWN_MS } from "@/lib/timing";
 import type { GuestSnapshot } from "@/lib/types";
 import { Podium } from "../finale/Podium";
@@ -125,7 +125,7 @@ function RoundView({ snap, s, token, refresh, msInState }: Props) {
 
   const header = (
     <div className="px-5 pt-5">
-      <p className="text-lg font-bold text-gold">{s.questionOf(round.index + 1, snap.game.totalRounds)}</p>
+      <p className="text-lg font-bold text-gold">{roundLabel(s, round.index, snap.game)}</p>
       <h1 className="mt-2 font-display text-3xl font-bold leading-snug">{round.text}</h1>
     </div>
   );
@@ -245,7 +245,7 @@ function RevealView({ snap, s, msInState }: Omit<Props, "token" | "refresh">) {
     <div className="flex flex-1 flex-col items-center justify-center gap-5 p-6 text-center" role="status">
       {reveal.correct === true ? (
         <>
-          <CorrectBadge />
+          <CorrectBadge label={round.practice ? "✓" : "+1"} />
           <p className="font-display text-4xl font-bold text-gold-soft">{s.guestCorrectTitle}</p>
         </>
       ) : (
@@ -262,7 +262,11 @@ function RevealView({ snap, s, msInState }: Omit<Props, "token" | "refresh">) {
           </p>
         ))}
       </div>
-      {snap.me && <p className="text-xl">{s.guestScore(snap.me.score)}</p>}
+      {round.practice ? (
+        <p className="text-xl text-mute">{s.guestPracticeNote}</p>
+      ) : (
+        snap.me && <p className="text-xl">{s.guestScore(snap.me.score)}</p>
+      )}
       {snap.me && snap.me.streak >= 3 && <p className="text-xl text-gold-soft">{s.streak(snap.me.streak)}</p>}
     </div>
   );

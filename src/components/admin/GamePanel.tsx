@@ -1,7 +1,7 @@
 "use client";
 import type { PresenceMeta } from "@/hooks/useLiveGame";
 import { allowedActions, isLeaderboardDue, suggestedAction, type MachineContext } from "@/lib/state-machine";
-import type { Strings } from "@/lib/strings";
+import { roundLabel, type Strings } from "@/lib/strings";
 import type { AdminSnapshot, ControlAction } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
 import { Button } from "../ui/Button";
@@ -43,6 +43,7 @@ export function GamePanel({
   const allowed = allowedActions(ctx);
   const primary = suggestedAction(ctx);
   const lastRound = game.currentIndex >= game.totalRounds - 1;
+  const hasPractice = snap.questions.some((q) => q.practice && q.active);
   const waitingForHer = !!round && !round.birthdayLocked && (game.state === "WAITING_FOR_BIRTHDAY" || game.state === "QUESTION_CLOSED");
 
   const onlinePlayers = new Set(online.filter((p) => p.role === "guest").map((p) => p.playerId));
@@ -59,7 +60,7 @@ export function GamePanel({
 
   function primaryLabel(): string {
     if (!primary) return "";
-    if (primary === "open" && game.state === "INTRO") return s.adminOpenFirst;
+    if (primary === "open" && game.state === "INTRO") return game.practiceRounds > 0 ? s.adminOpenPractice : s.adminOpenFirst;
     if (primary === "reveal" && waitingForHer) return s.adminWaitingBirthday;
     if (primary === "next") {
       if ((game.state === "RESULTS" || game.state === "REVEAL") && isLeaderboardDue(ctx)) return s.adminNextLeaderboard;
@@ -78,7 +79,7 @@ export function GamePanel({
         aside={
           game.totalRounds > 0 && game.state !== "LOBBY" ? (
             <span className="rounded-full bg-ink-800 px-3 py-1 text-base font-bold text-gold">
-              {s.questionOf(Math.max(1, game.currentIndex + 1), game.totalRounds)}
+              {roundLabel(s, Math.max(0, game.currentIndex), game)}
             </span>
           ) : null
         }
@@ -93,7 +94,10 @@ export function GamePanel({
             {snap.plannedRoundCount === 0 ? (
               <p className="rounded-2xl bg-ink-800 p-3">⚠️ {s.adminNoQuestionsWarn}</p>
             ) : (
-              <p className="text-mute">{s.adminPlannedRounds(snap.plannedRoundCount)}</p>
+              <p className="text-mute">
+                {s.adminPlannedRounds(snap.plannedRoundCount)}
+                {hasPractice && <span className="block text-gold-soft">{s.adminPlusPractice}</span>}
+              </p>
             )}
             {snap.players.length === 0 && <p className="rounded-2xl bg-ink-800 p-3 text-mute">{s.adminNoPlayersWarn}</p>}
           </div>

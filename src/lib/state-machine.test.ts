@@ -56,4 +56,15 @@ describe("state machine", () => {
     const c = ctx({ state: "RESULTS", currentIndex: 0, rounds: [r(true, true, true)] });
     expect(planTransition(c, "open")).toEqual({ ok: false, error: "already_revealed" });
   });
+
+  it("the practice question does not count toward the leaderboard rhythm", () => {
+    const pr: RoundStatus = { ...r(true, true, true), practice: true };
+    const rounds = [pr, r(true, true, true), r(true, true, true), r()];
+    const afterPractice = ctx({ state: "RESULTS", currentIndex: 0, rounds: [pr, r(), r()], leaderboardEvery: 1 });
+    expect(planTransition(afterPractice, "next")).toMatchObject({ ok: true, plan: { state: "QUESTION_OPEN", index: 1 } });
+    const afterTwo = ctx({ state: "RESULTS", currentIndex: 2, rounds, leaderboardEvery: 2 });
+    expect(planTransition(afterTwo, "next")).toMatchObject({ ok: true, plan: { state: "LEADERBOARD", index: 2 } });
+    const afterOne = ctx({ state: "RESULTS", currentIndex: 1, rounds: [pr, r(true, true, true), r(), r()], leaderboardEvery: 2 });
+    expect(planTransition(afterOne, "next")).toMatchObject({ ok: true, plan: { state: "QUESTION_OPEN", index: 2 } });
+  });
 });

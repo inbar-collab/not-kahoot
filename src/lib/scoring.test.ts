@@ -43,4 +43,19 @@ describe("scoring", () => {
     expect(rev.correctCount).toBe(2);
     expect(computeReveal(rounds[2], answers, new Set(["a", "b", "c"]))).toBeNull();
   });
+
+  it("never scores the practice question", () => {
+    const practice = { id: "p0", index: 0, revealed: true, birthdayChoices: [1], optionCount: 4, practice: true };
+    const real = { id: "q1", index: 1, revealed: true, birthdayChoices: [2], optionCount: 4 };
+    const s = computeStandings([p("a"), p("b")], [practice, real], [
+      { roundId: "p0", playerId: "a", choice: 1 }, // right, but practice
+      { roundId: "q1", playerId: "b", choice: 2 },
+    ]);
+    expect(s.map((x) => [x.player.id, x.score, x.streak])).toEqual([
+      ["b", 1, 1],
+      ["a", 0, 0],
+    ]);
+    // Her answers are still shown after the practice reveal.
+    expect(computeReveal(practice, [{ roundId: "p0", playerId: "a", choice: 1 }], new Set(["a"]))!.correctCount).toBe(1);
+  });
 });

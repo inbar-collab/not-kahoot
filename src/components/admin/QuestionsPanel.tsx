@@ -13,6 +13,7 @@ interface Draft {
   id?: string;
   text: string;
   options: string[];
+  practice: boolean;
 }
 
 const input =
@@ -30,12 +31,14 @@ export function QuestionsPanel({
   confirm: Confirm;
 }) {
   const [draft, setDraft] = useState<Draft | null>(null);
-  const qs = snap.questions;
+  const practice = snap.questions.find((q) => q.practice);
+  const qs = snap.questions.filter((q) => !q.practice);
+  const edit = (q: AdminQuestion) => setDraft({ id: q.id, text: q.text, options: [...q.options], practice: q.practice });
 
   async function save() {
     if (!draft) return;
     const ok = await actions.run("saveQuestion", {
-      question: { id: draft.id, text: draft.text, options: draft.options.filter((o) => o.trim()) },
+      question: { id: draft.id, text: draft.text, options: draft.options.filter((o) => o.trim()), practice: draft.practice },
     });
     if (ok) setDraft(null);
   }
@@ -50,15 +53,39 @@ export function QuestionsPanel({
         title={s.adminTabQuestions}
         aside={<span className="text-base text-mute">{s.qCount(snap.activeQuestionCount, qs.length)}</span>}
       >
-        <Button className="mb-4 w-full" onClick={() => setDraft({ text: "", options: ["", ""] })}>
-          {s.qAdd}
-        </Button>
+        <div className="mb-4 grid gap-2 sm:grid-cols-2">
+          <Button className="w-full" onClick={() => setDraft({ text: "", options: ["", ""], practice: false })}>
+            {s.qAdd}
+          </Button>
+          {!practice && (
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => setDraft({ text: "", options: ["", "", "", ""], practice: true })}
+            >
+              {s.qAddPractice}
+            </Button>
+          )}
+        </div>
 
         <AnimatePresence>
           {draft && !draft.id && (
             <Editor key="new" draft={draft} setDraft={setDraft} s={s} onSave={save} busy={actions.busy === "saveQuestion"} />
           )}
         </AnimatePresence>
+
+        {practice && (
+          <div className="mb-4">
+            {draft?.id === practice.id ? (
+              <Editor draft={draft} setDraft={setDraft} s={s} onSave={save} busy={actions.busy === "saveQuestion"} />
+            ) : (
+              <ul>
+                <QuestionRow q={practice} i={-1} last s={s} actions={actions} confirm={confirm} onEdit={() => edit(practice)} />
+              </ul>
+            )}
+            <p className="mt-2 text-sm text-mute">{s.qPracticeHint}</p>
+          </div>
+        )}
 
         {qs.length === 0 && <p className="text-lg text-mute">{s.qEmpty}</p>}
 
@@ -77,7 +104,7 @@ export function QuestionsPanel({
                 s={s}
                 actions={actions}
                 confirm={confirm}
-                onEdit={() => setDraft({ id: q.id, text: q.text, options: [...q.options] })}
+                onEdit={() => edit(q)}
               />
             ),
           )}
@@ -108,11 +135,12 @@ function QuestionRow({
   return (
     <motion.li
       layout
-      className={`rounded-2xl border p-3 ${q.active ? "border-ink-700 bg-ink-850" : "border-dashed border-ink-700 bg-ink-900 opacity-70"}`}
+      className={`rounded-2xl border p-3 ${q.active ? (q.practice ? "border-2 border-gold/70 bg-ink-850" : "border-ink-700 bg-ink-850") : "border-dashed border-ink-700 bg-ink-900 opacity-70"}`}
     >
       <div className="flex gap-3">
-        <span className="mt-1 font-display text-xl font-bold text-gold">{i + 1}</span>
+        <span className="mt-1 font-display text-xl font-bold text-gold">{q.practice ? "🎯" : i + 1}</span>
         <div className="min-w-0 flex-1">
+          {q.practice && <p className="text-sm font-bold text-gold">{s.qPractice}</p>}
           <p className="text-lg font-bold leading-snug">{q.text}</p>
           <p className="mt-1 text-base text-mute">{q.options.join(" · ")}</p>
           {!q.active && <p className="mt-1 text-sm text-mute">{s.qInactive}</p>}
@@ -120,12 +148,16 @@ function QuestionRow({
         {q.photoUrl && <img src={q.photoUrl} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button variant="ghost" size="md" className="!px-3" aria-label={s.qUp} disabled={i === 0} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "up" })}>
-          ↑
-        </Button>
-        <Button variant="ghost" size="md" className="!px-3" aria-label={s.qDown} disabled={last} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "down" })}>
-          ↓
-        </Button>
+        {!q.practice && (
+          <>
+            <Button variant="ghost" size="md" className="!px-3" aria-label={s.qUp} disabled={i === 0} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "up" })}>
+              ↑
+            </Button>
+            <Button variant="ghost" size="md" className="!px-3" aria-label={s.qDown} disabled={last} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "down" })}>
+              ↓
+            </Button>
+          </>
+        )}
         <Button variant="ghost" size="md" onClick={onEdit}>
           {s.qEdit}
         </Button>
@@ -136,6 +168,14 @@ function QuestionRow({
           onClick={() => void actions.run("setQuestionActive", { id: q.id, active: !q.active })}
         >
           {q.active ? s.qDeactivate : s.qActivate}
+        </Button>
+        <Button
+          variant="ghost"
+          size="md"
+          busy={actions.busy === `setQuestionPractice${q.id}`}
+          onClick={() => void actions.run("setQuestionPractice", { id: q.id, practice: !q.practice })}
+        >
+          {q.practice ? s.qUnmakePractice : s.qMakePractice}
         </Button>
         {q.photoUrl ? (
           <Button variant="ghost" size="md" onClick={() => void actions.run("removeQuestionPhoto", { id: q.id })}>
@@ -226,6 +266,15 @@ function Editor({
           {s.qAddOption}
         </Button>
       )}
+      <label className="flex items-center gap-3 text-lg">
+        <input
+          type="checkbox"
+          className="h-6 w-6 accent-[var(--color-gold)]"
+          checked={draft.practice}
+          onChange={(e) => setDraft({ ...draft, practice: e.target.checked })}
+        />
+        {s.qPracticeCheckbox}
+      </label>
       <p className="text-sm text-mute">{s.qNoPhotoHint}</p>
       <div className="grid grid-cols-2 gap-2">
         <Button type="submit" disabled={!valid} busy={busy}>

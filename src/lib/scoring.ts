@@ -1,7 +1,8 @@
 // Scoring is derived from answers and revealed rounds every time it is
 // needed; there is no stored score column that could drift or be tampered
 // with. A guest earns +1 when their answer is one of the birthday person's
-// choices. No speed bonus, no negative points. Ties share a place.
+// choices. No speed bonus, no negative points. Ties share a place. The
+// practice question is revealed like any other but never scored.
 
 import type { PublicPlayer, RoundReveal, Standing } from "./types";
 
@@ -11,6 +12,7 @@ export interface ScoringRound {
   revealed: boolean;
   birthdayChoices: number[] | null;
   optionCount: number;
+  practice?: boolean;
 }
 
 export interface ScoringAnswer {
@@ -34,9 +36,10 @@ export function computeStandings(
   rounds: ScoringRound[],
   answers: ScoringAnswer[],
 ): Standing[] {
-  const revealed = rounds.filter((r) => r.revealed).sort((a, b) => a.index - b.index);
+  const scored = rounds.filter((r) => !r.practice);
+  const revealed = scored.filter((r) => r.revealed).sort((a, b) => a.index - b.index);
   const lastRevealed = revealed[revealed.length - 1];
-  const byRound = new Map(rounds.map((r) => [r.id, r]));
+  const byRound = new Map(scored.map((r) => [r.id, r]));
   const answerOf = new Map<string, number>(); // `${roundId}:${playerId}` -> choice
   for (const a of answers) answerOf.set(`${a.roundId}:${a.playerId}`, a.choice);
 

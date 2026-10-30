@@ -1,8 +1,8 @@
 "use client";
 import { motion } from "motion/react";
 
-/** Gold "+1" medal for a correct guess. */
-export function CorrectBadge() {
+/** Gold "+1" medal for a correct guess (a check mark on the practice question). */
+export function CorrectBadge({ label = "+1" }: { label?: string }) {
   return (
     <motion.div
       initial={{ scale: 0.3, rotate: -12, opacity: 0 }}
@@ -10,7 +10,7 @@ export function CorrectBadge() {
       transition={{ type: "spring", stiffness: 300, damping: 12 }}
       className="flex h-36 w-36 items-center justify-center rounded-full bg-gold text-ink-950 shadow-[0_0_80px_-10px_rgb(214_176_107/0.8)]"
     >
-      <bdi dir="ltr" className="font-display text-6xl font-black">+1</bdi>
+      <bdi dir="ltr" className="font-display text-6xl font-black">{label}</bdi>
     </motion.div>
   );
 }

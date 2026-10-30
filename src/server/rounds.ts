@@ -2,8 +2,9 @@ import "server-only";
 import { randomInt } from "node:crypto";
 import type { GameRow, LibraryPhotoRow, QuestionRow } from "./rows";
 
+/** Scored questions that a new game will ask (the practice question is extra). */
 export function plannedRoundCount(game: Pick<GameRow, "num_questions">, questions: QuestionRow[]): number {
-  const active = questions.filter((q) => q.active).length;
+  const active = questions.filter((q) => q.active && !q.is_practice).length;
   return game.num_questions ? Math.min(game.num_questions, active) : active;
 }
 
@@ -21,11 +22,13 @@ export interface RoundSeed {
   text: string;
   options: string[];
   photo_path: string | null;
+  is_practice: boolean;
 }
 
 /**
  * Picks the questions for this run (active ones, in editor order, limited to
- * the configured number) and gives every question without its own photo a
+ * the configured number; an active practice question goes first and does not
+ * count toward the limit) and gives every question without its own photo a
  * library photo: shuffled, no repeats until the library is used up, then a
  * fresh shuffle. Done once at start so it stays stable across refreshes.
  */
@@ -34,7 +37,9 @@ export function buildRounds(
   questions: QuestionRow[],
   library: LibraryPhotoRow[],
 ): RoundSeed[] {
-  const chosen = questions.filter((q) => q.active).slice(0, plannedRoundCount(game, questions));
+  const practice = questions.find((q) => q.active && q.is_practice);
+  const scored = questions.filter((q) => q.active && !q.is_practice).slice(0, plannedRoundCount(game, questions));
+  const chosen = practice ? [practice, ...scored] : scored;
   let deck: string[] = [];
   const draw = (): string | null => {
     if (library.length === 0) return null;
@@ -46,5 +51,6 @@ export function buildRounds(
     text: q.text,
     options: q.options,
     photo_path: q.photo_path ?? draw(),
+    is_practice: q.is_practice,
   }));
 }
