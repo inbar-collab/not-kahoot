@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { useAutoFit } from "@/hooks/useAutoFit";
 import { useElapsed } from "@/hooks/useElapsed";
 import { burst } from "@/lib/confetti";
 import type { SoundName } from "@/lib/sound";
@@ -52,11 +53,13 @@ export function RevealStage({
   const correctPlayers = players.filter((p) => reveal.correctPlayerIds.includes(p.id));
 
   return (
-    <div className="flex h-full flex-col items-center justify-center px-[5vw] text-center">
+    <div className="flex h-full flex-col items-center justify-center px-[5vw] pb-[3vh] pt-[18vh] text-center">
       <p className="absolute top-[4vh] text-[min(3vh,3.4vw)] font-bold text-gold">
         {s.questionOf(round.index + 1, game.totalRounds)}
       </p>
-      <h2 className="absolute top-[9vh] max-w-[80vw] font-display text-[min(4vh,4vw)] text-mute">{round.text}</h2>
+      <h2 className="absolute top-[9vh] line-clamp-2 max-w-[80vw] font-display text-[min(4vh,4vw)] leading-tight text-mute">
+        {round.text}
+      </h2>
 
       <AnimatePresence mode="wait">
         {counting ? (
@@ -86,26 +89,10 @@ export function RevealStage({
               >
                 <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(26vh, 26vw)" />
               </motion.div>
-              <div className="flex flex-col items-start gap-[1.5vh]">
-                <p className="font-display text-[min(4vh,4vw)] text-mute">{s.scrHerAnswer}</p>
-                {reveal.birthdayChoices.map((c, i) => (
-                  <motion.div
-                    key={c}
-                    initial={{ x: 60, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 + i * 0.15, type: "spring", stiffness: 220, damping: 18 }}
-                    className="flex items-center gap-[1.2vw] rounded-[2.5vh] bg-gold px-[2.4vw] py-[1.6vh] text-ink-950 shadow-[0_0_80px_-10px_rgb(214_176_107/0.7)]"
-                  >
-                    <span className="flex h-[6vh] w-[6vh] items-center justify-center rounded-full border-2 border-ink-950 font-display text-[3.2vh]">
-                      {OPTION_MARKS[c]}
-                    </span>
-                    <span className="font-display text-[min(6.5vh,5.5vw)] font-bold leading-tight">{round.options[c]}</span>
-                  </motion.div>
-                ))}
-              </div>
+              <HerAnswers options={round.options} choices={reveal.birthdayChoices} label={s.scrHerAnswer} />
             </div>
 
-            <div className="mt-[6vh] min-h-[16vh]">
+            <div className="mt-[4vh] min-h-[16vh]">
               {showCount && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center gap-[2vh]">
                   <p className="font-display text-[min(6vh,5.5vw)] font-bold text-cream" role="status">
@@ -133,6 +120,45 @@ export function RevealStage({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/** Her answer(s) as gold cards. The box has a fixed size; long answers shrink to fit. */
+function HerAnswers({ options, choices, label }: { options: string[]; choices: number[]; label: string }) {
+  const ref = useAutoFit<HTMLDivElement>([options.join("|"), choices.join(",")], {
+    maxVh: 0.065,
+    maxVw: 0.055,
+    minVh: 0.022,
+  });
+  return (
+    <div ref={ref} className="flex h-[34vh] w-[min(58vw,1100px)] min-w-0 flex-col items-start justify-center gap-[1.2vh]">
+      <p className="shrink-0 font-display text-[min(4vh,4vw)] text-mute">{label}</p>
+      {/* Cards are sized in em, so the whole card (letter, padding, text) scales with the fitted size. */}
+      <div
+        data-fit
+        className={`grid min-h-0 w-full flex-1 content-center items-center gap-[0.5em] overflow-hidden ${
+          choices.length > 2 ? "grid-cols-2" : "grid-cols-1 justify-items-start"
+        }`}
+        style={{ fontSize: "var(--fit)" }}
+      >
+        {choices.map((c, i) => (
+          <motion.div
+            key={c}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 + i * 0.15, duration: 0.4 }}
+            className="flex min-w-0 max-w-full items-center gap-[0.45em] rounded-[0.45em] bg-gold px-[0.6em] py-[0.3em] text-ink-950 shadow-[0_0_80px_-10px_rgb(214_176_107/0.7)]"
+          >
+            <span className="flex h-[1.3em] w-[1.3em] shrink-0 items-center justify-center rounded-full border-2 border-ink-950 font-display">
+              <span className="text-[0.6em]">{OPTION_MARKS[c]}</span>
+            </span>
+            <span className="min-w-0 text-start font-display font-bold leading-tight [overflow-wrap:anywhere]">
+              {options[c]}
+            </span>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
