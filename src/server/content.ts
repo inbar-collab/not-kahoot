@@ -74,10 +74,12 @@ async function getQuestion(game: GameRow, id: unknown): Promise<QuestionRow> {
 export async function saveQuestion(game: GameRow, input: Record<string, unknown>): Promise<string> {
   const q = cleanQuestion(input);
   if (input.id) {
-    await getQuestion(game, input.id);
+    const old = await getQuestion(game, input.id);
     const { error } = await db().from("questions").update(q).eq("id", input.id as string);
     if (error) throw error;
-    if (typeof input.practice === "boolean") await setQuestionPractice(game, input.id, input.practice);
+    if (typeof input.practice === "boolean" && input.practice !== !!old.is_practice) {
+      await setQuestionPractice(game, input.id, input.practice);
+    }
     return input.id as string;
   }
   const { data: last } = await db()
@@ -134,13 +136,13 @@ export async function setQuestionPractice(game: GameRow, id: unknown, practice: 
 export async function moveQuestion(game: GameRow, id: unknown, direction: "up" | "down") {
   const { data, error } = await db()
     .from("questions")
-    .select("id, position, created_at")
+    .select("*")
     .eq("game_id", game.id)
-    .eq("is_practice", false) // the practice question always plays first, wherever it sits
     .order("position")
     .order("created_at");
   if (error) throw error;
-  const list = data as Pick<QuestionRow, "id" | "position">[];
+  // The practice question always plays first, wherever it sits.
+  const list = (data as QuestionRow[]).filter((q) => !q.is_practice);
   const i = list.findIndex((q) => q.id === id);
   const j = direction === "up" ? i - 1 : i + 1;
   if (i < 0 || j < 0 || j >= list.length) return;
