@@ -58,7 +58,7 @@ Hosts sign in with Google to create and keep their quizzes. Guests, the TV and t
    - Under **Audience**, click **Publish app** so anyone with a Google account can sign in (not only test users). The app only asks for name, email and profile picture, so Google doesn't require a review.
 3. Open **APIs & Services → Credentials → Create credentials → OAuth client ID**:
    - Application type: **Web application**.
-   - **Authorized JavaScript origins:** your site, e.g. `https://not-kahoot-topaz.vercel.app`.
+   - **Authorized JavaScript origins:** your site, e.g. `https://eventquiz-party.vercel.app`.
    - **Authorized redirect URIs:** `https://YOUR-PROJECT.supabase.co/auth/v1/callback` (your Supabase Project URL + `/auth/v1/callback`).
    - Click **Create** and copy the **Client ID** and **Client secret**.
 
@@ -66,8 +66,8 @@ Hosts sign in with Google to create and keep their quizzes. Guests, the TV and t
 
 1. **Authentication → Sign In / Providers → Google:** turn it on, paste the Client ID and Client secret, **Save**.
 2. **Authentication → URL Configuration:**
-   - **Site URL:** your site, e.g. `https://not-kahoot-topaz.vercel.app`.
-   - **Redirect URLs:** add `https://not-kahoot-topaz.vercel.app/**` (and `http://localhost:3000/**` if you develop locally).
+   - **Site URL:** your site, e.g. `https://eventquiz-party.vercel.app`.
+   - **Redirect URLs:** add `https://eventquiz-party.vercel.app/**` (and `http://localhost:3000/**` if you develop locally).
 
 Done. Open the site and click **Sign in with Google**.
 
