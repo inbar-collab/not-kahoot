@@ -2,7 +2,6 @@
 import { motion } from "motion/react";
 import { useAutoFit } from "@/hooks/useAutoFit";
 import { roundLabel, type Strings } from "@/lib/strings";
-import { OPTION_MARKS } from "@/lib/timing";
 import type { ScreenSnapshot } from "@/lib/types";
 import { Portrait } from "../ui/Portrait";
 
@@ -88,7 +87,7 @@ export function QuestionStage({ snap, s }: { snap: ScreenSnapshot; s: Strings })
             }`}
           >
             <span className="flex h-[6vh] w-[6vh] shrink-0 items-center justify-center rounded-full border-2 border-gold font-display text-[3.2vh] text-gold">
-              {OPTION_MARKS[i]}
+              {s.marks[i]}
             </span>
             <div data-fit className="flex h-full min-w-0 flex-1 items-center overflow-hidden">
               <span className="font-bold leading-tight [overflow-wrap:anywhere]" style={{ fontSize: "var(--fit)" }}>

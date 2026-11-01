@@ -4,8 +4,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { useElapsed } from "@/hooks/useElapsed";
 import { api, ClientApiError, gamePath } from "@/lib/api";
 import { burst } from "@/lib/confetti";
-import { roundLabel, type Strings } from "@/lib/strings";
-import { OPTION_MARKS, REVEAL_ANSWER_MS, REVEAL_COUNTDOWN_MS } from "@/lib/timing";
+import { pick, roundLabel, type Strings } from "@/lib/strings";
+import { REACTIONS } from "@/lib/reactions";
+import { REVEAL_ANSWER_MS, REVEAL_COUNTDOWN_MS } from "@/lib/timing";
 import type { GuestSnapshot } from "@/lib/types";
 import { Podium } from "../finale/Podium";
 import { Ranking } from "../finale/Ranking";
@@ -22,7 +23,7 @@ interface Props {
   msInState: () => number;
 }
 
-export function GuestPlay({ snap, s, token, refresh, msInState }: Props) {
+export function GuestPlay({ snap, s, token, refresh, msInState, react }: Props & { react: (emoji: string) => void }) {
   const { game, me } = snap;
   if (!me) return null;
   const state = game.state;
@@ -92,7 +93,42 @@ export function GuestPlay({ snap, s, token, refresh, msInState }: Props) {
           {body}
         </motion.div>
       </AnimatePresence>
+      {/* Reactions while watching the TV (not while answering). */}
+      {(state === "LOBBY" || state === "REVEAL" || state === "RESULTS" || state === "LEADERBOARD" || state === "FINISHED") && (
+        <ReactionBar label={s.guestReact} onSend={react} />
+      )}
     </main>
+  );
+}
+
+function ReactionBar({ label, onSend }: { label: string; onSend: (emoji: string) => void }) {
+  const last = useRef(0);
+  const [popped, setPopped] = useState<string | null>(null);
+  return (
+    <div className="sticky bottom-0 border-t border-ink-800 bg-ink-950/90 px-3 pb-[max(env(safe-area-inset-bottom),12px)] pt-2 backdrop-blur">
+      <p className="mb-1 text-center text-sm text-mute">{label}</p>
+      <div className="flex justify-center gap-2">
+        {REACTIONS.map((e) => (
+          <motion.button
+            key={e}
+            type="button"
+            aria-label={e}
+            whileTap={{ scale: 1.4 }}
+            animate={popped === e ? { y: [0, -14, 0] } : { y: 0 }}
+            onClick={() => {
+              // A gentle limit so one excited guest can't flood the TV.
+              if (Date.now() - last.current < 700) return;
+              last.current = Date.now();
+              setPopped(e);
+              onSend(e);
+            }}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-800 text-2xl active:bg-ink-700"
+          >
+            {e}
+          </motion.button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -153,7 +189,7 @@ function RoundView({ snap, s, token, refresh, msInState }: Props) {
               className="flex min-h-[76px] items-center gap-4 rounded-3xl border-2 border-ink-600 bg-ink-850 px-5 py-3 text-start text-2xl font-bold transition active:scale-[0.98] active:border-gold hover:border-gold/60"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-gold font-display text-xl text-gold">
-                {OPTION_MARKS[i]}
+                {s.marks[i]}
               </span>
               <span>{opt}</span>
             </button>
@@ -246,12 +282,12 @@ function RevealView({ snap, s, msInState }: Omit<Props, "token" | "refresh">) {
       {reveal.correct === true ? (
         <>
           <CorrectBadge label={round.practice ? "✓" : "+1"} />
-          <p className="font-display text-4xl font-bold text-gold-soft">{s.guestCorrectTitle}</p>
+          <p className="font-display text-4xl font-bold text-gold-soft">{pick(s.guestCorrectLines, round.index + (snap.me?.score ?? 0))}</p>
         </>
       ) : (
         <>
           <SadFace />
-          <p className="font-display text-3xl font-bold">{reveal.correct === false ? s.guestWrongTitle : s.guestNoAnswer}</p>
+          <p className="font-display text-3xl font-bold">{reveal.correct === false ? pick(s.guestWrongLines, round.index) : s.guestNoAnswer}</p>
         </>
       )}
       <div className="w-full max-w-sm rounded-3xl bg-ink-800 px-5 py-4">

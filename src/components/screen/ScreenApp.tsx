@@ -2,12 +2,16 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useLiveGame } from "@/hooks/useLiveGame";
+import { useTheme } from "@/hooks/useTheme";
 import { api, gamePath } from "@/lib/api";
 import { audioReady, play, unlockAudio, type SoundName } from "@/lib/sound";
 import { getStrings } from "@/lib/strings";
 import type { ScreenSnapshot } from "@/lib/types";
 import { CenterMessage, ConnectionPill, Loading } from "../ui/Status";
 import { Portrait } from "../ui/Portrait";
+import type { Reaction } from "@/lib/reactions";
+import { Decor } from "./Decor";
+import { Reactions } from "./Reactions";
 import { FinaleStage } from "./FinaleStage";
 import { IntroStage } from "./IntroStage";
 import { LeaderboardStage } from "./LeaderboardStage";
@@ -21,8 +25,15 @@ const PRESENCE = { role: "screen" as const };
 export function ScreenApp({ params, baseUrl }: { params: Promise<{ code: string }>; baseUrl: string }) {
   const code = use(params).code.toUpperCase();
   const load = useCallback(() => api.get<ScreenSnapshot>(gamePath(code, "screen")), [code]);
-  const { data, error, connection, msInState } = useLiveGame({ load, ignoreKinds: ["content"], presence: PRESENCE });
-  const s = getStrings(data?.game.birthdayGender, data?.game.birthdayName);
+  const [floating, setFloating] = useState<(Reaction & { id: number })[]>([]);
+  const onReaction = useCallback((r: Reaction) => {
+    const id = Date.now() + Math.random();
+    setFloating((list) => [...list.slice(-24), { ...r, id }]);
+    window.setTimeout(() => setFloating((list) => list.filter((x) => x.id !== id)), 4200);
+  }, []);
+  const { data, error, connection, msInState } = useLiveGame({ load, ignoreKinds: ["content"], presence: PRESENCE, onReaction });
+  const s = getStrings(data?.game);
+  useTheme(data?.game.template, data?.game.locale);
 
   // Sounds: only when the host enabled them and after a tap on the TV.
   const [audioOn, setAudioOn] = useState(false);
@@ -81,7 +92,7 @@ export function ScreenApp({ params, baseUrl }: { params: Promise<{ code: string 
       stage = <ResultsStage snap={data} s={s} />;
       break;
     case "LEADERBOARD":
-      stage = <LeaderboardStage snap={data} s={s} />;
+      stage = <LeaderboardStage snap={data} s={s} msInState={msInState} sound={sound} />;
       break;
     case "FINISHED":
       stage = <FinaleStage snap={data} s={s} msInState={msInState} sound={sound} />;
@@ -97,6 +108,7 @@ export function ScreenApp({ params, baseUrl }: { params: Promise<{ code: string 
   return (
     <main className="stage-bg relative h-dvh w-full overflow-hidden">
       <ConnectionPill state={connection} label={s.reconnecting} />
+      {(game.state === "LOBBY" || game.state === "INTRO" || game.state === "FINISHED") && <Decor id={game.template} />}
       <AnimatePresence mode="wait">
         <motion.div
           key={key}
@@ -111,12 +123,14 @@ export function ScreenApp({ params, baseUrl }: { params: Promise<{ code: string 
       </AnimatePresence>
 
       {/* Recurring portrait motif (not on scenes that already feature her). */}
-      {game.state !== "LOBBY" && game.state !== "INTRO" && game.state !== "REVEAL" && game.state !== "FINISHED" && (
+      {game.state !== "LOBBY" && game.state !== "INTRO" && game.state !== "REVEAL" && game.state !== "LEADERBOARD" && game.state !== "FINISHED" && (
         <div className="pointer-events-none absolute bottom-[2.5vh] left-[2vw] flex items-center gap-3 opacity-90">
           <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(7vh, 72px)" />
           <bdi className="font-display text-[min(2.4vh,26px)] text-mute">{game.birthdayName}</bdi>
         </div>
       )}
+
+      <Reactions list={floating} />
 
       {soundsEnabled && !audioOn && (
         <button

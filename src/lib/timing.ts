@@ -9,5 +9,6 @@ export const FINALE_TEASE_MS = 3500; // "The person who knows her best is..."
 export const FINALE_PODIUM_MS = FINALE_TEASE_MS + 3200; // podium rises
 export const FINALE_LIST_MS = FINALE_PODIUM_MS + 2400; // full ranking
 
-/** Hebrew letters used to label answers on every device. */
-export const OPTION_MARKS = ["א", "ב", "ג", "ד"];
+export const LB_STRIKE_MS = 3900; // bowling ball, pins fly, "STRIKE!"
+export const LB_RACE_MS = LB_STRIKE_MS + 3800; // runners reach their places
+export const LB_DONE_MS = LB_RACE_MS + 900; // crowns, tags and rank changes

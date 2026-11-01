@@ -17,7 +17,7 @@ export function Portrait({
       style={{
         width: dim,
         height: dim,
-        background: "conic-gradient(from 210deg, #9f7c3c, #e8cd96, #d6b06b, #9f7c3c)",
+        background: "conic-gradient(from 210deg, var(--color-gold-deep), var(--color-gold-soft), var(--color-gold), var(--color-gold-deep))",
       }}
     >
       {url ? (

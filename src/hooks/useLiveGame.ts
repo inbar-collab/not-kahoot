@@ -11,11 +11,12 @@
 //   3. A slow background check (every 15s) is a last safety net in case a
 //      signal is ever missed. It is not what drives the game.
 // The same channel carries Realtime Presence, so the host can see who is
-// connected right now.
+// connected right now, and broadcast emoji reactions from guests to the TV.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { ClientApiError } from "@/lib/api";
+import { isReaction, type Reaction } from "@/lib/reactions";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { AnySnapshot } from "@/lib/types";
 
@@ -34,6 +35,8 @@ interface Options<T> {
   /** Change this to force a reload (e.g. after joining). */
   reloadKey?: unknown;
   enabled?: boolean;
+  /** Called when a guest sends an emoji reaction (the TV listens). */
+  onReaction?: (r: Reaction) => void;
 }
 
 const SAFETY_RESYNC_MS = 15_000;
@@ -44,6 +47,7 @@ export function useLiveGame<T extends AnySnapshot>({
   presence = null,
   reloadKey,
   enabled = true,
+  onReaction,
 }: Options<T>) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<ClientApiError | null>(null);
@@ -53,9 +57,12 @@ export function useLiveGame<T extends AnySnapshot>({
 
   const loadRef = useRef(load);
   const ignoreRef = useRef(ignoreKinds);
+  const reactionRef = useRef(onReaction);
+  const channelRef = useRef<RealtimeChannel | null>(null);
   useEffect(() => {
     loadRef.current = load;
     ignoreRef.current = ignoreKinds;
+    reactionRef.current = onReaction;
   });
 
   const inflight = useRef(false);
@@ -116,6 +123,9 @@ export function useLiveGame<T extends AnySnapshot>({
           void refresh();
         },
       )
+      .on("broadcast", { event: "react" }, ({ payload }) => {
+        if (isReaction(payload)) reactionRef.current?.(payload);
+      })
       .on("presence", { event: "sync" }, () => {
         const state = channel.presenceState<PresenceMeta>();
         setOnline(Object.values(state).flat());
@@ -130,10 +140,16 @@ export function useLiveGame<T extends AnySnapshot>({
         }
       });
 
+    channelRef.current = channel;
     return () => {
+      channelRef.current = null;
       void supabase.removeChannel(channel);
     };
   }, [gameId, enabled, presenceKey, refresh]);
+
+  const sendReaction = useCallback((r: Reaction) => {
+    void channelRef.current?.send({ type: "broadcast", event: "react", payload: r });
+  }, []);
 
   // Resync when the phone wakes up / comes back online, plus a slow safety net.
   useEffect(() => {
@@ -162,5 +178,5 @@ export function useLiveGame<T extends AnySnapshot>({
     return Date.now() + clockOffset - Date.parse(data.game.stateChangedAt);
   }, [data, clockOffset]);
 
-  return { data, error, connection, online, refresh, msInState };
+  return { data, error, connection, online, refresh, msInState, sendReaction };
 }

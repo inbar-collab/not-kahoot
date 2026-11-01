@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import type { Strings } from "@/lib/strings";
+import { seedText, template } from "@/lib/templates";
 import type { AdminQuestion, AdminSnapshot } from "@/lib/types";
 import { Button } from "../ui/Button";
 import { PhotoPicker } from "../ui/PhotoPicker";
+import { AiBuilder } from "../site/AiBuilder";
 import { Section } from "./Section";
 import type { AdminActions } from "./useAdminActions";
 
@@ -31,6 +33,7 @@ export function QuestionsPanel({
   confirm: Confirm;
 }) {
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
   const practice = snap.questions.find((q) => q.practice);
   const qs = snap.questions.filter((q) => !q.practice);
   const edit = (q: AdminQuestion) => setDraft({ id: q.id, text: q.text, options: [...q.options], practice: q.practice });
@@ -110,7 +113,68 @@ export function QuestionsPanel({
           )}
         </ol>
       </Section>
+
+      <Section title={s.aiTitle}>
+        {aiOpen ? (
+          <AiBuilder
+            s={s}
+            context={{
+              template: snap.game.template,
+              locale: snap.game.locale,
+              starName: snap.game.birthdayName,
+              gender: snap.game.birthdayGender,
+              existing: snap.questions.map((q) => q.text),
+            }}
+            actionLabel={s.aiAdd}
+            onUse={async (quiz, picked) => {
+              if (await actions.run("addQuestions", { questions: picked, practice: quiz.practice }, s.saved)) setAiOpen(false);
+            }}
+          />
+        ) : (
+          <Button variant="secondary" className="w-full" onClick={() => setAiOpen(true)}>
+            {s.aiCta}
+          </Button>
+        )}
+      </Section>
+
+      <Ideas snap={snap} s={s} actions={actions} />
     </div>
+  );
+}
+
+/** The template's other questions, inflected for this star, one tap to add. */
+function Ideas({ snap, s, actions }: { snap: AdminSnapshot; s: Strings; actions: AdminActions }) {
+  const { template: id, locale, birthdayGender, birthdayName } = snap.game;
+  const t = template(id);
+  const have = new Set(snap.questions.map((q) => q.text));
+  const ideas = [t.practice, ...t.questions]
+    .map((seed) => seedText(seed, locale, birthdayGender, birthdayName))
+    .filter((q) => !have.has(q.text));
+  return (
+    <Section title={s.qIdeas}>
+      <p className="mb-3 text-base text-mute">{s.qIdeasHint}</p>
+      {ideas.length === 0 && <p className="text-lg text-mute">{s.qIdeasEmpty}</p>}
+      <ul className="flex flex-col gap-2">
+        {ideas.map((q) => (
+          <li key={q.text} className="flex items-center gap-3 rounded-2xl border border-dashed border-ink-700 p-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold leading-snug">{q.text}</p>
+              <p className="mt-1 text-sm text-mute">{q.options.join(" · ")}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="md"
+              className="!px-4"
+              aria-label={`${s.qAdd}: ${q.text}`}
+              busy={actions.busy === `saveQuestion`}
+              onClick={() => void actions.run("saveQuestion", { question: { text: q.text, options: q.options } })}
+            >
+              ➕
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </Section>
   );
 }
 

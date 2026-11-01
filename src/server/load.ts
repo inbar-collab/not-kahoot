@@ -24,7 +24,7 @@ export interface AdminBundle extends GameBundle {
 }
 
 const GAME_COLUMNS =
-  "id, code, admin_token, birthday_token, title, birthday_name, birthday_gender, birthday_age, birthday_date, birthday_photo_path, num_questions, leaderboard_every, sounds_enabled, allow_late_join, state, current_index, state_changed_at, version";
+  "id, code, admin_token, birthday_token, title, birthday_name, birthday_gender, birthday_age, birthday_date, birthday_photo_path, owner_id, template, locale, created_at, num_questions, leaderboard_every, sounds_enabled, allow_late_join, state, current_index, state_changed_at, version";
 
 /** Loads a game and everything needed to render it, in one request. */
 export async function loadBundle(rawCode: string): Promise<GameBundle>;

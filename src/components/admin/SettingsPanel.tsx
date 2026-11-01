@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
 import type { Strings } from "@/lib/strings";
-import type { AdminSettings, AdminSnapshot, Gender } from "@/lib/types";
+import type { AdminSettings, AdminSnapshot, Gender, Locale } from "@/lib/types";
 import { Button } from "../ui/Button";
 import { PhotoPicker } from "../ui/PhotoPicker";
 import { Portrait } from "../ui/Portrait";
+import { TemplatePicker } from "../ui/TemplatePicker";
 import { Section } from "./Section";
 import type { AdminActions } from "./useAdminActions";
 
@@ -40,30 +41,28 @@ export function SettingsPanel({ snap, s, actions }: { snap: AdminSnapshot; s: St
             void actions.run("settings", { settings: form }, s.saved);
           }}
         >
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 text-lg font-bold">{s.stTemplate}</legend>
+            <TemplatePicker value={form.template} locale={form.locale} onChange={(t) => set("template", t)} />
+          </fieldset>
+          <Choice
+            legend={s.stLanguage}
+            options={(["he", "en"] as Locale[]).map((l) => [l, s.languages[l]])}
+            value={form.locale}
+            onChange={(l) => set("locale", l)}
+          />
           <Field label={s.stTitle}>
             <input className={input} value={form.title} maxLength={120} onChange={(e) => set("title", e.target.value)} />
           </Field>
           <Field label={s.stName}>
             <input className={input} value={form.birthdayName} maxLength={60} onChange={(e) => set("birthdayName", e.target.value)} />
           </Field>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="mb-1 text-lg font-bold">{s.stGender}</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {(["female", "male"] as Gender[]).map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  aria-pressed={form.birthdayGender === g}
-                  onClick={() => set("birthdayGender", g)}
-                  className={`min-h-[56px] rounded-2xl border-2 text-lg font-bold ${
-                    form.birthdayGender === g ? "border-gold bg-gold/15" : "border-ink-600 bg-ink-850"
-                  }`}
-                >
-                  {g === "female" ? s.homeFemale : s.homeMale}
-                </button>
-              ))}
-            </div>
-          </fieldset>
+          <Choice
+            legend={s.stGender}
+            options={(["female", "male", "plural"] as Gender[]).map((g) => [g, s.pronouns[g]])}
+            value={form.birthdayGender}
+            onChange={(g) => set("birthdayGender", g)}
+          />
           <div className="grid grid-cols-2 gap-3">
             <Field label={s.stAge}>
               <input
@@ -124,6 +123,39 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-lg font-bold">{label}</span>
       {children}
     </label>
+  );
+}
+
+export function Choice<T extends string>({
+  legend,
+  options,
+  value,
+  onChange,
+}: {
+  legend: string;
+  options: [T, string][];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="mb-1 text-lg font-bold">{legend}</legend>
+      <div className={`grid gap-2 ${options.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+        {options.map(([v, label]) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={value === v}
+            onClick={() => onChange(v)}
+            className={`min-h-[56px] rounded-2xl border-2 px-2 text-base font-bold leading-tight sm:text-lg ${
+              value === v ? "border-gold bg-gold/15" : "border-ink-600 bg-ink-850"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import QRCode from "qrcode";
 import type { Strings } from "@/lib/strings";
+import { template } from "@/lib/templates";
 import type { ScreenSnapshot } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
 import { Ltr } from "../ui/Ltr";
@@ -16,7 +17,7 @@ export function LobbyStage({ snap, s, joinUrl }: { snap: ScreenSnapshot; s: Stri
       type: "svg",
       margin: 1,
       errorCorrectionLevel: "M",
-      color: { dark: "#0b0b0c", light: "#f3eee4" },
+      color: { dark: "#000000", light: "#ffffff" },
     }).then(setQr, () => setQr(""));
   }, [joinUrl]);
 
@@ -30,7 +31,9 @@ export function LobbyStage({ snap, s, joinUrl }: { snap: ScreenSnapshot; s: Stri
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8 }}>
             <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(36vh, 30vw)" />
           </motion.div>
-          <p className="mt-[3vh] text-[min(2.6vh,3.2vw)] uppercase tracking-[0.3em] text-gold">{s.appName}</p>
+          <p className="mt-[3vh] text-[min(2.6vh,3.2vw)] uppercase tracking-[0.3em] text-gold">
+            {template(game.template).emoji} {s.appName}
+          </p>
           <h1 className="mt-[1vh] font-display text-[min(7.5vh,6vw)] font-bold leading-[1.1]">{game.title}</h1>
           <p className="mt-[1.5vh] font-display text-[min(4.4vh,4vw)] text-gold-soft">
             <bdi>{game.birthdayName}</bdi>
@@ -42,13 +45,19 @@ export function LobbyStage({ snap, s, joinUrl }: { snap: ScreenSnapshot; s: Stri
         <div className="flex flex-col items-center">
           <p className="mb-[2vh] font-display text-[min(4vh,4vw)] font-bold">{s.scrJoinCta}</p>
           <div
-            className="aspect-square w-[min(44vh,38vw)] overflow-hidden rounded-[2.5vh] bg-cream p-[1.2vh] shadow-[0_0_80px_-20px_rgb(214_176_107/0.5)]"
+            className="aspect-square w-[min(44vh,38vw)] overflow-hidden rounded-[2.5vh] bg-white p-[1.2vh] shadow-[0_0_80px_-20px_color-mix(in_oklab,var(--color-gold)_50%,transparent)]"
             role="img"
             aria-label={joinUrl}
             dangerouslySetInnerHTML={{ __html: qr }}
           />
           <p className="mt-[2vh] text-[min(2.4vh,3vw)] text-mute">{s.scrOrVisit}</p>
           <Ltr className="text-[min(3vh,3.4vw)] font-bold tracking-wide text-cream">{displayUrl}</Ltr>
+          <p className="mt-[1vh] text-[min(2.2vh,2.6vw)] text-mute">
+            {s.scrCode}:{" "}
+            <bdi dir="ltr" className="font-display text-[min(3.4vh,3.8vw)] font-black tracking-[0.2em] text-gold">
+              {game.code}
+            </bdi>
+          </p>
         </div>
       </div>
 

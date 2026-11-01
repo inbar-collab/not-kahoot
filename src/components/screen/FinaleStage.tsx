@@ -94,6 +94,14 @@ export function FinaleStage({
                         </motion.div>
                       ))}
                     </div>
+                    <motion.p
+                      className="mb-[1vh] font-display text-[min(4.4vh,4.4vw)] font-bold text-gold-soft"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.9 }}
+                    >
+                      {s.scrCheer}
+                    </motion.p>
                     {winners.length > 1 && <p className="font-display text-[min(4vh,4vw)] text-mute">{s.scrFinaleTie}</p>}
                     <motion.h1
                       className="font-display text-[min(12vh,9vw)] font-black leading-tight text-gold"

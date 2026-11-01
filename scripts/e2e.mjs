@@ -1,17 +1,18 @@
-// End-to-end smoke test: TV + host + birthday person + 3 guests, a full game.
+// End-to-end smoke test: TV + host + the star + 3 guests, a full game.
 //
-//   1. npm run dev            (with HOST_PASSWORD set in .env.local)
+//   1. npm run db:start && npm run dev   (local Supabase, keys in .env.local)
 //   2. npx playwright install chromium   (once)
 //   3. npm run test:e2e
 //
-// Env: BASE (default http://localhost:3000), HOST_PASSWORD (default from
-// .env.local), SHOTS=some/dir to also save screenshots.
+// The host signs in as a local test user (no Google needed), see
+// scripts/test-session.mjs. Env: BASE (default http://localhost:3000),
+// SHOTS=some/dir to also save screenshots.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import { testSessionCookies } from './test-session.mjs';
 const BASE = process.env.BASE || 'http://localhost:3000';
-const PASSWORD = process.env.HOST_PASSWORD || 'party123';
 const SHOTS = process.env.SHOTS ? path.resolve(process.env.SHOTS) : null;
 if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
 const OUT = SHOTS ? SHOTS + '/' : null;
@@ -22,12 +23,16 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
 
 (async () => {
   const b = await chromium.launch();
-  // Create a game via the home-page API.
-  const res = await fetch(BASE + '/api/games', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: PASSWORD, birthdayName: 'רחל', gender: 'female' }) });
-  if (!res.ok) throw new Error('Could not create a game (is HOST_PASSWORD set?): ' + (await res.text()));
+  // Create a quiz as a signed-in host.
+  const cookie = (await testSessionCookies(BASE)).map((c) => `${c.name}=${c.value}`).join('; ');
+  const res = await fetch(BASE + '/api/games', { method: 'POST', headers: { 'content-type': 'application/json', cookie }, body: JSON.stringify({ template: 'birthday', locale: 'he', birthdayName: 'רחל', gender: 'female' }) });
+  if (!res.ok) throw new Error('Could not create a game: ' + (await res.text()));
   const { code, adminToken } = await res.json();
   const adminSnap = await (await fetch(`${BASE}/api/games/${code}/admin`, { headers: { authorization: 'Bearer ' + adminToken } })).json();
   const bdayToken = adminSnap.birthdayToken;
+  // This test checks the scored flow; the practice round has its own test. Turn it off.
+  const practice = adminSnap.questions.find((q) => q.practice);
+  await fetch(`${BASE}/api/games/${code}/admin`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + adminToken }, body: JSON.stringify({ action: 'setQuestionActive', id: practice.id, active: false }) });
   log('game', code);
 
   const errors = [];
@@ -53,7 +58,7 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
   await screen.screenshot({ path: avatarFile, clip: { x: 200, y: 150, width: 500, height: 500 } });
 
   await admin.goto(`${BASE}/admin/${code}?token=${adminToken}`);
-  await bday.goto(`${BASE}/birthday/${code}?token=${bdayToken}`);
+  await bday.goto(`${BASE}/star/${code}?token=${bdayToken}`);
   await bday.getByText('מחכים שהמשחק יתחיל').waitFor();
 
   // Guest 1: emoji
@@ -118,9 +123,9 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
 
   // Close before she answers -> waiting state, reveal blocked.
   await admin.getByRole('button', { name: 'סגירת ההצבעה' }).click();
-  await admin.getByRole('button', { name: 'מחכים לחוגגת…' }).waitFor();
-  if (await admin.getByRole('button', { name: 'מחכים לחוגגת…' }).isEnabled()) throw new Error('reveal should be blocked');
-  await screen.getByText('מחכים לתשובה של החוגגת').waitFor();
+  await admin.getByRole('button', { name: 'מחכים לרחל…' }).waitFor();
+  if (await admin.getByRole('button', { name: 'מחכים לרחל…' }).isEnabled()) throw new Error('reveal should be blocked');
+  await screen.getByText('מחכים לתשובה של רחל').waitFor();
   await shot(screen, '08-screen-waiting.png');
   // Guest answer after close is rejected by the server.
   const lateAns = await g1.evaluate(async ([code, roundId]) => {
@@ -142,7 +147,7 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
   await bday.getByText('בטוחה?').waitFor();
   await shot(bday, '10-bday-confirm.png');
   await bday.getByRole('button', { name: /נעילת התשובה/ }).click();
-  await bday.getByText('התשובה שלך נשמרה').waitFor();
+  await bday.getByText('התשובה נשמרה').waitFor();
   await admin.getByRole('button', { name: '✨ חשיפה' }).waitFor();
   log('birthday locked; state auto-moved to closed');
 
@@ -153,7 +158,7 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
   await screen.getByText('1 מתוך 2 הכירו אותה').waitFor({ timeout: 10000 });
   await screen.waitForTimeout(1200);
   await shot(screen, '12-screen-reveal.png');
-  await g1.getByText('אתם על אותו גל!').waitFor();
+  await g1.getByText('+1', { exact: true }).waitFor();
   await g2.getByText('אוי, לא הפעם').waitFor();
   await shot(g1, '13-guest-correct.png');
   await g2.waitForTimeout(800);
@@ -198,15 +203,15 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
   await admin.getByRole('button', { name: '✨ חשיפה' }).click();
   await screen.getByText('כל ה-3 הכירו אותה').waitFor({ timeout: 10000 });
   await admin.getByRole('button', { name: 'טבלת מובילים' }).click();
-  await screen.getByText('טבלת המובילים').waitFor();
-  await screen.waitForTimeout(2500);
+  await screen.getByText(/המרוץ לצמרת|מי טס הכי גבוה/).waitFor({ timeout: 15000 });
+  await screen.waitForTimeout(5000);
   await shot(screen, '17-screen-leaderboard.png');
   log('leaderboard ok');
 
   // End game -> finale
   await admin.getByRole('button', { name: 'סיום המשחק' }).click();
   await admin.getByRole('alertdialog').getByRole('button', { name: 'אישור' }).click();
-  await screen.getByText('מי שמכיר אותה הכי טוב הוא').waitFor();
+  await screen.getByText('מי שמכיר את רחל הכי טוב הוא').waitFor();
   await shot(screen, '18-screen-finale-tease.png');
   await screen.waitForTimeout(4200);
   await shot(screen, '19-screen-finale-winner.png');

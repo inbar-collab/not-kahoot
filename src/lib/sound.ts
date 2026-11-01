@@ -59,7 +59,25 @@ function whooshNoise() {
   src.start();
 }
 
-export type SoundName = "whoosh" | "tick" | "reveal" | "winner";
+/** Filtered noise: a rolling rumble (lowpass) or a crash (highpass). */
+function noise(dur: number, type: BiquadFilterType, freq: number, gain: number, start = 0) {
+  const a = audio()!;
+  const len = Math.floor(a.sampleRate * dur);
+  const buf = a.createBuffer(1, len, a.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = a.createBufferSource();
+  src.buffer = buf;
+  const filter = a.createBiquadFilter();
+  filter.type = type;
+  filter.frequency.setValueAtTime(freq, a.currentTime);
+  const g = a.createGain();
+  g.gain.setValueAtTime(gain, a.currentTime + start);
+  src.connect(filter).connect(g).connect(a.destination);
+  src.start(a.currentTime + start);
+}
+
+export type SoundName = "whoosh" | "tick" | "reveal" | "winner" | "strike" | "tada";
 
 export function play(name: SoundName) {
   if (!audioReady()) return;
@@ -77,6 +95,15 @@ export function play(name: SoundName) {
     case "winner":
       [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.14, 0.5, 0.14, "triangle"));
       [523.25, 659.25, 783.99, 1046.5].forEach((f) => tone(f, 0.6, 1.4, 0.08));
+      break;
+    case "strike":
+      noise(1.1, "lowpass", 260, 0.35); // the ball rolling
+      noise(0.7, "highpass", 1800, 0.3, 1.05); // pins crashing
+      [0, 0.06, 0.13].forEach((t) => tone(180 + t * 900, 1.05 + t, 0.18, 0.12, "square"));
+      break;
+    case "tada":
+      tone(659.25, 0, 0.16, 0.14, "triangle");
+      [783.99, 987.77, 1318.5].forEach((f) => tone(f, 0.16, 0.9, 0.1, "triangle"));
       break;
   }
 }

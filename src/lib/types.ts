@@ -15,7 +15,22 @@ export const GAME_STATES = [
 ] as const;
 export type GameState = (typeof GAME_STATES)[number];
 
-export type Gender = "female" | "male";
+/** How the star is referred to: she, he, or a couple / group ("they"). */
+export type Gender = "female" | "male" | "plural";
+
+export type Locale = "he" | "en";
+
+export const TEMPLATE_IDS = [
+  "birthday",
+  "kids_birthday",
+  "kids",
+  "wedding",
+  "mitzvah",
+  "baby_shower",
+  "anniversary",
+  "party",
+] as const;
+export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
 export const CONTROL_ACTIONS = [
   "start",
@@ -40,6 +55,8 @@ export interface PublicGame {
   birthdayAge: number | null;
   birthdayDate: string | null;
   birthdayPhotoUrl: string | null;
+  template: TemplateId;
+  locale: Locale;
   state: GameState;
   stateChangedAt: string;
   currentIndex: number;
@@ -154,6 +171,8 @@ export interface AdminRoundSummary {
 }
 
 export interface AdminSettings {
+  template: TemplateId;
+  locale: Locale;
   title: string;
   birthdayName: string;
   birthdayGender: Gender;
@@ -169,6 +188,8 @@ export interface AdminSnapshot {
   role: "admin";
   game: PublicGame;
   version: number;
+  /** False for quizzes made before accounts existed (they can be claimed). */
+  owned: boolean;
   settings: AdminSettings;
   birthdayToken: string;
   players: PublicPlayer[];
@@ -189,6 +210,59 @@ export interface AdminSnapshot {
   library: AdminLibraryPhoto[];
   activeQuestionCount: number;
   plannedRoundCount: number;
+}
+
+/** AI quiz builder: one chat message. */
+export interface AiMessage {
+  role: "user" | "assistant";
+  text: string;
+}
+
+export interface AiQuestion {
+  text: string;
+  options: string[];
+}
+
+/** What the AI produces once it knows enough. */
+export interface AiQuiz {
+  template: TemplateId;
+  locale: Locale;
+  starName: string;
+  gender: Gender;
+  title: string;
+  practice: AiQuestion | null;
+  questions: AiQuestion[];
+}
+
+/** Sent along when the builder is opened from an existing quiz. */
+export interface AiContext {
+  template: TemplateId;
+  locale: Locale;
+  starName: string;
+  gender: Gender;
+  existing: string[];
+}
+
+/** A quiz in the signed-in user's dashboard. */
+export interface MyGame {
+  code: string;
+  title: string;
+  template: TemplateId;
+  locale: Locale;
+  birthdayName: string;
+  birthdayGender: Gender;
+  photoUrl: string | null;
+  state: GameState;
+  createdAt: string;
+  adminToken: string;
+  birthdayToken: string;
+  playerCount: number;
+}
+
+export interface Me {
+  name: string;
+  email: string;
+  avatarUrl: string | null;
 }
 
 export type AnySnapshot = ScreenSnapshot | GuestSnapshot | BirthdaySnapshot | AdminSnapshot;
@@ -220,6 +294,9 @@ export type ApiErrorCode =
   | "image_invalid"
   | "question_invalid"
   | "settings_invalid"
-  | "creation_disabled"
-  | "wrong_password"
+  | "login_required"
+  | "too_many_games"
+  | "ai_not_configured"
+  | "ai_limit"
+  | "ai_failed"
   | "server_error";

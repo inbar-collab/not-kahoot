@@ -1,6 +1,6 @@
 import "server-only";
 // Settings, questions and the photo library (admin only).
-import type { Gender } from "@/lib/types";
+import { TEMPLATE_IDS, type Gender, type TemplateId } from "@/lib/types";
 import { ApiError } from "./http";
 import { deleteImages } from "./images";
 import type { GameRow, QuestionRow } from "./rows";
@@ -26,8 +26,16 @@ export async function updateSettings(game: GameRow, input: Record<string, unknow
   if ("title" in input) patch.title = str(input.title, 120, "title");
   if ("birthdayName" in input) patch.birthday_name = str(input.birthdayName, 60, "birthdayName");
   if ("birthdayGender" in input) {
-    if (input.birthdayGender !== "female" && input.birthdayGender !== "male") throw new ApiError("settings_invalid");
+    if (!["female", "male", "plural"].includes(input.birthdayGender as string)) throw new ApiError("settings_invalid");
     patch.birthday_gender = input.birthdayGender as Gender;
+  }
+  if ("template" in input) {
+    if (!TEMPLATE_IDS.includes(input.template as TemplateId)) throw new ApiError("settings_invalid");
+    patch.template = input.template;
+  }
+  if ("locale" in input) {
+    if (input.locale !== "he" && input.locale !== "en") throw new ApiError("settings_invalid");
+    patch.locale = input.locale;
   }
   if ("birthdayAge" in input) patch.birthday_age = intOrNull(input.birthdayAge, 0, 150);
   if ("birthdayDate" in input) {
@@ -51,7 +59,7 @@ export async function setBirthdayPhoto(game: GameRow, path: string) {
   await deleteImages([game.birthday_photo_path]);
 }
 
-function cleanQuestion(input: Record<string, unknown>) {
+export function cleanQuestion(input: Record<string, unknown>) {
   const text = typeof input.text === "string" ? input.text.replace(/\s+/g, " ").trim() : "";
   const options = Array.isArray(input.options)
     ? input.options.map((o) => (typeof o === "string" ? o.replace(/\s+/g, " ").trim() : "")).filter(Boolean)
@@ -115,6 +123,25 @@ export async function setQuestionActive(game: GameRow, id: unknown, active: bool
   const q = await getQuestion(game, id);
   const { error } = await db().from("questions").update({ active }).eq("id", q.id);
   if (error) throw error;
+}
+
+/** Adds several questions at the end (from the AI builder). The practice one only if there is none yet. */
+export async function addQuestions(game: GameRow, list: unknown, practice: unknown) {
+  if (!Array.isArray(list) || list.length > 30 || (list.length === 0 && !practice)) throw new ApiError("question_invalid");
+  const clean = list.map((q) => cleanQuestion((q ?? {}) as Record<string, unknown>));
+  const { data: rows, error } = await db().from("questions").select("position, is_practice").eq("game_id", game.id);
+  if (error) throw error;
+  const hasPractice = (rows ?? []).some((r) => r.is_practice);
+  const warmUp = practice && !hasPractice ? [{ ...cleanQuestion(practice as Record<string, unknown>), is_practice: true }] : [];
+  const start = Math.max(-1, ...(rows ?? []).map((r) => r.position)) + 1;
+  const insert = [...warmUp, ...clean.map((q) => ({ ...q, is_practice: false }))].map((q, i) => ({
+    ...q,
+    game_id: game.id,
+    position: start + i,
+  }));
+  if (insert.length === 0) return;
+  const { error: e } = await db().from("questions").insert(insert);
+  if (e) throw e;
 }
 
 /** Marks one question as the practice question (only one per game) or unmarks it. */

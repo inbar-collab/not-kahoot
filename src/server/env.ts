@@ -16,8 +16,7 @@ export const serverEnv = {
   get serviceRoleKey() {
     return required("SUPABASE_SERVICE_ROLE_KEY");
   },
-  /** Optional: enables "create a new game" on the home page. */
-  get hostPassword() {
-    return process.env.HOST_PASSWORD || "";
+  get anonKey() {
+    return required("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   },
 };

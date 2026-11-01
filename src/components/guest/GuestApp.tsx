@@ -1,6 +1,7 @@
 "use client";
 import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { useLiveGame } from "@/hooks/useLiveGame";
+import { useTheme } from "@/hooks/useTheme";
 import { api, gamePath } from "@/lib/api";
 import { clearSession, loadSession, type GuestSession } from "@/lib/session";
 import { getStrings } from "@/lib/strings";
@@ -31,7 +32,7 @@ export function GuestApp({ params }: { params: Promise<{ code: string }> }) {
     () => (session ? { role: "guest" as const, playerId: session.playerId } : null),
     [session],
   );
-  const { data, error, connection, refresh, msInState } = useLiveGame({
+  const { data, error, connection, refresh, msInState, sendReaction } = useLiveGame({
     load,
     enabled: ready,
     reloadKey: token,
@@ -39,7 +40,8 @@ export function GuestApp({ params }: { params: Promise<{ code: string }> }) {
     presence,
   });
 
-  const s = getStrings(data?.game.birthdayGender, data?.game.birthdayName);
+  const s = getStrings(data?.game);
+  useTheme(data?.game.template, data?.game.locale);
 
   // Kicked or removed: forget this phone's player and go back to the join screen.
   const status = data?.status;
@@ -88,6 +90,7 @@ export function GuestApp({ params }: { params: Promise<{ code: string }> }) {
         token={session.token}
         refresh={refresh}
         msInState={msInState}
+        react={(emoji) => sendReaction({ emoji, name: data.me!.player.name })}
       />
     </>
   );

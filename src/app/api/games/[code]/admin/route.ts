@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { CONTROL_ACTIONS, type ControlAction } from "@/lib/types";
 import {
+  addQuestions,
   deleteLibraryPhoto,
   deleteQuestion,
   moveQuestion,
@@ -64,6 +65,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ code: string }
         break;
       case "setQuestionActive":
         await setQuestionActive(game, body.id, !!body.active);
+        break;
+      case "addQuestions":
+        await addQuestions(game, body.questions, body.practice);
         break;
       case "setQuestionPractice":
         await setQuestionPractice(game, body.id, !!body.practice);

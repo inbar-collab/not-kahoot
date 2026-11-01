@@ -2,9 +2,9 @@
 import { use, useCallback, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useLiveGame } from "@/hooks/useLiveGame";
+import { useTheme } from "@/hooks/useTheme";
 import { api, ClientApiError, gamePath } from "@/lib/api";
 import { getStrings, roundLabel, type Strings } from "@/lib/strings";
-import { OPTION_MARKS } from "@/lib/timing";
 import type { BirthdaySnapshot } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
 import { Button } from "../ui/Button";
@@ -31,7 +31,8 @@ export function BirthdayApp({
     ignoreKinds: ["answer", "player", "content"],
     presence: PRESENCE,
   });
-  const s = getStrings(data?.game.birthdayGender, data?.game.birthdayName);
+  const s = getStrings(data?.game);
+  useTheme(data?.game.template, data?.game.locale);
 
   if (error?.code === "game_not_found") return <CenterMessage icon="🔍" title={s.invalidCodeTitle} body={s.invalidCodeBody} />;
   if (error?.code === "unauthorized") return <CenterMessage icon="🔒" title={s.invalidTokenTitle} body={s.invalidTokenBody} />;
@@ -221,7 +222,7 @@ function AnswerFlow({
                   on ? "border-gold bg-gold text-ink-950" : "border-gold text-gold"
                 }`}
               >
-                {on ? "✓" : OPTION_MARKS[i]}
+                {on ? "✓" : s.marks[i]}
               </span>
               <span>{opt}</span>
             </button>

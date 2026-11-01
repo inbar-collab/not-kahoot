@@ -1,5 +1,5 @@
 // Row shapes as stored in Postgres (see supabase/migrations).
-import type { GameState, Gender } from "@/lib/types";
+import type { GameState, Gender, Locale, TemplateId } from "@/lib/types";
 
 export interface GameRow {
   id: string;
@@ -12,6 +12,10 @@ export interface GameRow {
   birthday_age: number | null;
   birthday_date: string | null;
   birthday_photo_path: string | null;
+  owner_id: string | null;
+  template: TemplateId;
+  locale: Locale;
+  created_at: string;
   num_questions: number | null;
   leaderboard_every: number;
   sounds_enabled: boolean;

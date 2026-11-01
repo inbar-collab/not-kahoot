@@ -2,7 +2,6 @@
 import { motion } from "motion/react";
 import { useAutoFit } from "@/hooks/useAutoFit";
 import type { Strings } from "@/lib/strings";
-import { OPTION_MARKS } from "@/lib/timing";
 import type { ScreenSnapshot } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
 import { Portrait } from "../ui/Portrait";
@@ -63,7 +62,7 @@ export function ResultsStage({ snap, s }: { snap: ScreenSnapshot; s: Strings }) 
                     hers ? "border-gold bg-gold text-ink-950" : "border-ink-500 text-mute"
                   }`}
                 >
-                  {OPTION_MARKS[i]}
+                  {s.marks[i]}
                 </span>
                 <div data-fit className="flex h-full min-w-0 flex-1 items-center overflow-hidden">
                   <span

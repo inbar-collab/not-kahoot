@@ -1,274 +1,184 @@
-# not-kahoot 🎂
+# Event Quiz 🎉
 
-**"How well do you know her?"** A real-time birthday game for the family.
+**"Who knows the star of the night best?"** A party quiz that everyone plays from their phone, in Hebrew or English.
 
-The birthday person answers each question privately on her phone. Every guest answers the same question on their own phone and tries to guess what she picked. The host reveals the answer on the TV, and every guest who matched her gets a point. At the end a podium shows who knows her best.
-
-There are four screens:
+You make a quiz about the **star** of your event: the birthday person, the couple, the kid, the parents-to-be. At the party, the star secretly answers each question on their phone. Every guest answers the same question on their own phone and tries to guess what the star picked. The TV reveals the answer, everyone who matched gets a point, every few questions there's a funny race to the top, and at the end a podium shows who knows the star best.
 
 | Who | Opens | What they see |
 | --- | --- | --- |
-| 📺 **TV** | `/screen/CODE` | Lobby with a QR code, the questions, the big reveal, the leaderboard and the podium |
-| 📱 **Guests** | `/join/CODE` (scan the QR on the TV) | Name and avatar, then big answer buttons |
-| 🎂 **Birthday person** | `/birthday/CODE?token=…` (secret link) | The question and her answers. She never sees what guests picked |
-| 🎛️ **Host** | `/admin/CODE?token=…` (secret link) | All the controls, the question editor, photos, settings and test mode |
+| 🎛️ **Host** | the website → sign in with Google → **My quizzes** | All quizzes, the links to send, and each quiz's control page |
+| 📺 **TV** | `/screen/CODE` | Lobby with QR code + link + code, the questions, the reveals, the leaderboard shows and the podium |
+| 📱 **Guests** | `/join/CODE` (scan the QR on the TV) | Name and selfie or emoji, big answer buttons, emoji reactions to the TV |
+| 🌟 **The star** | `/star/CODE?token=…` (secret link) | The question and their answers. They never see what guests picked |
 
-Everything is in Hebrew, right to left, with large text and big buttons.
+**Templates** set the look, the fonts, the decorations, the confetti and the starter questions: 🎂 Birthday · 🎈 Kid's birthday · 🦖 Kids · 💍 Wedding · ✡️ Bar / Bat Mitzvah · 🍼 Baby shower · 🥂 Anniversary · 🪩 Party / any event.
 
 ---
 
 ## Contents
 
-1. [What you need](#1-what-you-need)
-2. [Create the Supabase project (the database)](#2-create-the-supabase-project-the-database)
-3. [Create the tables (run the migration)](#3-create-the-tables-run-the-migration)
-4. [Deploy to Vercel](#4-deploy-to-vercel)
-5. [Start a new game](#5-start-a-new-game)
-6. [Prepare the game: photo, questions and settings](#6-prepare-the-game-photo-questions-and-settings)
-7. [Rehearse alone with test mode](#7-rehearse-alone-with-test-mode)
-8. [On the day: which link goes where](#8-on-the-day-which-link-goes-where)
-9. [Running the game (host buttons)](#9-running-the-game-host-buttons)
-10. [If something breaks during the party](#10-if-something-breaks-during-the-party)
-11. [Running it on your own computer (optional)](#11-running-it-on-your-own-computer-optional)
-12. [Decisions I made](#12-decisions-i-made)
-13. [How it works (for developers)](#13-how-it-works-for-developers)
+1. [One-time setup: database and website](#1-one-time-setup-database-and-website)
+2. [Turn on "Sign in with Google"](#2-turn-on-sign-in-with-google)
+3. [Turn on the AI quiz builder (Gemini, free)](#3-turn-on-the-ai-quiz-builder-gemini-free)
+4. [Making a quiz](#4-making-a-quiz)
+5. [On the day](#5-on-the-day)
+6. [If something breaks during the party](#6-if-something-breaks-during-the-party)
+7. [Running it on your own computer](#7-running-it-on-your-own-computer)
+8. [Decisions I made](#8-decisions-i-made)
+9. [How it works (for developers)](#9-how-it-works-for-developers)
 
 ---
 
-## 1. What you need
+## 1. One-time setup: database and website
 
-- A free **Supabase** account: <https://supabase.com>. This is the database, live updates and photo storage.
-- Your **Vercel** account: <https://vercel.com>. This hosts the website.
-- This code in a **GitHub** repository that Vercel can see (it already is).
+You need free accounts on **Supabase** (database, sign-in, live updates, photos) and **Vercel** (hosting), and this code on GitHub.
 
-Allow about 20 minutes the first time.
+**Database.** Create a Supabase project, then open **SQL Editor → New query** and run each file in [`supabase/migrations/`](supabase/migrations/) **in order of their names** (open the file on GitHub → **Raw** → copy → paste → **Run**). Each should say *"Success. No rows returned"*. Developers can instead run `npx supabase link --project-ref …` and `npx supabase db push`.
 
-## 2. Create the Supabase project (the database)
+**Keys.** In Supabase, **Project Settings → API Keys / Data API**:
 
-1. Go to <https://supabase.com/dashboard> and click **New project**.
-2. Give it a name (e.g. `not-kahoot`) and choose a database password. Save the password somewhere, although you won't need it for this app.
-3. **Region:** pick the one closest to where the party is (for Israel, *Central EU (Frankfurt)* works well).
-4. Click **Create new project** and wait about a minute until it's ready.
-
-## 3. Create the tables (run the migration)
-
-The app's tables, security rules, live updates and photo storage are all defined in one file: `supabase/migrations/20261026000000_init.sql`. You don't create anything by hand.
-
-**The easiest way (no tools needed):**
-
-1. In your Supabase project, open **SQL Editor** in the left menu and click **New query**.
-2. Open [`supabase/migrations/20261026000000_init.sql`](supabase/migrations/20261026000000_init.sql) on GitHub, click **Raw**, then select all and copy.
-3. Paste it into the SQL Editor and click **Run**. You should see *"Success. No rows returned"*.
-
-That's it. Run it **once** per Supabase project.
-
-<details>
-<summary>Alternative for developers: Supabase CLI</summary>
-
-```bash
-npx supabase login
-npx supabase link --project-ref YOUR_PROJECT_REF
-npx supabase db push
-```
-</details>
-
-**Get the keys you'll need next.** In Supabase, open **Project Settings → API** (on newer dashboards: **Project Settings → API Keys** and **Data API**) and copy:
-
-| What Supabase calls it | Where it goes |
+| Supabase calls it | Environment variable |
 | --- | --- |
-| Project URL (looks like `https://abcd.supabase.co`) | `NEXT_PUBLIC_SUPABASE_URL` |
-| `anon` `public` key, or the **Publishable** key (`sb_publishable_…`) | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
-| `service_role` key, or a **Secret** key (`sb_secret_…`) | `SUPABASE_SERVICE_ROLE_KEY` ⚠️ keep this private |
+| Project URL (`https://abcd.supabase.co`) | `NEXT_PUBLIC_SUPABASE_URL` |
+| `anon` / **Publishable** key | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| `service_role` / **Secret** key | `SUPABASE_SERVICE_ROLE_KEY` ⚠️ private |
 
-## 4. Deploy to Vercel
+**Website.** In Vercel, import the GitHub repository, add those three variables plus `APP_BASE_URL` (your site's address, no trailing `/`), and deploy. Whenever you change a variable in Vercel, **redeploy** for it to take effect. The server region is in `vercel.json` (`sin1`, next to this project's Supabase); pick the region closest to your Supabase project.
 
-1. In Vercel, click **Add New… → Project** and import this GitHub repository.
-2. Vercel will recognise it as Next.js. Don't change the build settings.
-3. Open **Environment Variables** and add these five (see `.env.example`):
+## 2. Turn on "Sign in with Google"
 
-   | Name | Value |
-   | --- | --- |
-   | `NEXT_PUBLIC_SUPABASE_URL` | the Project URL |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the anon / publishable key |
-   | `SUPABASE_SERVICE_ROLE_KEY` | the service_role / secret key |
-   | `HOST_PASSWORD` | any password you choose. You'll type it to create games |
-   | `APP_BASE_URL` | leave empty for now |
+Hosts sign in with Google to create and keep their quizzes. Guests, the TV and the star never need an account. This takes about 10 minutes, once.
 
-4. Click **Deploy** and wait for it to finish. You'll get an address like `https://not-kahoot-xyz.vercel.app`.
-5. *(Recommended)* Go to **Settings → Environment Variables**, set `APP_BASE_URL` to that address (no trailing `/`), then **Deployments → ⋯ → Redeploy**. This makes the QR code and links use the right address.
-6. *(Speed)* The server region is set in `vercel.json` (`sin1`, Singapore, next to this game's Supabase project). If your Supabase project is elsewhere, change it to the closest Vercel region (e.g. Frankfurt `fra1`).
+**A. Google Cloud: create the sign-in client**
 
-> Whenever you change an environment variable in Vercel, you must **redeploy** for it to take effect.
+1. Go to <https://console.cloud.google.com>, sign in, and create a project (top bar → project picker → **New project**, name it e.g. *Event Quiz*).
+2. Open **APIs & Services → OAuth consent screen** (newer consoles call it **Google Auth Platform → Branding / Audience**):
+   - App name: *Event Quiz*. User support email and developer contact: your email.
+   - Audience: **External**.
+   - Under **Audience**, click **Publish app** so anyone with a Google account can sign in (not only test users). The app only asks for name, email and profile picture, so Google doesn't require a review.
+3. Open **APIs & Services → Credentials → Create credentials → OAuth client ID**:
+   - Application type: **Web application**.
+   - **Authorized JavaScript origins:** your site, e.g. `https://not-kahoot-topaz.vercel.app`.
+   - **Authorized redirect URIs:** `https://YOUR-PROJECT.supabase.co/auth/v1/callback` (your Supabase Project URL + `/auth/v1/callback`).
+   - Click **Create** and copy the **Client ID** and **Client secret**.
 
-## 5. Start a new game
+**B. Supabase: connect it**
 
-1. Open your site's home page (e.g. `https://not-kahoot-xyz.vercel.app`).
-2. Open **"מארחים? יצירת משחק חדש"** (Hosts? Create a new game).
-3. Type the birthday person's name, choose female/male (Hebrew grammar adapts), and enter your `HOST_PASSWORD`.
-4. Click **יצירת משחק**. You land on the **host page**. **Bookmark it.** That link is your key to the game, and every other link is listed on it.
+1. **Authentication → Sign In / Providers → Google:** turn it on, paste the Client ID and Client secret, **Save**.
+2. **Authentication → URL Configuration:**
+   - **Site URL:** your site, e.g. `https://not-kahoot-topaz.vercel.app`.
+   - **Redirect URLs:** add `https://not-kahoot-topaz.vercel.app/**` (and `http://localhost:3000/**` if you develop locally).
 
-Each new game starts with 8 sample questions in Hebrew, so you can try it straight away.
+Done. Open the site and click **Sign in with Google**.
 
-*(Developers can also run `npm run seed`, which prints all the links.)*
+> Quizzes made before accounts existed can be added to your list: open their admin link while signed in and press **Add to my quizzes**, or paste the admin link at the bottom of **My quizzes**.
 
-## 6. Prepare the game: photo, questions and settings
+## 3. Turn on the AI quiz builder (Gemini, free)
 
-Everything is on the host page, in the tabs along the top.
+The 🤖 builder chats with you (what's the event, who's the star, who's the crowd, what kind of questions, how many) and then writes up to 30 questions plus a practice question. You untick what you don't want and create the quiz, or add them to an existing quiz from its **Questions** tab. It uses Google's **Gemini API on the free tier**.
 
-**הגדרות (Settings)**
-- **The birthday photo:** upload it once and it appears everywhere (lobby, intro, reveal, finale, and as a small portrait in the corner). It's shown in a clean round frame and is never filtered or altered. Any photo from your phone works, because it's shrunk automatically before upload.
-- Title, name, age, birthday date.
-- **How many questions to play** (empty = all active questions).
-- **Show the leaderboard every X questions** (0 = only when you press the button).
-- **Sounds on the TV** (off by default).
-- **Allow joining mid-game** (late guests start at 0 points).
+1. Go to **<https://aistudio.google.com/apikey>** and sign in with a Google account.
+2. Click **Create API key**. Choose **Create API key in new project** (or pick a project you made for this). Copy the key.
+3. **Make sure it stays free:** do **not** click *Set up billing* / *Upgrade* in AI Studio, and don't link a billing account to that Google Cloud project. Without billing, the key can only use the free tier, so you can never be charged. AI Studio shows the project's plan as **Free** next to the key.
+4. In **Vercel → your project → Settings → Environment Variables**, add `GEMINI_API_KEY` with the key (for Production and Preview). Then **Deployments → ⋯ → Redeploy**.
+5. Optional: `GEMINI_MODEL` picks the model. The default `gemini-flash-latest` always points to Google's newest Flash model, which is on the free tier. You can set a specific free model name, e.g. `gemini-2.5-flash`.
 
-**שאלות (Questions)**
-- **➕ שאלה חדשה** adds a question: the text plus 2 to 4 answers.
-- **עריכה** edits, **מחיקה** deletes (it asks first), and **השבתה / הפעלה** deactivates or activates a question without deleting it.
-- **↑ ↓** reorders. Questions are played in this order.
-- **📷 הוספת תמונה** adds an optional photo for that question.
-- Delete or replace the sample questions with your own.
+Good to know:
 
-**תמונות (Photo library)**
-- Upload many family photos at once. Questions without their own photo get a library photo: shuffled, with no repeats until the library runs out. The photos are chosen once, when the game starts, so they don't change if someone refreshes.
+- The free tier has a per-minute and per-day request limit (see your project's **Rate limit** page in AI Studio). When Google's limit is reached, the builder says to try again later. On top of that, the app allows each host **60 builder messages a day** (`AI_DAILY_LIMIT` in `src/server/ai.ts`), so one person can't use up the shared quota.
+- On the free tier, Google may use what's typed into the builder to improve its products. The builder shows a reminder not to type sensitive details.
+- The key lives only on the server. Browsers never see it.
 
-## 7. Rehearse alone with test mode
+## 4. Making a quiz
 
-On the host page, open **בדיקה (Test)**:
+Sign in and open **My quizzes**. The first time, a short walkthrough explains everything (reopen it with **❓ How it works**).
 
-1. **יצירת 8 שחקני בדיקה** creates fake players with random names and emoji.
-2. Open the TV link in another tab, then press **Start** on the **משחק** tab.
-3. On each question, press **שחקני הבדיקה עונים עכשיו** (fake players answer at random) and **תשובה אקראית בשם החוגגת** (a random birthday answer). Or open the birthday link on your phone and answer for real.
-4. Play through to the podium.
-5. **When you're done:** press **מחיקת שחקני הבדיקה** (delete test players), then **איפוס המשחק** (reset game) on the **משחק** tab. Reset keeps your questions, photos and settings. It only clears answers and scores.
+**➕ New quiz**: either let the **🤖 AI** write it, or pick a template, the quiz language (Hebrew or English), the star's name and how to refer to them (she / he / they for a couple or group; Hebrew grammar follows). Every new quiz starts with sample questions and a **practice question** that fit the event.
 
-> Tip: if you tested with your own phones as guests, use **הוצאת כל השחקנים** (remove all players) before the party so the lobby starts empty.
+Each quiz card on **My quizzes** has **⚙️ Manage** (the control page) and **🔗 Links to send** (TV, guests with a WhatsApp button, and the star's secret link).
 
-## 8. On the day: which link goes where
+On the control page:
 
-All links are on the host page under **קישורים** (Links), each with a copy button:
+- **Questions:** add (2–4 answers each), edit, reorder, turn off, delete, add a photo. **🎯 Practice question:** one question can be the practice round. It's always asked first and never counts. **🤖 AI builder** and **💡 Question ideas** (one tap adds a ready question for this event) are below the list.
+- **Photos:** upload many family photos at once. Questions without their own photo get one from the library, shuffled, without repeats.
+- **Settings:** event type (switch the whole look anytime), language, title, the star's name, pronoun and photo, how many questions to play, how often the leaderboard show appears, TV sounds, late joining.
+- **Test:** fake players that answer at random, so you can rehearse alone. Afterwards delete them and **Reset** (keeps questions, photos and settings).
 
-- 📺 **TV:** open the **מסך הטלוויזיה** link on the computer or smart TV connected to the big screen. Press `F11` for full screen. If you turned sounds on, click the screen once (browsers only allow sound after a click).
-- 📱 **Guests:** they scan the QR code on the TV, or open **הצטרפות לאורחים**. No accounts or passwords. They type a name and can take a selfie or pick an emoji.
-- 🎂 **Birthday person:** send her **only** the **הקישור הסודי של החוגגת** link, or let her scan the small QR code under it from your phone.
-- 🎛️ **You (host):** keep the admin link to yourself. It works best on your phone.
+## 5. On the day
 
-## 9. Running the game (host buttons)
+- 📺 **TV:** open the TV link on the computer or smart TV connected to the screen (`F11` for full screen; click once if sounds are on). The lobby shows the QR code, the link and the game code.
+- 📱 **Guests:** scan the QR code, or open the guest link (send it on WhatsApp from the Links section). Name + selfie or emoji, no accounts.
+- 🌟 **The star:** send them only their secret link.
+- 🎛️ **You:** keep the control page on your phone and keep pressing the big button: Start → practice round → open question → close voting → ✨ reveal (3-2-1, the star's answer, how many knew, a cheeky one-liner) → results chart → next.
+- **Every few questions** the TV puts on a little show. A different mix each time: one of four openers (starting lights, a bowling strike, a drumroll, a balloon that pops), then either a running race or rockets flying to the moon, where how far each player's character gets is their score. The leader gets a crown, last place gets a gentle comic moment.
+- **Reactions:** while watching the TV, guests can tap 😂 ❤️ 🎉 😮 👏 🔥 and they float up the side of the TV with their name.
+- **The finale:** "the one who knows them best is…", the winner with confetti in the template's colors, a podium of cartoon figures with each player's face, and the full ranking.
 
-The big gold button always shows the next sensible step, so you can simply keep pressing it:
+## 6. If something breaks during the party
 
-1. **▶ התחלת המשחק** (Start): the TV shows a short intro with the rules.
-2. **פתיחת שאלה** (Open question): everyone sees the question. The TV shows "6 of 10 answered", but never which answers were picked.
-3. **סגירת ההצבעה** (Close voting).
-   - If she hasn't answered yet, the button says **מחכים לחוגגת…** (waiting for the birthday girl) and the reveal is blocked. Her phone gently says "everyone is waiting for you 😊". As soon as she locks her answer, you can reveal.
-4. **✨ חשיפה** (Reveal): a 3-2-1 countdown on the TV, then her answer(s) with her photo, then "7 of 10 knew her". Phones show confetti and "+1", or a gentle sad face with what she chose.
-5. **הצגת תוצאות** (Show results): a bar chart of how everyone voted, with her answer(s) in gold.
-6. **הבא** (Next): goes to the next question. It shows the leaderboard first when one is due, and goes to the finale after the last question.
-
-Other buttons: **טבלת מובילים** (show the leaderboard now), **הקודם** (go back to the previous question's results), **סיום המשחק** (end now and go to the finale), **איפוס המשחק** (back to the lobby), **מחיקת תשובות השאלה** (clear guests' answers to the current question, before its reveal), **הוצאה** (kick a player; their phone returns to the join screen and they can rejoin under a new name), and the 🔇/🔊 sound toggle.
-
-**The finale:** a pause, *"The person who knows her best is…"*, the winner with confetti, then a podium with cartoon figures wearing each player's photo or emoji as their face, plus the full ranking. Ties share a place. Every phone shows its own place too.
-
-## 10. If something breaks during the party
-
-Nothing is stored on the phones except "who am I", so **refreshing any screen is always safe.** Every screen reloads the real state from the database.
+Refreshing any screen is always safe: every screen reloads the real state from the database.
 
 | Problem | What to do |
 | --- | --- |
-| A screen looks stuck | Refresh the page. It comes back to exactly where the game is. |
-| A guest closed the browser or the phone restarted | Open the same join link again on the same phone. They're still in, with the same name and score. |
-| A guest is on a different phone, or cleared the browser | They join again with a slightly different name (the old name stays taken). Or kick the old one first, then they can reuse the name. |
-| Wi-Fi dropped | A small "מתחברים מחדש…" (reconnecting) bubble appears, and everything resyncs automatically when the connection returns. |
-| The TV shows the wrong address in the QR code | Set `APP_BASE_URL` in Vercel and redeploy (see step 4). |
-| Reveal is greyed out | She hasn't locked her answer yet. Check her phone. In an emergency, the Test tab can give a random answer for her. |
-| She locked the wrong answer | Locked answers can't change (that's the fairness rule). Move on with **הבא**, or use **איפוס המשחק** to start over. |
-| Someone joined with a silly name | **הוצאה** (kick) next to their name. |
-| No sound on the TV | Make sure 🔊 is on in the host page, then click once anywhere on the TV screen. |
-| The host phone died | Open the admin link on any other device. Nothing is lost. |
-| "Couldn't find the game" | Check the code in the link. Codes are 6 letters/digits. |
-| "This link is invalid" on the host or birthday page | The token part of the link was cut off. Copy it again from the host page. |
-| Nothing updates live at all | In Supabase, check **Realtime → Settings** and make sure public channels are allowed (this is the default). Then refresh. |
+| A screen looks stuck | Refresh it. |
+| A guest's phone restarted | Open the same join link on the same phone: same name, same score. |
+| A guest is on a different phone | They join again with a slightly different name (or kick the old one first). |
+| Wi-Fi dropped | A "reconnecting" bubble appears and everything resyncs automatically. |
+| Reveal is greyed out | The star hasn't locked their answer. The Test tab can answer randomly for them in an emergency. |
+| No sound on the TV | Turn 🔊 on in the control page, then click once on the TV. |
+| The host phone died | Sign in on any device and open the quiz from My quizzes. |
+| "Sign in with Google" fails | Check section 2: the redirect URI in Google, and Site URL / Redirect URLs in Supabase. |
+| The AI builder says it isn't connected | `GEMINI_API_KEY` is missing in Vercel, or you didn't redeploy after adding it. |
 
-## 11. Running it on your own computer (optional)
+## 7. Running it on your own computer
 
-You need [Node.js 20+](https://nodejs.org).
+You need [Node.js 20+](https://nodejs.org) and, for a local database, Docker.
 
 ```bash
 npm install
-cp .env.example .env.local       # then fill in the values (see step 3)
-npm run dev                      # open http://localhost:3000
-npm run seed                     # creates a demo game and prints its links
+npx supabase start           # local Supabase; prints the local URL and keys for .env.local
+cp .env.example .env.local   # fill in the values
+npm run dev                  # http://localhost:3000
+npm run seed                 # a demo quiz (not owned by anyone) and its links
 ```
 
-To test with real phones on your home Wi-Fi, set `APP_BASE_URL=http://YOUR-COMPUTER-IP:3000` in `.env.local`.
-
-**Fully local database (developers, needs Docker):** `npx supabase start` runs Supabase on your machine and applies the migration. It prints a local URL and keys for `.env.local`.
+Set `AI_MOCK=1` in `.env.local` to try the AI builder without a Gemini key (a scripted chat; development only).
 
 **Checks:**
 
 ```bash
-npm run typecheck     # TypeScript
-npm run lint          # ESLint
-npm test              # unit tests: state machine and scoring
-npx playwright install chromium   # once
-npm run test:e2e      # full game in real browsers: TV, host, birthday person and 3 guests
+npm run typecheck && npm run lint
+npm test                 # state machine, scoring, templates, translations, AI output cleaning
+npm run test:e2e         # a full game in real browsers (needs npm run dev and the local Supabase)
 ```
 
-`test:e2e` needs `npm run dev` running and `HOST_PASSWORD` set. It plays a whole game and checks the fairness rules, the live updates, refresh, kick and rejoin, late join, and the finale. Set `SHOTS=./shots` to also save screenshots.
+The end-to-end test signs the host in as a local test user (`scripts/test-session.mjs`, which refuses to run against anything but a local Supabase).
 
-## 12. Decisions I made
+## 8. Decisions I made
 
-The brief said to choose sensibly and write it down. Here's what I chose:
+- **Accounts only for hosts.** Google sign-in owns the dashboard; each quiz is still controlled by its secret admin link, so a co-host can help without an account, and quizzes made before accounts existed can be claimed.
+- **Templates are themes, not separate apps.** Every template overrides the same color/font tokens, so all screens (TV, phones, admin) change together. Two templates (wedding, baby shower) are light; the rest are dark, which reads best on TVs.
+- **One practice question per quiz,** always first, never scored and not counted in "question X of Y" or in the leaderboard rhythm.
+- **Language and pronoun per quiz.** Hebrew and English share one dictionary shape (checked by a test); texts address the star by name and use she / he / they forms. Starter questions are written once with inflection markers, e.g. `{אוהבת|אוהב|אוהבים}`.
+- **The leaderboard is a show,** chosen from 4 openers × 2 shows, picked from the question number so every screen (and a refresh) shows the same one.
+- **AI output is never trusted:** it's parsed against a schema, trimmed, de-duplicated, capped at 30 questions and 2–4 answers, and the host reviews everything before it's saved.
+- **Reactions** travel over Realtime broadcast only (nothing is stored), and the TV accepts only the six known emoji.
+- **Everything from the original game still holds:** server-side state machine and scoring, the star never sees guests' answers, nobody sees the star's answer before the reveal, dense ranking for ties, streak badges, refresh-safe screens.
 
-- **An extra `INTRO` state.** I added `INTRO` between `LOBBY` and the first question, for the intro transition the brief asks for. All the other states are exactly as specified.
-- **Reveal and results are two steps.** `REVEAL` is the dramatic part (countdown → her answer with her photo → "N of M knew her" + confetti). `RESULTS` is the calmer bar chart, so the host controls the pacing.
-- **Reveal straight from an open question.** Once she has locked her answer, the host may press Reveal while voting is still open, and voting closes as part of the reveal. This saves a tap. Closing first works as usual.
-- **Previous** goes back to the previous question's results (or its closed state) and never re-opens voting by itself. **Next** from there returns to where you were.
-- **The leaderboard is never shown after the last question**, because it would spoil the finale. The finale goes straight to the winner.
-- **Ties use "dense" ranking:** 5, 5, 4 points are places 1, 1, 2. That's friendlier for a family game, and it means the podium always has a 2nd place if anyone scored less than the winners. Tied players stand together on the same podium block (up to 3 figures, then "+N").
-- **If nobody scored at all**, the finale says "everyone wins today 💛" instead of crowning anyone.
-- **Streaks:** a 🔥 badge appears after 3 or more correct answers in a row.
-- **Gender setting:** Hebrew is gendered, so the birthday person can be set to female or male and all texts adapt (היא בחרה / הוא בחר). The sample questions come in both versions.
-- **Kicked players** are marked as removed rather than deleted, so their phone knows it was kicked and shows a friendly message. Their name becomes free again. **Remove all players** deletes players completely, which is meant for clearing test runs.
-- **Players who left** (kicked) don't count in "N answered", in the chart, or in the scores.
-- **Editing questions during a game** is allowed, but a running game keeps the version it started with. Questions are copied into the game at Start, so an edit can never break answers that were already given. Changes apply after a reset.
-- **Photos** are stored in a public-read Supabase bucket under random, unguessable file names. Uploads only go through the server. This keeps the TV fast. Question photos are always shown whole (never cropped). Avatars use a clean circular crop.
-- **Image handling:** photos are shrunk in the browser to 800px on the long side and saved as WebP (or JPEG on older devices) at quality 0.8. The server rejects anything over 2.5 MB and checks the actual file bytes, not just the file name. iPhone HEIC photos are converted by the phone when picked from the browser.
-- **Live updates:** browsers listen to a Supabase Realtime signal for their game. On every change, each screen re-fetches *its own filtered view* from the server. Screens also resync on reconnect, when a phone wakes up, and through a slow 15-second safety check in case a signal is ever missed. The safety check is a backup; Realtime drives the game.
-- **Who's connected:** the host page uses Realtime Presence to show which guests, the TV and the birthday person are online right now.
-- **Sounds** are synthesized in the browser (no audio files). They play only on the TV, only when enabled, and only after a click.
-- **Creating games from the website** requires `HOST_PASSWORD`. If it isn't set, use `npm run seed`.
-- **Answer labels** on every screen use the Hebrew letters א ב ג ד, so guests can match the TV to their phone.
-- **The host doesn't see the answers before the reveal** either: only who answered, and whether she answered, not what. The host might be playing too.
+## 9. How it works (for developers)
 
-## 13. How it works (for developers)
-
-**Stack:** Next.js 16 (App Router, TypeScript), Tailwind CSS 4, Supabase (Postgres, Realtime, Storage), Motion for animation, `qrcode`, `canvas-confetti`.
+**Stack:** Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4, Supabase (Postgres, Auth, Realtime, Storage), Motion, `@supabase/ssr`, `qrcode`, `canvas-confetti`, Gemini API (REST).
 
 ```
-supabase/migrations/   SQL: tables, RLS, realtime pulse, atomic game functions, storage bucket
-scripts/seed.ts        creates a demo game and prints its links
-scripts/e2e.mjs        Playwright end-to-end test of a full game
-src/lib/               shared, framework-free code
-  strings.ts           ALL Hebrew UI text (edit here)
-  state-machine.ts     game state machine (used by server and host UI)
-  scoring.ts           points, ranks (ties), streaks, vote distribution
-  types.ts             snapshot types per role
-src/server/            server-only code (service-role key)
-  snapshots.ts         builds each role's filtered view: the fairness rules live here
-  control.ts           runs host actions through the state machine
-  players.ts, content.ts, images.ts, test-mode.ts, games.ts
-src/app/api/games/…    route handlers (all reads and writes go through these)
-src/hooks/useLiveGame  realtime subscription + resync + presence
-src/components/        UI per surface: screen/, guest/, birthday/, admin/, finale/, ui/
+supabase/migrations/     tables, RLS, realtime pulse, atomic game functions, owners/templates, AI usage
+src/proxy.ts             refreshes the host's sign-in cookie
+src/lib/                 framework-free code shared by server and browser
+  strings.ts             ALL UI text, Hebrew + English
+  templates.ts           templates: look, decorations, confetti, starter questions
+  state-machine.ts, scoring.ts, ai-parse.ts, types.ts
+src/server/              server-only (service-role key): snapshots (fairness), control, games, ai, auth…
+src/app/                 pages: / (landing), /dashboard, /new, /admin, /screen, /join, /star; api/…
+src/components/          site/ (landing, dashboard, wizard, AI builder, onboarding), screen/, guest/, birthday/, admin/, finale/, ui/
 ```
 
-**Security model**
-
-- **The database is closed to browsers.** Every table has Row Level Security enabled with no policies for the public roles, and table privileges are revoked as well. The anon key cannot read or write any game data. The only exception is `game_pulse`, a per-game change counter with no content, which browsers subscribe to for live updates.
-- **All writes go through server routes** using the service-role key, which is only ever read in `src/server/` and never sent to the browser.
-- **Host and birthday links** carry a 256-bit random token, compared in constant time on every request. Guests get their own secret token when they join, stored only as a SHA-256 hash in the database. Every answer is attributed from that token, so nobody can answer for someone else.
-- **Fairness is enforced on the server.** The birthday view never includes guest answers, counts, results or scores (only the winner's name at the very end). The TV and guest views never include her answer before the reveal, and the vote distribution only appears after it. Scores are computed on the server from answers and revealed rounds. There is no stored score column anyone could change.
-- **Every state transition is validated server-side** by `state-machine.ts` and applied atomically in Postgres (`apply_transition`, `start_game`, `birthday_lock`, `submit_answer`) with a version check. Double-clicks or two host phones can't skip a step, an answer can't land after voting closes, and a reveal is impossible before her answer exists. These functions can only be executed by the service role.
-- **Hardening headers:** `Referrer-Policy: no-referrer` (secret links never leak), `X-Frame-Options: DENY`, and `nosniff`.
+**Security model.** Every table has Row Level Security with no policies for browsers; all reads and writes go through server routes with the service-role key. The only browser-readable table is `game_pulse` (a change counter). Admin and star links carry 256-bit tokens compared in constant time; guests get their own token, stored hashed. Dashboard routes require a verified Supabase session; a quiz can only be deleted by its owner and only claimed with its admin token. State transitions are validated server-side and applied atomically with a version check. The Gemini key is server-only, and AI use is capped per user per day.

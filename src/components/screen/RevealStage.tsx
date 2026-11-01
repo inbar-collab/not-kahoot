@@ -5,8 +5,8 @@ import { useAutoFit } from "@/hooks/useAutoFit";
 import { useElapsed } from "@/hooks/useElapsed";
 import { burst } from "@/lib/confetti";
 import type { SoundName } from "@/lib/sound";
-import { roundLabel, type Strings } from "@/lib/strings";
-import { OPTION_MARKS, REVEAL_ANSWER_MS, REVEAL_COUNT_MS, REVEAL_COUNTDOWN_MS } from "@/lib/timing";
+import { pick, roundLabel, type Strings } from "@/lib/strings";
+import { REVEAL_ANSWER_MS, REVEAL_COUNT_MS, REVEAL_COUNTDOWN_MS } from "@/lib/timing";
 import type { ScreenSnapshot } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
 import { Portrait } from "../ui/Portrait";
@@ -89,7 +89,7 @@ export function RevealStage({
               >
                 <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(26vh, 26vw)" />
               </motion.div>
-              <HerAnswers options={round.options} choices={reveal.birthdayChoices} label={s.scrHerAnswer} />
+              <HerAnswers options={round.options} choices={reveal.birthdayChoices} label={s.scrHerAnswer} marks={s.marks} />
             </div>
 
             <div className="mt-[4vh] min-h-[16vh]">
@@ -100,6 +100,16 @@ export function RevealStage({
                       ? s.scrNobodyKnew
                       : s.scrKnewHer(reveal.correctCount, reveal.answeredCount)}
                   </p>
+                  {reveal.answeredCount > 0 && (
+                    <motion.p
+                      initial={{ opacity: 0, scale: 0.8, rotate: -3 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.6, type: "spring", stiffness: 260, damping: 12 }}
+                      className="font-display text-[min(3.4vh,3.2vw)] text-gold-soft"
+                    >
+                      {quip(s, reveal.correctCount, reveal.answeredCount, round.index)}
+                    </motion.p>
+                  )}
                   <div className="flex flex-wrap justify-center gap-[1vw]">
                     {correctPlayers.map((p, i) => (
                       <motion.div
@@ -124,8 +134,15 @@ export function RevealStage({
   );
 }
 
+/** A cheeky one-liner that fits how the room did. Same line on every refresh. */
+function quip(s: Strings, correct: number, answered: number, seed: number): string {
+  const ratio = correct / answered;
+  const list = ratio === 1 ? s.scrQuipAll : correct === 0 ? s.scrQuipNone : ratio <= 0.34 ? s.scrQuipFew : s.scrQuipMost;
+  return pick(list, seed);
+}
+
 /** Her answer(s) as gold cards. The box has a fixed size; long answers shrink to fit. */
-function HerAnswers({ options, choices, label }: { options: string[]; choices: number[]; label: string }) {
+function HerAnswers({ options, choices, label, marks }: { options: string[]; choices: number[]; label: string; marks: string[] }) {
   const ref = useAutoFit<HTMLDivElement>([options.join("|"), choices.join(",")], {
     maxVh: 0.065,
     maxVw: 0.055,
@@ -148,10 +165,10 @@ function HerAnswers({ options, choices, label }: { options: string[]; choices: n
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 + i * 0.15, duration: 0.4 }}
-            className="flex min-w-0 max-w-full items-center gap-[0.45em] rounded-[0.45em] bg-gold px-[0.6em] py-[0.3em] text-ink-950 shadow-[0_0_80px_-10px_rgb(214_176_107/0.7)]"
+            className="flex min-w-0 max-w-full items-center gap-[0.45em] rounded-[0.45em] bg-gold px-[0.6em] py-[0.3em] text-ink-950 shadow-[0_0_80px_-10px_color-mix(in_oklab,var(--color-gold)_70%,transparent)]"
           >
             <span className="flex h-[1.3em] w-[1.3em] shrink-0 items-center justify-center rounded-full border-2 border-ink-950 font-display">
-              <span className="text-[0.6em]">{OPTION_MARKS[c]}</span>
+              <span className="text-[0.6em]">{marks[c]}</span>
             </span>
             <span className="min-w-0 text-start font-display font-bold leading-tight [overflow-wrap:anywhere]">
               {options[c]}
