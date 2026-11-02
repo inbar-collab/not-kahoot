@@ -38,3 +38,9 @@ describe("AI builder output", () => {
     expect(parseTurn('{"done":true,"quiz":{"questions":[]}}', null)).toBeNull();
   });
 });
+
+describe("AI builder output (wrapped)", () => {
+  it("finds the JSON object even when the model adds a sentence around it", () => {
+    expect(parseTurn('Sure! {"reply":"Who is the star?","done":false} Hope that helps', null)?.reply).toBe("Who is the star?");
+  });
+});

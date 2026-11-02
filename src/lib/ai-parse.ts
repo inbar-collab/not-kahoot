@@ -12,10 +12,19 @@ export interface AiTurn {
 /** Parses and cleans the model's JSON. Anything malformed is dropped, never trusted. */
 export function parseTurn(text: string, ctx: AiContext | null): AiTurn | null {
   let raw: { reply?: unknown; done?: unknown; quiz?: unknown };
+  const body = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
   try {
-    raw = JSON.parse(text.trim().replace(/^```(?:json)?\s*|\s*```$/g, ""));
+    raw = JSON.parse(body);
   } catch {
-    return null;
+    // Sometimes the JSON comes wrapped in a sentence; take the outermost object.
+    const a = body.indexOf("{");
+    const b = body.lastIndexOf("}");
+    if (a < 0 || b <= a) return null;
+    try {
+      raw = JSON.parse(body.slice(a, b + 1));
+    } catch {
+      return null;
+    }
   }
   const reply = typeof raw.reply === "string" ? raw.reply.slice(0, 2000) : "";
   const quiz = raw.done ? cleanQuiz(raw.quiz, ctx) : null;

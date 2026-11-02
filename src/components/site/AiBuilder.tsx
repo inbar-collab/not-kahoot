@@ -57,7 +57,8 @@ export function AiBuilder({
       }
     } catch (e) {
       const c = e instanceof ClientApiError ? e.code : "network";
-      setError(c === "network" ? s.networkError : s.errors[c]);
+      const detail = e instanceof ClientApiError && e.detail ? ` (${e.detail})` : "";
+      setError((c === "network" ? s.networkError : s.errors[c]) + detail);
       setMessages(next.slice(0, -1));
       setDraft(t);
     }
@@ -187,7 +188,7 @@ export function AiBuilder({
         </Button>
       </form>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        {userTurns > 0 && !quiz ? (
+        {!quiz ? (
           <Button variant="secondary" size="md" disabled={thinking} onClick={() => void send(s.aiGoAheadText)}>
             {s.aiGoAhead}
           </Button>

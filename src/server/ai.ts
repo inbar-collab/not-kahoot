@@ -12,8 +12,6 @@ export { AI_MAX_QUESTIONS } from "@/lib/ai-parse";
 export const AI_DAILY_LIMIT = 60; // chat messages per user per day
 export const AI_MAX_TURNS = 24;
 
-const MODEL = () => process.env.GEMINI_MODEL || "gemini-flash-latest";
-
 const SYSTEM = `You are the friendly quiz-builder assistant of "Event Quiz", a party game.
 
 HOW THE GAME WORKS: a quiz is about one "star" (the birthday person, the couple, the kid...). For every question the star secretly picks their answer on their phone, and all the guests try to guess what the star picked. So questions must be about the star: tastes, habits, memories, personality, funny everyday situations - things guests can guess but not know for sure. Each question has 2 to 4 short answer options.
@@ -36,6 +34,11 @@ When you have enough, or the user asks you to just go ahead, set "done" to true 
 - "gender" is "female", "male" or "plural". "locale" is "he" or "en".
 "reply" is always a short, friendly message to the user in the language they write in. While interviewing it contains your questions. When done, say the quiz is ready to review.
 Answer with the JSON object only.`;
+
+const FORMAT = `
+
+REPLY FORMAT: exactly one JSON object, nothing else:
+{"reply": string, "done": boolean, "quiz": null | {"template": string, "locale": "he"|"en", "starName": string, "gender": "female"|"male"|"plural", "title": string, "practice": {"text": string, "options": [string]}, "questions": [{"text": string, "options": [string]}]}}`;
 
 const QUESTION_SCHEMA = {
   type: "OBJECT",
@@ -73,37 +76,84 @@ function contextNote(ctx: AiContext | null): string {
     .join("\n")}`;
 }
 
+/**
+ * Model names to try, in order. If Google doesn't know a name (it retires
+ * and renames models), the next one is used. All are free-tier Flash models.
+ */
+function models(): string[] {
+  return [...new Set([process.env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.0-flash"].filter(Boolean) as string[])];
+}
+
+type GeminiReply = {
+  candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] }; finishReason?: string }[];
+  error?: { message?: string; status?: string };
+};
+
+async function callGemini(key: string, model: string, messages: AiMessage[], ctx: AiContext | null, strict: boolean) {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM + FORMAT + contextNote(ctx) }] },
+      contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.text }] })),
+      generationConfig: {
+        responseMimeType: "application/json",
+        ...(strict ? { responseSchema: RESPONSE_SCHEMA } : {}),
+        temperature: 0.9,
+        maxOutputTokens: 16384,
+      },
+    }),
+    cache: "no-store",
+    signal: AbortSignal.timeout(100_000),
+  }).catch((e: unknown) => {
+    console.error("[ai] request failed", model, e);
+    return null;
+  });
+  if (!res) return { status: 0, data: null as GeminiReply | null };
+  const data = (await res.json().catch(() => null)) as GeminiReply | null;
+  return { status: res.status, data };
+}
+
 export async function aiTurn(messages: AiMessage[], ctx: AiContext | null): Promise<AiTurn> {
   if (process.env.AI_MOCK === "1" && process.env.NODE_ENV !== "production") return mockTurn(messages, ctx);
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new ApiError("ai_not_configured", 503);
 
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL()}:generateContent`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-goog-api-key": key },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM + contextNote(ctx) }] },
-      contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.text }] })),
-      generationConfig: { responseMimeType: "application/json", responseSchema: RESPONSE_SCHEMA, temperature: 0.9 },
-    }),
-    cache: "no-store",
-    signal: AbortSignal.timeout(55_000),
-  }).catch(() => null);
-
-  if (!res) throw new ApiError("ai_failed", 502);
-  if (res.status === 429) throw new ApiError("ai_limit", 429); // Google's free-tier quota
-  if (!res.ok) {
-    console.warn("[ai] gemini error", res.status, (await res.text()).slice(0, 400));
-    throw new ApiError("ai_failed", 502);
+  let lastProblem = "";
+  for (const model of models()) {
+    for (const strict of [true, false]) {
+      const { status, data } = await callGemini(key, model, messages, ctx, strict);
+      const googleSays = data?.error?.message?.slice(0, 160) ?? "";
+      if (status === 429) throw new ApiError("ai_limit", 429, "Gemini quota");
+      if (status === 0) {
+        lastProblem = "no answer from Gemini (timeout or network)";
+        break; // a timeout won't get better with another format; try the next model
+      }
+      if (status === 404) {
+        console.error("[ai] model not found", model, googleSays);
+        lastProblem = `model ${model} not found`;
+        break; // next model
+      }
+      if (status === 400 && strict) {
+        console.error("[ai] request rejected, retrying without schema", model, googleSays);
+        lastProblem = `Gemini ${status}: ${googleSays}`;
+        continue; // same model, plain JSON mode
+      }
+      if (status !== 200) {
+        console.error("[ai] gemini error", model, status, googleSays);
+        // A bad key or a blocked project won't work with any model.
+        throw new ApiError("ai_failed", 502, `Gemini ${status}: ${googleSays || data?.error?.status || "error"}`);
+      }
+      const cand = data?.candidates?.[0];
+      const text = cand?.content?.parts?.filter((p) => !p.thought).map((p) => p.text ?? "").join("") ?? "";
+      const turn = parseTurn(text, ctx);
+      if (turn) return turn;
+      console.error("[ai] unusable reply", model, cand?.finishReason, text.slice(0, 300));
+      lastProblem = `unusable reply (${cand?.finishReason ?? "no candidates"})`;
+      if (strict) continue; // try once more without the schema
+    }
   }
-  const data = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-  const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
-  const turn = parseTurn(text, ctx);
-  if (!turn) {
-    console.warn("[ai] unusable reply", text.slice(0, 400));
-    throw new ApiError("ai_failed", 502);
-  }
-  return turn;
+  throw new ApiError("ai_failed", 502, lastProblem);
 }
 
 // --------------------------------------------------------------------- mock

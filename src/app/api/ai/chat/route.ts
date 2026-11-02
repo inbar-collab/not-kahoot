@@ -5,7 +5,7 @@ import { ApiError, handle, ok, readJson } from "@/server/http";
 import { db } from "@/server/supabase-admin";
 
 // Writing 30 questions can take the model a little while.
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 // One turn of the AI quiz builder chat. Signed-in hosts only, with a daily cap.
 export async function POST(req: Request) {

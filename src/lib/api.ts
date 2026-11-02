@@ -5,6 +5,7 @@ export class ClientApiError extends Error {
   constructor(
     public code: ApiErrorCode | "network",
     public status: number,
+    public detail?: string,
   ) {
     super(code);
   }
@@ -32,7 +33,7 @@ async function parse<T>(res: Response): Promise<T> {
   }
   if (!res.ok) {
     const code = (data as { error?: ApiErrorCode } | null)?.error ?? "server_error";
-    throw new ClientApiError(code, res.status);
+    throw new ClientApiError(code, res.status, (data as { detail?: string } | null)?.detail);
   }
   return data as T;
 }
