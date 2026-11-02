@@ -9,6 +9,10 @@ import { Avatar } from "../ui/Avatar";
 import { Ltr } from "../ui/Ltr";
 import { Portrait } from "../ui/Portrait";
 
+/**
+ * The waiting room: a join bar (QR + address + game code) across the top,
+ * the star in the middle, and every guest popping in as a name chip.
+ */
 export function LobbyStage({ snap, s, joinUrl }: { snap: ScreenSnapshot; s: Strings; joinUrl: string }) {
   const { game, players } = snap;
   const [qr, setQr] = useState("");
@@ -21,65 +25,87 @@ export function LobbyStage({ snap, s, joinUrl }: { snap: ScreenSnapshot; s: Stri
     }).then(setQr, () => setQr(""));
   }, [joinUrl]);
 
-  const displayUrl = joinUrl.replace(/^https?:\/\//, "");
+  // Short and typeable: the site's /join page asks for the code shown next to it.
+  const displayUrl = joinUrl.replace(/^https?:\/\//, "").replace(/\/join\/.*$/, "/join");
+  const t = template(game.template);
 
   return (
-    <div className="flex h-full flex-col px-[4vw] py-[4vh]">
-      <div className="grid flex-1 grid-cols-1 items-center gap-[4vw] md:grid-cols-[1.15fr_1fr]">
-        {/* Her */}
-        <div className="flex flex-col items-center text-center md:items-start md:text-start">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8 }}>
-            <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(36vh, 30vw)" />
-          </motion.div>
-          <p className="mt-[3vh] text-[min(2.6vh,3.2vw)] uppercase tracking-[0.3em] text-gold">
-            {template(game.template).emoji} {s.appName}
-          </p>
-          <h1 className="mt-[1vh] font-display text-[min(7.5vh,6vw)] font-bold leading-[1.1]">{game.title}</h1>
-          <p className="mt-[1.5vh] font-display text-[min(4.4vh,4vw)] text-gold-soft">
-            <bdi>{game.birthdayName}</bdi>
-            {game.birthdayAge ? <span className="text-mute"> · {s.age(game.birthdayAge)}</span> : null}
+    <div className="flex h-full flex-col gap-[2.5vh] px-[3vw] py-[3vh]">
+      {/* Join bar */}
+      <motion.div
+        initial={{ y: -40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 160, damping: 18 }}
+        className="card flex h-[24vh] shrink-0 items-center gap-[3vw] rounded-[3vh] px-[2.5vw]"
+      >
+        <div
+          className="aspect-square h-[19vh] shrink-0 overflow-hidden rounded-[1.6vh] bg-white p-[0.8vh] shadow-lg"
+          role="img"
+          aria-label={joinUrl}
+          dangerouslySetInnerHTML={{ __html: qr }}
+        />
+        <div className="flex min-w-0 flex-1 flex-col gap-[0.8vh]">
+          <p className="font-display text-[min(4.2vh,3.6vw)] font-bold">{s.scrJoinCta}</p>
+          <p className="text-[min(2.6vh,2.2vw)] text-mute">
+            {s.scrOrVisit} <Ltr className="font-bold text-cream">{displayUrl}</Ltr>
           </p>
         </div>
+        <div className="flex shrink-0 flex-col items-center rounded-[2vh] bg-ink-950/40 px-[2.5vw] py-[1.5vh]">
+          <span className="text-[min(2.2vh,2vw)] font-bold uppercase tracking-widest text-mute">{s.scrCode}</span>
+          <Ltr className="font-display text-[min(10vh,8vw)] font-black leading-none tracking-[0.08em] text-gold">{game.code}</Ltr>
+        </div>
+      </motion.div>
 
-        {/* Join */}
-        <div className="flex flex-col items-center">
-          <p className="mb-[2vh] font-display text-[min(4vh,4vw)] font-bold">{s.scrJoinCta}</p>
-          <div
-            className="aspect-square w-[min(44vh,38vw)] overflow-hidden rounded-[2.5vh] bg-white p-[1.2vh] shadow-[0_0_80px_-20px_color-mix(in_oklab,var(--color-gold)_50%,transparent)]"
-            role="img"
-            aria-label={joinUrl}
-            dangerouslySetInnerHTML={{ __html: qr }}
-          />
-          <p className="mt-[2vh] text-[min(2.4vh,3vw)] text-mute">{s.scrOrVisit}</p>
-          <Ltr className="text-[min(3vh,3.4vw)] font-bold tracking-wide text-cream">{displayUrl}</Ltr>
-          <p className="mt-[1vh] text-[min(2.2vh,2.6vw)] text-mute">
-            {s.scrCode}:{" "}
-            <bdi dir="ltr" className="font-display text-[min(3.4vh,3.8vw)] font-black tracking-[0.2em] text-gold">
-              {game.code}
-            </bdi>
+      {/* The star */}
+      <div className="flex shrink-0 items-center justify-center gap-[3vw]">
+        <motion.div
+          initial={{ scale: 0.7, opacity: 0, rotate: -6 }}
+          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+          transition={{ delay: 0.15, type: "spring", stiffness: 180, damping: 14 }}
+        >
+          <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(26vh, 22vw)" />
+        </motion.div>
+        <div className="min-w-0 max-w-[58vw]">
+          <p className="chip mb-[1.2vh] px-[1.2vw] py-[0.6vh] text-[min(2.4vh,2vw)]">
+            {t.emoji} {t.name[game.locale]}
+          </p>
+          <h1 className="font-display text-[min(7vh,5.4vw)] font-black leading-[1.05]">{game.title}</h1>
+          <p className="mt-[1vh] font-display text-[min(3.8vh,3.2vw)] font-bold text-gold-soft">
+            <bdi>{game.birthdayName}</bdi>
+            {game.birthdayAge ? <span className="text-mute"> · {s.age(game.birthdayAge)}</span> : null}
           </p>
         </div>
       </div>
 
       {/* Who's here */}
-      <div className="mt-[2vh] border-t border-ink-800 pt-[2.5vh]">
-        <p className="mb-[1.5vh] text-center font-display text-[min(3.6vh,4vw)] font-bold text-gold-soft" aria-live="polite">
-          {s.scrPlayersJoined(players.length)}
-        </p>
-        <div className="flex min-h-[9vh] flex-wrap items-start justify-center gap-[1.4vw]">
+      <div className="card flex min-h-0 flex-1 flex-col rounded-[3vh] px-[2vw] py-[2vh]">
+        <div className="mb-[1.5vh] flex items-center justify-between">
+          <p className="font-display text-[min(3.4vh,3vw)] font-bold" aria-live="polite">
+            {s.scrPlayersJoined(players.length)}
+          </p>
+          <span className="flex items-center gap-[0.6vw] text-[min(2.4vh,2vw)] text-mute">
+            <motion.span
+              className="h-[1.4vh] w-[1.4vh] rounded-full bg-gold"
+              animate={{ opacity: [0.3, 1, 0.3], scale: [0.9, 1.1, 0.9] }}
+              transition={{ repeat: Infinity, duration: 1.6 }}
+            />
+            {players.length}
+          </span>
+        </div>
+        <div className="flex min-h-0 flex-1 flex-wrap content-start gap-[1vw] overflow-hidden">
           <AnimatePresence>
-            {players.map((p) => (
+            {players.map((p, i) => (
               <motion.div
                 key={p.id}
                 layout
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                initial={{ scale: 0, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 380, damping: 20 }}
-                className="flex w-[min(10vh,12vw)] flex-col items-center gap-1"
+                transition={{ type: "spring", stiffness: 420, damping: 18 }}
+                className={`tile tile-${i % 4} flex items-center gap-[0.7vw] rounded-full py-[0.6vh] pe-[1.4vw] ps-[0.6vh] text-[min(2.6vh,2.2vw)]`}
               >
-                <Avatar player={p} size={64} className="!h-[min(7vh,9vw)] !w-[min(7vh,9vw)]" />
-                <bdi className="w-full truncate text-center text-[min(2vh,2.6vw)] font-bold">{p.name}</bdi>
+                <Avatar player={p} size={48} className="!h-[5vh] !w-[5vh] ring-2 ring-white/80" />
+                <bdi className="max-w-[16vw] truncate font-bold">{p.name}</bdi>
               </motion.div>
             ))}
           </AnimatePresence>

@@ -70,7 +70,7 @@ export function AiBuilder({
 
   return (
     <div className="flex flex-col gap-3">
-      <div ref={listRef} className="flex max-h-[55dvh] min-h-[260px] flex-col gap-3 overflow-y-auto rounded-3xl border border-ink-700 bg-ink-900 p-4">
+      <div ref={listRef} className="flex max-h-[55dvh] min-h-[260px] flex-col gap-3 overflow-y-auto rounded-3xl card p-4">
         <AnimatePresence initial={false}>
           {messages.map((m, i) => (
             <motion.div
@@ -181,7 +181,7 @@ export function AiBuilder({
           }}
           placeholder={s.aiPlaceholder}
           aria-label={s.aiPlaceholder}
-          className="min-h-[56px] flex-1 resize-none rounded-2xl border-2 border-ink-600 bg-ink-850 px-4 py-3 text-lg text-cream placeholder:text-ink-500 focus:border-gold focus:outline-none"
+          className="min-h-[56px] flex-1 resize-none field"
         />
         <Button type="submit" size="md" disabled={!draft.trim() || thinking}>
           {s.aiSend}

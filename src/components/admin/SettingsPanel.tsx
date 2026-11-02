@@ -10,7 +10,7 @@ import { Section } from "./Section";
 import type { AdminActions } from "./useAdminActions";
 
 const input =
-  "h-14 w-full rounded-2xl border-2 border-ink-600 bg-ink-850 px-4 text-lg text-cream focus:border-gold focus:outline-none";
+  "field h-14";
 
 export function SettingsPanel({ snap, s, actions }: { snap: AdminSnapshot; s: Strings; actions: AdminActions }) {
   const [form, setForm] = useState<AdminSettings>(snap.settings);
@@ -166,7 +166,7 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
       role="switch"
       aria-checked={on}
       onClick={() => onChange(!on)}
-      className="flex min-h-[60px] items-center justify-between gap-4 rounded-2xl border-2 border-ink-600 bg-ink-850 px-4 text-start text-lg font-bold"
+      className="flex min-h-[60px] items-center justify-between gap-4 rounded-2xl border-2 border-ink-700 bg-ink-850 px-4 text-start text-lg font-bold"
     >
       <span>{label}</span>
       <span className={`relative h-8 w-14 shrink-0 rounded-full transition ${on ? "bg-gold" : "bg-ink-600"}`}>

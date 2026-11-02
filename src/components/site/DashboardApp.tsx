@@ -122,7 +122,7 @@ function GameCard({ g, base, s, onDelete }: { g: MyGame; base: string; s: String
   const join = `${base}/join/${g.code}`;
   const star = `${base}/star/${g.code}?token=${encodeURIComponent(g.birthdayToken)}`;
   return (
-    <motion.li layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} className="overflow-hidden rounded-3xl border border-ink-700 bg-ink-900">
+    <motion.li layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} className="overflow-hidden rounded-3xl card">
       <div className="flex items-center gap-4 p-5" style={{ background: `linear-gradient(135deg, ${surface}, ${bg})`, color: text }}>
         {g.photoUrl ? (
           <img src={g.photoUrl} alt="" className="h-16 w-16 shrink-0 rounded-full object-cover" style={{ boxShadow: `0 0 0 3px ${accent}` }} />
@@ -168,7 +168,7 @@ function ClaimForm({ s, onClaimed }: { s: Strings; onClaimed: () => void }) {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   return (
-    <details className="rounded-3xl border border-ink-700 bg-ink-900 p-5">
+    <details className="rounded-3xl card p-5">
       <summary className="cursor-pointer text-lg font-bold text-mute">{s.dashClaimTitle}</summary>
       <form
         className="mt-4 flex flex-col gap-3"
@@ -195,7 +195,7 @@ function ClaimForm({ s, onClaimed }: { s: Strings; onClaimed: () => void }) {
           value={link}
           onChange={(e) => setLink(e.target.value)}
           placeholder={s.dashClaimPlaceholder}
-          className="h-14 w-full rounded-2xl border-2 border-ink-600 bg-ink-850 px-4 text-base text-cream placeholder:text-ink-500 focus:border-gold focus:outline-none"
+          className="h-14 w-full field"
         />
         <Button type="submit" size="md" busy={busy} disabled={!link.trim()}>
           {s.dashClaimButton}

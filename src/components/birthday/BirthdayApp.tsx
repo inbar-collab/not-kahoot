@@ -6,6 +6,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { api, ClientApiError, gamePath } from "@/lib/api";
 import { getStrings, roundLabel, type Strings } from "@/lib/strings";
 import type { BirthdaySnapshot } from "@/lib/types";
+import { AnswerShape } from "../ui/AnswerShape";
 import { Avatar } from "../ui/Avatar";
 import { Button } from "../ui/Button";
 import { Portrait } from "../ui/Portrait";
@@ -196,36 +197,39 @@ function AnswerFlow({
     <div className="flex flex-1 flex-col p-5">
       <div className="flex items-center gap-3">
         <Portrait url={snap.game.birthdayPhotoUrl} name={snap.game.birthdayName} size={48} />
-        <p className="text-lg font-bold text-gold">{roundLabel(s, round.index, snap.game)}</p>
+        <p className="chip !bg-gold/15 text-sm !text-gold-soft">{roundLabel(s, round.index, snap.game)}</p>
       </div>
       {snap.game.state === "WAITING_FOR_BIRTHDAY" && (
         <p className="mt-3 rounded-2xl bg-gold/10 px-4 py-2 text-lg text-gold-soft">{s.bdEveryoneWaiting}</p>
       )}
-      <h1 className="mt-4 font-display text-3xl font-bold leading-snug">{round.text}</h1>
+      <h1 className="mt-4 font-display text-[1.7rem] font-bold leading-snug">{round.text}</h1>
       <p className="mt-2 text-xl text-mute">{s.bdPick}</p>
       <div className="mt-5 flex flex-1 flex-col gap-3">
         {round.options.map((opt, i) => {
           const on = selected.includes(i);
           return (
-            <button
+            <motion.button
               key={i}
               type="button"
               role="checkbox"
               aria-checked={on}
               onClick={() => toggle(i)}
-              className={`flex min-h-[76px] items-center gap-4 rounded-3xl border-2 px-5 py-3 text-start text-2xl font-bold transition ${
-                on ? "border-gold bg-gold/15" : "border-ink-600 bg-ink-850 hover:border-gold/60"
+              whileTap={{ scale: 0.97 }}
+              className={`tile tile-${i} relative flex min-h-[80px] items-center gap-4 rounded-[1.4rem] px-5 py-3 text-start text-[1.4rem] font-bold leading-tight transition ${
+                on ? "ring-4 ring-white ring-offset-2 ring-offset-ink-950" : "opacity-85"
               }`}
             >
+              <AnswerShape index={i} className="h-9 w-9 shrink-0" />
+              <span className="flex-1 [overflow-wrap:anywhere]">{opt}</span>
               <span
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 font-display text-xl ${
-                  on ? "border-gold bg-gold text-ink-950" : "border-gold text-gold"
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-[3px] border-white text-xl font-black ${
+                  on ? "bg-white text-[#1a1a1a]" : ""
                 }`}
+                aria-hidden
               >
-                {on ? "✓" : s.marks[i]}
+                {on ? "✓" : ""}
               </span>
-              <span>{opt}</span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

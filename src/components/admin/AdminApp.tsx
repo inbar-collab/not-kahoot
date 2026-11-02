@@ -50,18 +50,18 @@ export function AdminApp({
   if (!data) return <Loading label={s.loading} />;
 
   const base = (baseUrl || window.location.origin).replace(/\/$/, "");
-  const tabs: [Tab, string][] = [
-    ["game", s.adminTabGame],
-    ["questions", s.adminTabQuestions],
-    ["photos", s.adminTabPhotos],
-    ["settings", s.adminTabSettings],
-    ["test", s.adminTabTest],
+  const tabs: [Tab, string, string][] = [
+    ["game", "🎮", s.adminTabGame],
+    ["questions", "❓", s.adminTabQuestions],
+    ["photos", "🖼️", s.adminTabPhotos],
+    ["settings", "⚙️", s.adminTabSettings],
+    ["test", "🧪", s.adminTabTest],
   ];
 
   return (
-    <main className="min-h-dvh bg-ink-950 pb-24">
+    <main className="stage-bg min-h-dvh pb-24">
       <ConnectionPill state={connection} label={s.reconnecting} />
-      <header className="sticky top-0 z-30 border-b border-ink-800 bg-ink-950/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-white/5 bg-ink-950/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <Link href="/dashboard" className="shrink-0 rounded-xl px-2 py-2 text-base font-bold text-mute hover:bg-ink-800 hover:text-cream">
             {s.adminBack}
@@ -74,17 +74,20 @@ export function AdminApp({
             </p>
           </div>
         </div>
-        <nav className="mx-auto grid max-w-3xl grid-cols-5 gap-1 px-2 pb-2" aria-label={s.adminTitle}>
-          {tabs.map(([id, label]) => (
+        <nav className="mx-3 mb-3 grid max-w-3xl grid-cols-5 gap-1 rounded-2xl bg-ink-900/80 p-1 sm:mx-auto" aria-label={s.adminTitle}>
+          {tabs.map(([id, icon, label]) => (
             <button
               key={id}
               type="button"
               aria-current={tab === id ? "page" : undefined}
               onClick={() => setTab(id)}
-              className={`min-h-[48px] rounded-xl px-1 text-base font-bold transition sm:text-lg ${
-                tab === id ? "bg-gold text-ink-950" : "text-mute hover:bg-ink-800 hover:text-cream"
+              className={`flex min-h-[52px] flex-col items-center justify-center rounded-xl px-1 text-xs font-bold transition sm:flex-row sm:gap-1.5 sm:text-base ${
+                tab === id ? "bg-gold text-ink-950 shadow-md" : "text-mute hover:bg-ink-800 hover:text-cream"
               }`}
             >
+              <span className="text-lg leading-none" aria-hidden>
+                {icon}
+              </span>
               {label}
             </button>
           ))}

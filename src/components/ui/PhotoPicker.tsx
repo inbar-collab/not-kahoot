@@ -14,6 +14,7 @@ export function PhotoPicker({
   onPicked,
   onError,
   className = "",
+  hint,
   capture,
 }: {
   label: string;
@@ -22,6 +23,8 @@ export function PhotoPicker({
   onPicked: (blobs: Blob[]) => void | Promise<void>;
   onError?: () => void;
   className?: string;
+  /** Accessible name and tooltip, for icon-only labels. */
+  hint?: string;
   capture?: "user" | "environment";
 }) {
   const id = useId();
@@ -65,6 +68,8 @@ export function PhotoPicker({
       <label
         htmlFor={id}
         tabIndex={0}
+        aria-label={hint}
+        title={hint}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

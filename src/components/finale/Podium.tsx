@@ -5,6 +5,7 @@ import type { Standing } from "@/lib/types";
 import { Figure } from "./Figure";
 
 const HEIGHTS = { 1: 1, 2: 0.76, 3: 0.6 } as const;
+const MEDAL = { 1: "#f7c948", 2: "#c9d1de", 3: "#df9a68" } as const;
 const MAX_FIGURES = 3;
 
 /**
@@ -61,16 +62,19 @@ export function Podium({
               )}
             </div>
             <motion.div
-              className={`relative flex w-full flex-col items-center justify-start rounded-t-3xl border-x border-t ${
-                place === 1 ? "border-gold/60 bg-gradient-to-b from-ink-700 to-ink-850" : "border-ink-600 bg-gradient-to-b from-ink-800 to-ink-900"
-              }`}
-              style={{ height: `calc(${blockH} * ${HEIGHTS[place]})`, transformOrigin: "bottom" }}
+              className="relative flex w-full flex-col items-center justify-start rounded-t-[1.4rem] text-[#24170b]"
+              style={{
+                height: `calc(${blockH} * ${HEIGHTS[place]})`,
+                transformOrigin: "bottom",
+                background: `linear-gradient(180deg, color-mix(in oklab, ${MEDAL[place]} 70%, white), ${MEDAL[place]} 45%, color-mix(in oklab, ${MEDAL[place]} 80%, black))`,
+                boxShadow: `inset 0 3px 0 rgb(255 255 255 / 0.45), 0 20px 40px -20px rgb(0 0 0 / 0.6)`,
+              }}
               initial={{ scaleY: 0 }}
               animate={{ scaleY: 1 }}
               transition={{ delay: d, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
             >
               <span
-                className={`font-display font-black leading-none ${place === 1 ? "text-gold" : "text-mute"}`}
+                className="font-display font-black leading-none drop-shadow-[0_2px_0_rgb(255_255_255/0.4)]"
                 style={{
                   fontSize: tv ? (place === 1 ? "min(8vh, 88px)" : "min(5.5vh, 60px)") : place === 1 ? "40px" : "30px",
                   marginTop: tv ? "1.5vh" : "6px",
@@ -78,18 +82,18 @@ export function Podium({
               >
                 {place}
               </span>
-              <div dir="rtl" className="mt-1 flex flex-wrap justify-center gap-x-1 px-2 text-center leading-snug">
+              <div className="mt-1 flex flex-wrap justify-center gap-x-1 px-2 text-center leading-snug">
                 {group.length === 0 ? (
-                  <span className="text-ink-500">—</span>
+                  <span className="opacity-50">—</span>
                 ) : (
                   group.map((s, k) => (
                     <bdi
                       key={s.player.id}
-                      className={`font-bold ${s.player.id === highlightId ? "text-gold-soft underline decoration-gold decoration-2 underline-offset-4" : "text-cream"}`}
+                      className={`font-bold ${s.player.id === highlightId ? "underline decoration-2 underline-offset-4" : ""}`}
                       style={{ fontSize: tv ? "min(2.6vh, 28px)" : "15px" }}
                     >
                       {s.player.name}
-                      {k < group.length - 1 && <span className="text-mute">,</span>}
+                      {k < group.length - 1 && <span className="opacity-60">,</span>}
                     </bdi>
                   ))
                 )}

@@ -57,12 +57,12 @@ export function JoinForm({
 
   return (
     <main className="stage-bg min-h-dvh px-5 pb-10 pt-8">
-      <form onSubmit={submit} className="mx-auto flex max-w-md flex-col items-center gap-6" noValidate>
+      <form onSubmit={submit} className="card mx-auto flex max-w-md flex-col items-center gap-6 rounded-[2rem] p-5 sm:p-7" noValidate>
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
           <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size={150} />
         </motion.div>
         <div className="text-center">
-          <h1 className="font-display text-4xl font-bold leading-tight text-cream">{game.title}</h1>
+          <h1 className="font-display text-[2rem] font-black leading-tight text-cream">{game.title}</h1>
           <p className="mt-2 text-xl text-mute">{s.joinSubtitle}</p>
         </div>
 
@@ -82,7 +82,7 @@ export function JoinForm({
             autoComplete="nickname"
             enterKeyHint="go"
             placeholder={s.joinNamePlaceholder}
-            className="h-16 w-full rounded-2xl border-2 border-ink-600 bg-ink-850 px-5 text-2xl text-cream placeholder:text-ink-500 focus:border-gold focus:outline-none"
+            className="field h-16 !text-2xl font-bold"
           />
         </label>
 
@@ -126,8 +126,8 @@ export function JoinForm({
                     aria-pressed={emoji === e}
                     aria-label={e}
                     onClick={() => setEmoji(emoji === e ? null : e)}
-                    className={`flex h-14 items-center justify-center rounded-2xl text-3xl transition ${
-                      emoji === e ? "bg-gold/25 ring-2 ring-gold" : "bg-ink-800 hover:bg-ink-700"
+                    className={`flex h-14 items-center justify-center rounded-2xl text-3xl transition active:scale-90 ${
+                      emoji === e ? "scale-110 bg-gold/25 ring-[3px] ring-gold" : "bg-ink-800 hover:bg-ink-700"
                     }`}
                   >
                     {e}

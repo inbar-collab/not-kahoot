@@ -19,7 +19,7 @@ interface Draft {
 }
 
 const input =
-  "w-full rounded-2xl border-2 border-ink-600 bg-ink-850 px-4 py-3 text-lg text-cream placeholder:text-ink-500 focus:border-gold focus:outline-none";
+  "field";
 
 export function QuestionsPanel({
   snap,
@@ -199,57 +199,62 @@ function QuestionRow({
   return (
     <motion.li
       layout
-      className={`rounded-2xl border p-3 ${q.active ? (q.practice ? "border-2 border-gold/70 bg-ink-850" : "border-ink-700 bg-ink-850") : "border-dashed border-ink-700 bg-ink-900 opacity-70"}`}
+      className={`rounded-2xl border p-3 ${q.active ? (q.practice ? "border-2 border-gold/70 bg-gold/5" : "border-white/5 bg-ink-850") : "border-dashed border-ink-700 bg-ink-900 opacity-70"}`}
     >
       <div className="flex gap-3">
         <span className="mt-1 font-display text-xl font-bold text-gold">{q.practice ? "🎯" : i + 1}</span>
         <div className="min-w-0 flex-1">
           {q.practice && <p className="text-sm font-bold text-gold">{s.qPractice}</p>}
           <p className="text-lg font-bold leading-snug">{q.text}</p>
-          <p className="mt-1 text-base text-mute">{q.options.join(" · ")}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {q.options.map((o, k) => (
+              <span key={k} className={`tile tile-${k} rounded-lg px-2 py-0.5 text-sm font-bold !shadow-none`}>
+                {o}
+              </span>
+            ))}
+          </div>
           {!q.active && <p className="mt-1 text-sm text-mute">{s.qInactive}</p>}
         </div>
         {q.photoUrl && <img src={q.photoUrl} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />}
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-white/5 pt-3">
         {!q.practice && (
           <>
-            <Button variant="ghost" size="md" className="!px-3" aria-label={s.qUp} disabled={i === 0} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "up" })}>
+            <IconButton label={s.qUp} disabled={i === 0} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "up" })}>
               ↑
-            </Button>
-            <Button variant="ghost" size="md" className="!px-3" aria-label={s.qDown} disabled={last} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "down" })}>
+            </IconButton>
+            <IconButton label={s.qDown} disabled={last} onClick={() => void actions.run("moveQuestion", { id: q.id, direction: "down" })}>
               ↓
-            </Button>
+            </IconButton>
           </>
         )}
-        <Button variant="ghost" size="md" onClick={onEdit}>
-          {s.qEdit}
-        </Button>
-        <Button
-          variant="ghost"
-          size="md"
-          busy={actions.busy === `setQuestionActive${q.id}`}
+        <IconButton label={s.qEdit} onClick={onEdit}>
+          ✏️
+        </IconButton>
+        <IconButton
+          label={q.active ? s.qDeactivate : s.qActivate}
+          pressed={!q.active}
           onClick={() => void actions.run("setQuestionActive", { id: q.id, active: !q.active })}
         >
-          {q.active ? s.qDeactivate : s.qActivate}
-        </Button>
-        <Button
-          variant="ghost"
-          size="md"
-          busy={actions.busy === `setQuestionPractice${q.id}`}
+          {q.active ? "👁️" : "🚫"}
+        </IconButton>
+        <IconButton
+          label={q.practice ? s.qUnmakePractice : s.qMakePractice}
+          pressed={q.practice}
           onClick={() => void actions.run("setQuestionPractice", { id: q.id, practice: !q.practice })}
         >
-          {q.practice ? s.qUnmakePractice : s.qMakePractice}
-        </Button>
+          🎯
+        </IconButton>
         {q.photoUrl ? (
-          <Button variant="ghost" size="md" onClick={() => void actions.run("removeQuestionPhoto", { id: q.id })}>
-            {s.qRemovePhoto}
-          </Button>
+          <IconButton label={s.qRemovePhoto} onClick={() => void actions.run("removeQuestionPhoto", { id: q.id })}>
+            🖼️✕
+          </IconButton>
         ) : (
           <PhotoPicker
-            label={s.qAddPhoto}
-            busyLabel={s.loading}
-            className={`!min-h-[52px] !border-solid !text-base ${uploading ? "opacity-60" : ""}`}
+            label="📷"
+            hint={s.qAddPhoto}
+            busyLabel=""
+            className={`!min-h-[44px] !w-11 !rounded-xl !border-0 !bg-ink-800 !px-0 !text-lg ${uploading ? "opacity-60" : ""}`}
             onPicked={async ([b]) => {
               setUploading(true);
               await actions.upload("question", b, q.id);
@@ -257,17 +262,47 @@ function QuestionRow({
             }}
           />
         )}
-        <Button
-          variant="ghost"
-          size="md"
+        <span className="flex-1" />
+        <IconButton
+          label={s.qDelete}
           onClick={async () => {
             if (await confirm(s.adminConfirmDeleteQuestion)) await actions.run("deleteQuestion", { id: q.id });
           }}
         >
-          {s.qDelete}
-        </Button>
+          🗑️
+        </IconButton>
       </div>
     </motion.li>
+  );
+}
+
+function IconButton({
+  label,
+  onClick,
+  disabled,
+  pressed,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  pressed?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      aria-pressed={pressed}
+      disabled={disabled}
+      onClick={onClick}
+      className={`flex h-11 min-w-11 items-center justify-center rounded-xl px-2 text-lg font-bold transition disabled:opacity-30 ${
+        pressed ? "bg-gold/25 ring-2 ring-gold/60" : "bg-ink-800 hover:bg-ink-700"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 

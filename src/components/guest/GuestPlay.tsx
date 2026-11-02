@@ -13,6 +13,7 @@ import { Ranking } from "../finale/Ranking";
 import { Avatar } from "../ui/Avatar";
 import { Spinner } from "../ui/Button";
 import { Portrait } from "../ui/Portrait";
+import { AnswerShape } from "../ui/AnswerShape";
 import { CorrectBadge, SadFace } from "./Feedback";
 
 interface Props {
@@ -73,11 +74,11 @@ export function GuestPlay({ snap, s, token, refresh, msInState, react }: Props &
 
   return (
     <main className="stage-bg flex min-h-dvh flex-col">
-      <header className="flex items-center gap-3 border-b border-ink-800 px-4 py-3">
+      <header className="card mx-3 mt-3 flex items-center gap-3 rounded-2xl px-3 py-2.5">
         <Avatar player={me.player} size={40} />
         <span className="min-w-0 flex-1 truncate text-lg font-bold"><bdi>{me.player.name}</bdi></span>
-        <span className="rounded-full bg-ink-800 px-4 py-1 text-lg font-bold text-gold-soft" aria-live="polite">
-          {s.guestScore(me.score)}
+        <span className="rounded-full bg-gold px-4 py-1 text-lg font-black text-ink-950" aria-live="polite">
+          {me.score}
         </span>
         <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size={40} />
       </header>
@@ -160,9 +161,9 @@ function RoundView({ snap, s, token, refresh, msInState }: Props) {
   }
 
   const header = (
-    <div className="px-5 pt-5">
-      <p className="text-lg font-bold text-gold">{roundLabel(s, round.index, snap.game)}</p>
-      <h1 className="mt-2 font-display text-3xl font-bold leading-snug">{round.text}</h1>
+    <div className="px-4 pt-4">
+      <p className="chip !bg-gold/15 text-sm !text-gold-soft">{roundLabel(s, round.index, snap.game)}</p>
+      <h1 className="mt-3 font-display text-[1.7rem] font-bold leading-snug">{round.text}</h1>
     </div>
   );
 
@@ -179,20 +180,22 @@ function RoundView({ snap, s, token, refresh, msInState }: Props) {
     return (
       <>
         {header}
-        <p className="px-5 pt-3 text-xl text-mute">{s.guestPickPrompt}</p>
-        <div className="flex flex-1 flex-col gap-3 p-5">
+        <p className="px-4 pt-2 text-lg text-mute">{s.guestPickPrompt}</p>
+        <div className="flex flex-1 flex-col gap-3 p-4 pb-6">
           {round.options.map((opt, i) => (
-            <button
+            <motion.button
               key={i}
               type="button"
               onClick={() => void answer(i)}
-              className="flex min-h-[76px] items-center gap-4 rounded-3xl border-2 border-ink-600 bg-ink-850 px-5 py-3 text-start text-2xl font-bold transition active:scale-[0.98] active:border-gold hover:border-gold/60"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06, type: "spring", stiffness: 300, damping: 22 }}
+              whileTap={{ scale: 0.97, y: 4 }}
+              className={`tile tile-${i} flex min-h-[84px] flex-1 items-center gap-4 rounded-[1.4rem] px-5 py-3 text-start text-[1.45rem] font-bold leading-tight`}
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-gold font-display text-xl text-gold">
-                {s.marks[i]}
-              </span>
-              <span>{opt}</span>
-            </button>
+              <AnswerShape index={i} className="h-10 w-10 shrink-0 drop-shadow" />
+              <span className="[overflow-wrap:anywhere]">{opt}</span>
+            </motion.button>
           ))}
           {error && (
             <p role="alert" className="rounded-2xl bg-ink-800 p-4 text-lg">
@@ -212,21 +215,31 @@ function RoundView({ snap, s, token, refresh, msInState }: Props) {
         {chosen !== null ? (
           <>
             <motion.div
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 320, damping: 16 }}
-              className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-gold text-6xl text-gold"
+              initial={{ scale: 0.5, rotate: -12, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 14 }}
+              className={`tile tile-${chosen} flex h-32 w-32 items-center justify-center rounded-[2rem]`}
               aria-hidden
             >
-              ✓
+              <AnswerShape index={chosen} className="h-16 w-16" />
             </motion.div>
-            <p className="font-display text-4xl font-bold text-gold-soft" role="status">
+            <p className="font-display text-4xl font-black" role="status">
               {s.guestRegistered}
             </p>
-            <div className="rounded-3xl bg-ink-800 px-6 py-4 text-2xl">
+            <div className="card rounded-3xl px-6 py-4 text-xl">
               <span className="text-mute">{s.guestYourAnswer} </span>
               <strong>{round.options[chosen]}</strong>
             </div>
+            <motion.div className="flex gap-2" aria-hidden>
+              {[0, 1, 2].map((k) => (
+                <motion.span
+                  key={k}
+                  className="h-2.5 w-2.5 rounded-full bg-gold"
+                  animate={{ opacity: [0.2, 1, 0.2] }}
+                  transition={{ repeat: Infinity, duration: 1.2, delay: k * 0.2 }}
+                />
+              ))}
+            </motion.div>
           </>
         ) : (
           <p className="text-2xl text-mute">{s.guestNoAnswer}</p>
@@ -267,7 +280,7 @@ function RevealView({ snap, s, msInState }: Omit<Props, "token" | "refresh">) {
             initial={{ scale: 1.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.6, opacity: 0 }}
-            className="font-display text-[9rem] font-black text-gold"
+            className="flex h-56 w-56 items-center justify-center rounded-full bg-gold/15 font-display text-[8rem] font-black text-gold ring-8 ring-gold/40"
           >
             {n}
           </motion.span>
@@ -276,35 +289,48 @@ function RevealView({ snap, s, msInState }: Omit<Props, "token" | "refresh">) {
     );
   }
 
-  const herAnswers = reveal.birthdayChoices.map((c) => round.options[c]);
+  const right = reveal.correct === true;
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-5 p-6 text-center" role="status">
-      {reveal.correct === true ? (
+    <motion.div
+      className={`relative m-3 flex flex-1 flex-col items-center justify-center gap-5 overflow-hidden rounded-[2rem] p-6 text-center text-white ${
+        right ? "bg-[linear-gradient(160deg,#2ad37f,#0f9a5a)]" : "bg-[linear-gradient(160deg,#ff6670,#c42b3d)]"
+      } ${reveal.correct === null ? "!bg-[linear-gradient(160deg,#7b7f99,#4b4f6a)]" : ""}`}
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 220, damping: 18 }}
+      role="status"
+    >
+      {right ? (
         <>
           <CorrectBadge label={round.practice ? "✓" : "+1"} />
-          <p className="font-display text-4xl font-bold text-gold-soft">{pick(s.guestCorrectLines, round.index + (snap.me?.score ?? 0))}</p>
+          <p className="font-display text-4xl font-black drop-shadow">{pick(s.guestCorrectLines, round.index + (snap.me?.score ?? 0))}</p>
         </>
       ) : (
         <>
           <SadFace />
-          <p className="font-display text-3xl font-bold">{reveal.correct === false ? pick(s.guestWrongLines, round.index) : s.guestNoAnswer}</p>
+          <p className="font-display text-3xl font-black drop-shadow">
+            {reveal.correct === false ? pick(s.guestWrongLines, round.index) : s.guestNoAnswer}
+          </p>
         </>
       )}
-      <div className="w-full max-w-sm rounded-3xl bg-ink-800 px-5 py-4">
-        <p className="text-lg text-mute">{s.guestSheChose}</p>
-        {herAnswers.map((a) => (
-          <p key={a} className="mt-1 text-2xl font-bold text-gold-soft">
-            {a}
-          </p>
-        ))}
+      <div className="w-full max-w-sm rounded-3xl bg-black/20 px-5 py-4">
+        <p className="text-base font-bold opacity-80">{s.guestSheChose}</p>
+        <div className="mt-2 flex flex-col gap-2">
+          {reveal.birthdayChoices.map((c) => (
+            <div key={c} className={`tile tile-${c} flex items-center gap-3 rounded-2xl px-4 py-2.5 text-start text-xl font-bold`}>
+              <AnswerShape index={c} className="h-7 w-7 shrink-0" />
+              {round.options[c]}
+            </div>
+          ))}
+        </div>
       </div>
       {round.practice ? (
-        <p className="text-xl text-mute">{s.guestPracticeNote}</p>
+        <p className="text-lg font-bold opacity-90">{s.guestPracticeNote}</p>
       ) : (
-        snap.me && <p className="text-xl">{s.guestScore(snap.me.score)}</p>
+        snap.me && <p className="rounded-full bg-black/20 px-5 py-2 text-xl font-bold">{s.guestScore(snap.me.score)}</p>
       )}
-      {snap.me && snap.me.streak >= 3 && <p className="text-xl text-gold-soft">{s.streak(snap.me.streak)}</p>}
-    </div>
+      {snap.me && snap.me.streak >= 3 && <p className="text-xl font-bold">{s.streak(snap.me.streak)}</p>}
+    </motion.div>
   );
 }
 

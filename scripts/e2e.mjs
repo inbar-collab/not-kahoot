@@ -98,7 +98,7 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
   await shot(screen, '05-screen-intro.png');
   await admin.getByRole('button', { name: 'פתיחת שאלה 1' }).click();
   await screen.getByText('שאלה 1 מתוך 8').waitFor();
-  await screen.getByText('0 מתוך 2 ענו').waitFor();
+  await screen.getByLabel('0 מתוך 2 ענו').waitFor();
   log('question 1 open');
 
   // Fairness checks via API before her lock.
@@ -108,9 +108,9 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
 
   await g1.getByRole('button', { name: /קפה שחור/ }).click();
   await g1.getByText('נרשם!').waitFor();
-  await g2.getByRole('button', { name: /^ב/ }).first().click();
+  await g2.locator('main button.tile').nth(1).click();
   await g2.getByText('נרשם!').waitFor();
-  await screen.getByText('2 מתוך 2 ענו').waitFor();
+  await screen.getByLabel('2 מתוך 2 ענו').waitFor();
   await screen.waitForTimeout(600);
   await shot(screen, '06-screen-question.png');
   await shot(g1, '07-guest-registered.png');
@@ -198,7 +198,7 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
   await bday.getByRole('checkbox', { name: /ציפור בוקר/ }).click();
   await bday.getByRole('button', { name: 'המשך' }).click();
   await bday.getByRole('button', { name: /נעילת התשובה/ }).click();
-  await screen.getByText('3 מתוך 3 ענו').waitFor();
+  await screen.getByLabel('3 מתוך 3 ענו').waitFor();
   await admin.getByRole('button', { name: 'סגירת ההצבעה' }).click();
   await admin.getByRole('button', { name: '✨ חשיפה' }).click();
   await screen.getByText('כל ה-3 הכירו אותה').waitFor({ timeout: 10000 });

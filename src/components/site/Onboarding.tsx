@@ -46,7 +46,7 @@ export function Onboarding({ s, onClose }: { s: Strings; onClose: () => void }) 
       aria-labelledby="onb-title"
     >
       <motion.div
-        className="relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-ink-700 bg-ink-900 p-6 shadow-2xl sm:p-8"
+        className="relative w-full max-w-lg overflow-hidden rounded-[2rem] card p-6 shadow-2xl sm:p-8"
         initial={{ y: 40, scale: 0.96 }}
         animate={{ y: 0, scale: 1 }}
       >

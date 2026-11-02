@@ -9,6 +9,7 @@ import { pick, roundLabel, type Strings } from "@/lib/strings";
 import { REVEAL_ANSWER_MS, REVEAL_COUNT_MS, REVEAL_COUNTDOWN_MS } from "@/lib/timing";
 import type { ScreenSnapshot } from "@/lib/types";
 import { Avatar } from "../ui/Avatar";
+import { AnswerShape } from "../ui/AnswerShape";
 import { Portrait } from "../ui/Portrait";
 
 /** 3-2-1, then her answer(s) with her photo, then how many knew her. */
@@ -57,23 +58,31 @@ export function RevealStage({
       <p className="absolute top-[4vh] text-[min(3vh,3.4vw)] font-bold text-gold">
         {roundLabel(s, round.index, game)}
       </p>
-      <h2 className="absolute top-[9vh] line-clamp-2 max-w-[80vw] font-display text-[min(4vh,4vw)] leading-tight text-mute">
+      <h2 className="absolute top-[9vh] line-clamp-2 max-w-[80vw] font-display text-[min(4vh,4vw)] font-bold leading-tight text-mute">
         {round.text}
       </h2>
 
       <AnimatePresence mode="wait">
         {counting ? (
-          <motion.span
+          <motion.div
             key={`n${n}`}
-            initial={{ scale: 2, opacity: 0 }}
+            className="relative flex h-[44vh] w-[44vh] items-center justify-center"
+            initial={{ scale: 1.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.4, opacity: 0 }}
+            exit={{ scale: 0.5, opacity: 0 }}
             transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
-            className="font-display text-[min(36vh,30vw)] font-black leading-none text-gold"
-            aria-live="assertive"
           >
-            {n}
-          </motion.span>
+            <motion.span
+              className="absolute inset-0 rounded-full border-[1.4vh] border-gold"
+              initial={{ scale: 0.8, opacity: 0.9 }}
+              animate={{ scale: 1.25, opacity: 0 }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
+            />
+            <span className="absolute inset-[6%] rounded-full bg-gold/15 ring-[1vh] ring-gold/40" />
+            <span className="relative font-display text-[min(30vh,26vw)] font-black leading-none text-gold" aria-live="assertive">
+              {n}
+            </span>
+          </motion.div>
         ) : (
           <motion.div
             key="answer"
@@ -89,7 +98,7 @@ export function RevealStage({
               >
                 <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(26vh, 26vw)" />
               </motion.div>
-              <HerAnswers options={round.options} choices={reveal.birthdayChoices} label={s.scrHerAnswer} marks={s.marks} />
+              <HerAnswers options={round.options} choices={reveal.birthdayChoices} label={s.scrHerAnswer} />
             </div>
 
             <div className="mt-[4vh] min-h-[16vh]">
@@ -142,7 +151,7 @@ function quip(s: Strings, correct: number, answered: number, seed: number): stri
 }
 
 /** Her answer(s) as gold cards. The box has a fixed size; long answers shrink to fit. */
-function HerAnswers({ options, choices, label, marks }: { options: string[]; choices: number[]; label: string; marks: string[] }) {
+function HerAnswers({ options, choices, label }: { options: string[]; choices: number[]; label: string }) {
   const ref = useAutoFit<HTMLDivElement>([options.join("|"), choices.join(",")], {
     maxVh: 0.065,
     maxVw: 0.055,
@@ -165,11 +174,9 @@ function HerAnswers({ options, choices, label, marks }: { options: string[]; cho
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 + i * 0.15, duration: 0.4 }}
-            className="flex min-w-0 max-w-full items-center gap-[0.45em] rounded-[0.45em] bg-gold px-[0.6em] py-[0.3em] text-ink-950 shadow-[0_0_80px_-10px_color-mix(in_oklab,var(--color-gold)_70%,transparent)]"
+            className={`tile tile-${c} flex min-w-0 max-w-full items-center gap-[0.45em] rounded-[0.45em] px-[0.6em] py-[0.3em]`}
           >
-            <span className="flex h-[1.3em] w-[1.3em] shrink-0 items-center justify-center rounded-full border-2 border-ink-950 font-display">
-              <span className="text-[0.6em]">{marks[c]}</span>
-            </span>
+            <AnswerShape index={c} className="h-[1.1em] w-[1.1em] shrink-0" />
             <span className="min-w-0 text-start font-display font-bold leading-tight [overflow-wrap:anywhere]">
               {options[c]}
             </span>

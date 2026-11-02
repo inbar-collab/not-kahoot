@@ -8,7 +8,6 @@ import { audioReady, play, unlockAudio, type SoundName } from "@/lib/sound";
 import { getStrings } from "@/lib/strings";
 import type { ScreenSnapshot } from "@/lib/types";
 import { CenterMessage, ConnectionPill, Loading } from "../ui/Status";
-import { Portrait } from "../ui/Portrait";
 import type { Reaction } from "@/lib/reactions";
 import { Decor } from "./Decor";
 import { Reactions } from "./Reactions";
@@ -121,14 +120,6 @@ export function ScreenApp({ params, baseUrl }: { params: Promise<{ code: string 
           {stage}
         </motion.div>
       </AnimatePresence>
-
-      {/* Recurring portrait motif (not on scenes that already feature her). */}
-      {game.state !== "LOBBY" && game.state !== "INTRO" && game.state !== "REVEAL" && game.state !== "LEADERBOARD" && game.state !== "FINISHED" && (
-        <div className="pointer-events-none absolute bottom-[2.5vh] left-[2vw] flex items-center gap-3 opacity-90">
-          <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(7vh, 72px)" />
-          <bdi className="font-display text-[min(2.4vh,26px)] text-mute">{game.birthdayName}</bdi>
-        </div>
-      )}
 
       <Reactions list={floating} />
 

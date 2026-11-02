@@ -15,7 +15,7 @@ import { AiBuilder } from "./AiBuilder";
 import { SiteHeader } from "./SiteHeader";
 
 const input =
-  "h-14 w-full rounded-2xl border-2 border-ink-600 bg-ink-850 px-4 text-lg text-cream placeholder:text-ink-500 focus:border-gold focus:outline-none";
+  "field h-14";
 
 /** Two steps: pick the kind of event, then the star's name, pronoun and language. */
 export function NewQuizApp() {
@@ -127,7 +127,7 @@ export function NewQuizApp() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="flex flex-col gap-5 rounded-3xl border border-ink-700 bg-ink-900 p-5 sm:p-7"
+              className="flex flex-col gap-5 rounded-3xl card p-5 sm:p-7"
             >
               <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setTemplateId(null)} className="rounded-xl px-2 py-1 font-bold text-mute hover:bg-ink-800 hover:text-cream">

@@ -26,6 +26,8 @@ export interface TemplateDef {
   confetti: { colors: string[]; emoji: string[] };
   /** For previews (dashboard cards, template picker): background, surface, accent, text. */
   swatch: [string, string, string, string];
+  /** The four answer colors (same as --color-a1…a4 in globals.css), for previews. */
+  answers: [string, string, string, string];
   practice: QuestionSeed;
   questions: QuestionSeed[];
 }
@@ -206,7 +208,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "מזל טוב! 🎂", en: "Happy birthday! 🎂" },
     decor: ["🎂", "🎈", "🎉", "🥂", "✨"],
     confetti: { colors: ["#d6b06b", "#e8cd96", "#f3eee4", "#9f7c3c"], emoji: ["🎉", "✨"] },
-    swatch: ["#0b0b0c", "#1f1f23", "#d6b06b", "#f3eee4"],
+    swatch: ["#120b2e", "#2b1f62", "#ffc94d", "#fbf8ff"],
+    answers: ["#ef4467", "#6b5cff", "#f3a10f", "#10b3a3"],
     practice: PERSON_PRACTICE,
     questions: [...PERSON.slice(0, 7), BIRTHDAY_EXTRA, ...PERSON.slice(7)],
   }),
@@ -221,7 +224,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "יום הולדת שמח! 🎈", en: "Happy birthday! 🎈" },
     decor: ["🎈", "🧁", "🎁", "🦄", "⭐", "🍭"],
     confetti: { colors: ["#ffd23f", "#ff5d8f", "#4cc9f0", "#7bd88f", "#b388ff"], emoji: ["🎈", "⭐", "🍭"] },
-    swatch: ["#1b1446", "#2e2475", "#ffd23f", "#fffaf0"],
+    swatch: ["#3d16a6", "#5d31d8", "#ffd23f", "#ffffff"],
+    answers: ["#ff3d7f", "#1f9bff", "#f59e0b", "#22b455"],
     practice: KID_PRACTICE,
     questions: [KIDS_BIRTHDAY_EXTRA, ...KID],
   }),
@@ -236,7 +240,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "יש! 🚀", en: "Woohoo! 🚀" },
     decor: ["🦖", "🚀", "⭐", "🧸", "🪐", "🎨"],
     confetti: { colors: ["#ff8a3d", "#ffd166", "#06d6a0", "#4cc9f0", "#ef476f"], emoji: ["⭐", "🚀", "🦖"] },
-    swatch: ["#0f2f3a", "#1c4a58", "#ff8a3d", "#fff8ee"],
+    swatch: ["#0b2547", "#194277", "#ff8a3d", "#ffffff"],
+    answers: ["#ff6b35", "#0aa5d6", "#9b5de5", "#0fb98a"],
     practice: KID_PRACTICE,
     questions: KID,
   }),
@@ -251,7 +256,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "מזל טוב! 💍", en: "Congratulations! 💍" },
     decor: ["💍", "🥂", "🤍", "🌸", "🕊️"],
     confetti: { colors: ["#ffffff", "#f6d6d0", "#e7c6a3", "#c99a72"], emoji: ["🤍", "🌸"] },
-    swatch: ["#faf6f0", "#eee5d8", "#b5835a", "#2e2620"],
+    swatch: ["#f8f3ec", "#ffffff", "#a8794d", "#2b241e"],
+    answers: ["#c0607a", "#5f8a6b", "#b08647", "#5f82aa"],
     practice: COUPLE_PRACTICE,
     questions: [...COUPLE.slice(0, 7), WEDDING_EXTRA, ...COUPLE.slice(7)],
   }),
@@ -266,7 +272,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "מזל טוב! ✡️", en: "Mazel tov! ✡️" },
     decor: ["✡️", "📜", "🎉", "🕺", "💙"],
     confetti: { colors: ["#7cc4ff", "#b3dcff", "#ffffff", "#c0c8d4"], emoji: ["✡️", "💙"] },
-    swatch: ["#0d1b2e", "#1a3150", "#7cc4ff", "#f2f7ff"],
+    swatch: ["#07142e", "#152c5c", "#5cc8ff", "#f4f8ff"],
+    answers: ["#2f6bff", "#0aa0d8", "#d19a2a", "#8b5cf6"],
     practice: KID_PRACTICE,
     questions: [...TEEN, ...KID.slice(3, 6)],
   }),
@@ -281,7 +288,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "מזל טוב! 👶", en: "Congratulations! 👶" },
     decor: ["🍼", "👶", "🧸", "☁️", "🌙"],
     confetti: { colors: ["#ffc8dd", "#bde0fe", "#cdb4db", "#fff1c1"], emoji: ["☁️", "🍼"] },
-    swatch: ["#f5f9ff", "#e6eef9", "#e98aa4", "#2c3440"],
+    swatch: ["#eef4fd", "#ffffff", "#e0688d", "#263045"],
+    answers: ["#e86a95", "#4b9be0", "#9b7ef5", "#23b391"],
     practice: BABY_PRACTICE,
     questions: BABY,
   }),
@@ -296,7 +304,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "לחיים! 🥂", en: "Cheers! 🥂" },
     decor: ["🥂", "🌹", "❤️", "🕯️", "✨"],
     confetti: { colors: ["#e0a3b6", "#f2c9d6", "#ffffff", "#9b2f4f"], emoji: ["❤️", "🌹"] },
-    swatch: ["#1e0f16", "#3a1d2a", "#e0a3b6", "#fbeff3"],
+    swatch: ["#1d0912", "#3f182a", "#f0c27b", "#fff3f6"],
+    answers: ["#c0305f", "#d9607f", "#c08a35", "#7d3c98"],
     practice: COUPLE_PRACTICE,
     questions: [ANNIVERSARY_EXTRA, ...COUPLE],
   }),
@@ -311,7 +320,8 @@ export const TEMPLATES: Record<TemplateId, TemplateDef> = {
     cheer: { he: "איזו מסיבה! 🪩", en: "What a party! 🪩" },
     decor: ["🪩", "🎉", "🎶", "🌟", "🕺"],
     confetti: { colors: ["#19e3c5", "#ff4fd8", "#ffe14f", "#7a5cff"], emoji: ["🪩", "🎶"] },
-    swatch: ["#0c0c1c", "#1d1d3a", "#19e3c5", "#f4f4ff"],
+    swatch: ["#07071a", "#1a1a42", "#22f0c8", "#f6f6ff"],
+    answers: ["#f0249a", "#0ab4e6", "#f08a1c", "#7b61ff"],
     practice: PERSON_PRACTICE,
     questions: PERSON,
   }),
