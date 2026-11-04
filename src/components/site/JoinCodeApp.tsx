@@ -11,7 +11,7 @@ import { LanguageToggle } from "./SiteHeader";
 /** Enter the game code from the TV. */
 export function JoinCodeApp() {
   const [locale, setLocale] = useSiteLocale();
-  useTheme("birthday", locale);
+  useTheme("site", locale);
   const s = getStrings({ locale });
   const router = useRouter();
   const [code, setCode] = useState("");

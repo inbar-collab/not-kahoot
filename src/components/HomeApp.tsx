@@ -11,12 +11,13 @@ import { TEMPLATES, type TemplateDef } from "@/lib/templates";
 import { TEMPLATE_IDS, type Locale, type Me } from "@/lib/types";
 import { RunningCrowd } from "./finale/RunningCrowd";
 import { GoogleIcon, SiteHeader } from "./site/SiteHeader";
+import { Ambient } from "./theme/Ambient";
 import { AnswerShape } from "./ui/AnswerShape";
 
 /** Public landing page: what it is, sign in with Google, or join a game with a code. */
 export function HomeApp() {
   const [locale, setLocale] = useSiteLocale();
-  useTheme("birthday", locale);
+  useTheme("site", locale);
   const s = getStrings({ locale });
   const [me, setMe] = useState<Me | null | undefined>(undefined);
   const [signingIn, setSigningIn] = useState(false);
@@ -53,7 +54,7 @@ export function HomeApp() {
       type="button"
       onClick={() => void signIn()}
       disabled={signingIn || me === undefined}
-      className="btn-press inline-flex min-h-[62px] items-center justify-center gap-3 rounded-2xl bg-white px-7 text-xl font-extrabold text-[#1f1f1f] [--btn-edge:#c9c9d6] hover:bg-[#f4f4f7]"
+      className="btn-press inline-flex min-h-[62px] items-center justify-center gap-3 rounded-2xl border-[length:var(--line-w)] border-[var(--line)] bg-white px-7 text-xl font-extrabold text-[#1f1f1f] [--btn-edge:var(--line)] hover:bg-[#f4f4f7]"
     >
       <GoogleIcon />
       {signingIn ? s.landSigningIn : s.landSignIn}
@@ -61,14 +62,15 @@ export function HomeApp() {
   );
 
   return (
-    <main className="stage-bg min-h-dvh overflow-x-hidden">
+    <main className="stage-bg relative isolate min-h-dvh overflow-x-hidden">
+      <Ambient id="site" level="calm" />
       <SiteHeader locale={locale} onLocale={setLocale}>
         <nav className="hidden items-center gap-1 text-base font-bold text-mute md:flex">
-          <a href="#how" className="rounded-full px-3 py-1.5 hover:bg-white/5 hover:text-cream">{s.landNavHow}</a>
-          <a href="#styles" className="rounded-full px-3 py-1.5 hover:bg-white/5 hover:text-cream">{s.landNavTemplates}</a>
-          <a href="#faq" className="rounded-full px-3 py-1.5 hover:bg-white/5 hover:text-cream">{s.landNavFaq}</a>
+          <a href="#how" className="rounded-full px-3 py-1.5 hover:bg-ink-800 hover:text-cream">{s.landNavHow}</a>
+          <a href="#styles" className="rounded-full px-3 py-1.5 hover:bg-ink-800 hover:text-cream">{s.landNavTemplates}</a>
+          <a href="#faq" className="rounded-full px-3 py-1.5 hover:bg-ink-800 hover:text-cream">{s.landNavFaq}</a>
         </nav>
-        <Link href="/join" className="rounded-full px-3 py-1.5 text-base font-bold text-gold-soft hover:bg-white/5">
+        <Link href="/join" className="rounded-full px-3 py-1.5 text-base font-bold text-gold-soft hover:bg-ink-800">
           {s.landJoin}
         </Link>
       </SiteHeader>
@@ -79,7 +81,7 @@ export function HomeApp() {
           <span className="chip !bg-gold/15 !px-4 !py-1.5 text-base !text-gold-soft">🎉 {s.landTagline}</span>
           <h1 className="font-display text-[2.9rem] font-black leading-[1.02] sm:text-6xl">
             {s.landHeroA}{" "}
-            <span className="bg-[linear-gradient(90deg,var(--color-gold),var(--color-accent2))] bg-clip-text text-transparent">{s.landHeroB}</span>{" "}
+            <span className="hero-title inline-block -rotate-1 [--hero-fx:0_0.08em_0_var(--line),0.05em_0.12em_0_var(--color-a1)] [--hero-ink:var(--color-a3)]">{s.landHeroB}</span>{" "}
             {s.landHeroC}
           </h1>
           <p className="max-w-xl text-xl leading-relaxed text-mute">{s.landHeroBody}</p>
@@ -168,15 +170,15 @@ export function HomeApp() {
 
       {/* Closing call to action */}
       <section className="mx-auto max-w-6xl px-5 py-14">
-        <div className="relative overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,var(--color-a2),var(--color-accent2))] p-10 text-center text-white shadow-2xl sm:p-14">
+        <div className="tile tile-1 relative overflow-hidden rounded-[2.25rem] p-10 text-center sm:p-14">
           <div className="pointer-events-none absolute inset-0 opacity-40 [background:var(--art)_0_0/var(--art-size)]" aria-hidden />
-          <h2 className="relative font-display text-4xl font-black sm:text-5xl">{s.landCtaTitle}</h2>
+          <h2 className="hero-title relative text-4xl sm:text-5xl">{s.landCtaTitle}</h2>
           <p className="relative mx-auto mt-4 max-w-xl text-xl opacity-90">{s.landCtaBody}</p>
           <div className="relative mt-8 flex justify-center">{primaryCta}</div>
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 border-t border-white/5 px-5 py-8 text-mute">
+      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 border-t-2 border-cream/10 px-5 py-8 text-mute">
         <span className="font-display text-xl font-black text-gold" dir="ltr">
           🎉 Event Quiz
         </span>
@@ -221,7 +223,7 @@ function HeroDevices({ s }: { s: Strings }) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.15, type: "spring", stiffness: 120, damping: 18 }}
     >
-      <div className="relative aspect-video overflow-hidden rounded-[1.6rem] border-[10px] border-[#0d0a1f] bg-ink-900 shadow-[0_50px_120px_-40px_color-mix(in_oklab,var(--color-a2)_70%,transparent)]">
+      <div data-theme="party" className="relative aspect-video overflow-hidden rounded-[1.6rem] border-[10px] border-[#0d0a1f] bg-ink-900 shadow-[0_50px_120px_-40px_rgb(255_47_180/0.55)]">
         <div className="stage-bg absolute inset-0" />
         <div className="absolute inset-x-0 top-[7%] text-center font-display text-[clamp(13px,2.2vw,22px)] font-black text-gold-soft">
           {s.scrRaceTitle}
@@ -249,31 +251,32 @@ function HeroDevices({ s }: { s: Strings }) {
   );
 }
 
-/** A mini screen in the template's own colors. */
+/** A real mini screen in the template's own art direction (its theme is scoped to this card). */
 function TemplatePreview({ t, locale }: { t: TemplateDef; locale: Locale }) {
-  const [bg, surface, accent, text] = t.swatch;
   return (
-    <div className="overflow-hidden rounded-[1.5rem] border border-white/10 shadow-xl transition hover:-translate-y-1">
-      <div className="relative aspect-[4/3] p-3" style={{ background: `radial-gradient(circle at 80% 0%, ${surface}, ${bg} 70%)`, color: text }}>
+    <div className="card overflow-hidden rounded-[1.5rem] transition hover:-translate-y-1 hover:rotate-[-0.6deg]">
+      <div data-theme={t.id} className="stage-bg relative flex aspect-[4/3] flex-col gap-2 p-3" dir={locale === "he" ? "rtl" : "ltr"}>
         <div className="flex items-center justify-between">
-          <span className="text-2xl">{t.emoji}</span>
-          <span className="flex gap-0.5 text-sm" aria-hidden>
+          <span className="chip !px-2 !py-0.5 text-[11px]">{t.emoji}</span>
+          <span className="flex gap-0.5 text-xs" aria-hidden>
             {t.decor.slice(1, 4).map((d) => (
               <span key={d}>{d}</span>
             ))}
           </span>
         </div>
-        <div className="mt-2 h-2.5 w-3/4 rounded-full" style={{ background: accent }} />
-        <div className="mt-1.5 h-2 w-1/2 rounded-full opacity-40" style={{ background: text }} />
-        <div className="absolute inset-x-3 bottom-3 grid grid-cols-2 gap-1.5">
-          {t.answers.map((c, i) => (
-            <div key={i} className="flex h-7 items-center justify-center rounded-lg text-white" style={{ background: c, boxShadow: `0 3px 0 color-mix(in oklab, ${c} 70%, black)` }}>
+        <p className="hero-title truncate text-center text-[clamp(18px,2.4vw,26px)] leading-tight">{t.name[locale]}</p>
+        <div className="card mx-1 flex h-5 items-center justify-center rounded-lg">
+          <span className="h-1.5 w-2/3 rounded-full bg-cream/40" />
+        </div>
+        <div className="mt-auto grid grid-cols-2 gap-1.5">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={`tile tile-${i} flex h-7 items-center justify-center rounded-lg`}>
               <AnswerShape index={i} className="h-3.5 w-3.5" />
             </div>
           ))}
         </div>
       </div>
-      <div className="card !rounded-none !border-0 px-4 py-3">
+      <div className="border-t-2 border-[var(--line)] px-4 py-3">
         <p className="text-lg font-black">{t.name[locale]}</p>
         <p className="text-sm text-mute">{t.blurb[locale]}</p>
       </div>

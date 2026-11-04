@@ -32,7 +32,7 @@ export function NewQuizApp() {
 
   const locale = quizLocale ?? siteLocale;
   // Preview the chosen template while filling in the details.
-  useTheme(templateId ?? "birthday", siteLocale);
+  useTheme(templateId ?? "site", siteLocale);
   const s = getStrings({ locale: siteLocale });
   const t = templateId ? TEMPLATES[templateId] : null;
   const pronoun = gender ?? t?.defaultGender ?? "female";

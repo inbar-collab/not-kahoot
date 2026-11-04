@@ -1,4 +1,5 @@
 "use client";
+import { Ambient } from "../theme/Ambient";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useElapsed } from "@/hooks/useElapsed";
@@ -73,7 +74,8 @@ export function GuestPlay({ snap, s, token, refresh, msInState, react }: Props &
   }
 
   return (
-    <main className="stage-bg flex min-h-dvh flex-col">
+    <main className="stage-bg relative isolate flex min-h-dvh flex-col">
+      <Ambient id={snap.game.template} level="phone" />
       <header className="card mx-3 mt-3 flex items-center gap-3 rounded-2xl px-3 py-2.5">
         <Avatar player={me.player} size={40} />
         <span className="min-w-0 flex-1 truncate text-lg font-bold"><bdi>{me.player.name}</bdi></span>

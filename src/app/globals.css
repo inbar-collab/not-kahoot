@@ -5,26 +5,32 @@
    ink-800/700/600 = raised surfaces and borders, cream = main text, mute =
    secondary text, gold = the accent, accent2 = a second accent, a1-a4 = the
    four answer colors (paired with the shapes star / heart / moon / bolt).
-   Every template overrides the same tokens, so all screens change together. */
-@theme {
-  --color-ink-950: #120b2e;
-  --color-ink-900: #1b1242;
-  --color-ink-850: #221851;
-  --color-ink-800: #2b1f62;
-  --color-ink-700: #3b2c7c;
-  --color-ink-600: #514099;
-  --color-ink-500: #7465b5;
-  --color-mute: #b9b0e0;
-  --color-cream: #fbf8ff;
-  --color-gold: #ffc94d;
-  --color-gold-soft: #ffe08f;
-  --color-gold-deep: #d99a13;
-  --color-accent2: #ff5d8f;
 
-  --color-a1: #ef4467;
-  --color-a2: #6b5cff;
-  --color-a3: #f3a10f;
-  --color-a4: #10b3a3;
+   Every theme block below sets the same tokens AND a set of style knobs
+   (outlines, edges, glows, card frames, title treatment), so a theme is a
+   whole art direction, not just a palette. Blocks are written as
+   [data-theme="…"] (not html[…]) so any element can carry a theme: the
+   template previews on the landing page are real themed mini-screens. */
+@theme {
+  /* "Pop paper": the site's own look (landing, dashboard, sign-in). */
+  --color-ink-950: #fff4e2;
+  --color-ink-900: #ffffff;
+  --color-ink-850: #fffaf1;
+  --color-ink-800: #ffe8c4;
+  --color-ink-700: #f0cf9c;
+  --color-ink-600: #d9b47c;
+  --color-ink-500: #9c8160;
+  --color-mute: #5f5470;
+  --color-cream: #1d1530;
+  --color-gold: #ff5a36;
+  --color-gold-soft: #d23d18;
+  --color-gold-deep: #1d1530;
+  --color-accent2: #3d5afe;
+
+  --color-a1: #ff4d6d;
+  --color-a2: #3d5afe;
+  --color-a3: #ffbe0b;
+  --color-a4: #00b386;
 
   --color-figure: #fff4e8;
   --color-silver: #cfd3e6;
@@ -35,102 +41,345 @@
 }
 
 :root {
-  color-scheme: dark;
-  --art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23ffffff' fill-opacity='.09'%3E%3Cpath d='M24 14l2.4 7.2 7.2 2.4-7.2 2.4L24 33.2l-2.4-7.2-7.2-2.4 7.2-2.4z'/%3E%3Cpath d='M118 84l1.6 4.8 4.8 1.6-4.8 1.6-1.6 4.8-1.6-4.8-4.8-1.6 4.8-1.6z'/%3E%3Ccircle cx='70' cy='146' r='1.8'/%3E%3Ccircle cx='160' cy='30' r='1.3'/%3E%3Ccircle cx='150' cy='150' r='2.2'/%3E%3Ccircle cx='40' cy='90' r='1.2'/%3E%3C/g%3E%3C/svg%3E");
-  --art-size: 180px 180px;
-  --glow-1: color-mix(in oklab, var(--color-a2) 38%, transparent);
-  --glow-2: color-mix(in oklab, var(--color-accent2) 22%, transparent);
-  --card-border: rgb(255 255 255 / 0.08);
-  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 18px 40px -18px rgb(0 0 0 / 0.55);
+  color-scheme: light;
+  --font-hero: var(--font-rubik), "Rubik", system-ui, sans-serif;
+  --hero-weight: 900;
+  --bg-top: #fffaf2;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='none' stroke='%231d1530' stroke-opacity='.09' stroke-width='3' stroke-linecap='round'><path d='M20 40q10-14 20 0t20 0'/><path d='M150 160q10-14 20 0t20 0'/><path d='M170 40v16M162 48h16'/><path d='M50 170v12M44 176h12'/><circle cx='110' cy='100' r='6'/></g><g fill='%231d1530' fill-opacity='.08'><circle cx='90' cy='30' r='3'/><circle cx='200' cy='110' r='2.5'/><circle cx='20' cy='120' r='2.5'/><circle cx='120' cy='200' r='3'/></g></svg>");
+  --art-size: 220px 220px;
+  --glow-1: rgb(255 190 11 / 0.22);
+  --glow-2: rgb(61 90 254 / 0.10);
+
+  /* outlines and surfaces */
+  --line: #1d1530;
+  --line-w: max(2px, 0.28vh);
+  --card-bg: #ffffff;
+  --card-border: var(--line-w) solid var(--line);
+  --card-shadow: 0 max(4px, 0.55vh) 0 var(--line);
+  --card-blur: none;
+  --card-outline: 0 solid transparent;
+  --card-outline-offset: 0px;
+  --field-line: var(--line);
+
+  /* answer tiles (see .tile) */
+  --tile-fill: 100%;
+  --tile-bw: var(--line-w);
+  --tile-line-mix: 0%;
+  --tile-edge: max(4px, 0.6vh);
+  --tile-edge-mix: 0%;
+  --tile-glow: 0px;
+  --tile-gloss: 0.38;
+  --tile-gloss-y: max(2px, 0.35vh);
+  --tile-gloss-b: 0px;
+  --tile-shade: 0;
+  --tile-shade-y: 0px;
+  --tile-shade-b: 0px;
+  --tile-cdrop-y: 0px;
+  --tile-cdrop-b: 0px;
+  --tile-ring-gap: 0px;
+  --tile-ring-w: 0px;
+  --tile-ring-a: 0;
+  --tile-drop: 0 0 0 transparent;
+  --tile-tshadow: none;
+  --a1-ink: #fff;
+  --a2-ink: #fff;
+  --a3-ink: #1d1530;
+  --a4-ink: #fff;
+
+  /* buttons */
+  --btn-bg: #ffd23f;
+  --btn-ink: #1d1530;
+  --btn-bw: var(--line-w);
+  --btn-line: var(--line);
+  --btn-edge-c: var(--line);
+  --btn-glow: 0 0 0 transparent;
+  --ghost-bg: #ffffff;
+  --ghost-hover: #fff6e6;
+  --ghost-edge: var(--line);
+  --ghost-line: var(--line);
+
+  /* chips */
+  --chip-bg: #ffffff;
+  --chip-ink: var(--color-cream);
+  --chip-border: max(1.5px, 0.2vh) solid var(--line);
+
+  /* big titles */
+  --hero-ink: #ffffff;
+  --hero-bg: none;
+  --hero-stroke: 0.075em var(--line);
+  --hero-fx: 0 0.09em 0 var(--line);
+  --hero-filter: none;
+  --hero-track: 0;
 }
 
 /* ------------------------------------------------------------ templates -- */
 
-html[data-theme="kids_birthday"] {
-  --color-ink-950: #3d16a6; --color-ink-900: #4a1fbf; --color-ink-850: #5226cc; --color-ink-800: #5d31d8;
-  --color-ink-700: #6f45e3; --color-ink-600: #8a66ee; --color-ink-500: #ab93f6;
-  --color-mute: #ded3ff; --color-cream: #ffffff;
-  --color-gold: #ffd23f; --color-gold-soft: #ffe680; --color-gold-deep: #e8a600; --color-accent2: #ff4f9a;
-  --color-a1: #ff3d7f; --color-a2: #1f9bff; --color-a3: #f59e0b; --color-a4: #22b455;
-  --color-figure: #ffe9d6; --color-silver: #8fd3ff; --color-bronze: #ff8fb1;
-  --font-display: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
-  --art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill-opacity='.22'%3E%3Crect x='14' y='20' width='10' height='4' rx='2' fill='%23ffd23f' transform='rotate(30 19 22)'/%3E%3Ccircle cx='92' cy='26' r='4' fill='%23ff4f9a'/%3E%3Crect x='120' y='86' width='12' height='4' rx='2' fill='%232ea8ff' transform='rotate(-25 126 88)'/%3E%3Ccircle cx='40' cy='112' r='3' fill='%233ccf4e'/%3E%3Crect x='70' y='140' width='10' height='4' rx='2' fill='%23ffffff' transform='rotate(60 75 142)'/%3E%3Ccircle cx='146' cy='146' r='3.5' fill='%23ffd23f'/%3E%3Cpath d='M60 64q4-8 8 0t8 0' stroke='%23ff4f9a' stroke-width='2.5' fill='none'/%3E%3C/g%3E%3C/svg%3E"); --art-size: 160px 160px;
-  --glow-1: rgb(255 79 154 / 0.35); --glow-2: rgb(31 155 255 / 0.30);
-}
-html[data-theme="kids"] {
-  --color-ink-950: #0b2547; --color-ink-900: #10305a; --color-ink-850: #143867; --color-ink-800: #194277;
-  --color-ink-700: #22548f; --color-ink-600: #2f6aab; --color-ink-500: #4f88c4;
-  --color-mute: #b4d3f2; --color-cream: #ffffff;
-  --color-gold: #ff8a3d; --color-gold-soft: #ffb27a; --color-gold-deep: #e0601a; --color-accent2: #06d6a0;
-  --color-a1: #ff6b35; --color-a2: #0aa5d6; --color-a3: #9b5de5; --color-a4: #0fb98a;
-  --color-figure: #ffe9d6; --color-silver: #06d6a0; --color-bronze: #4cc9f0;
-  --font-display: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
-  --art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='20' cy='30' r='1.4' fill-opacity='.5'/%3E%3Ccircle cx='120' cy='16' r='1' fill-opacity='.4'/%3E%3Ccircle cx='170' cy='90' r='1.6' fill-opacity='.45'/%3E%3Ccircle cx='60' cy='120' r='1' fill-opacity='.35'/%3E%3Ccircle cx='100' cy='180' r='1.3' fill-opacity='.4'/%3E%3Ccircle cx='186' cy='170' r='1' fill-opacity='.3'/%3E%3C/g%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.10' stroke-width='2'%3E%3Ccircle cx='150' cy='140' r='9'/%3E%3Cellipse cx='150' cy='140' rx='17' ry='5' transform='rotate(-20 150 140)'/%3E%3C/g%3E%3Cpath d='M40 70l2 5 5 2-5 2-2 5-2-5-5-2 5-2z' fill='%23ffffff' fill-opacity='.14'/%3E%3C/svg%3E"); --art-size: 200px 200px;
-  --glow-1: rgb(255 138 61 / 0.25); --glow-2: rgb(6 214 160 / 0.20);
-}
-html[data-theme="wedding"] {
+/* Birthday: "sprinkle cake". Bubblegum frosting, plum outlines, sticker UI,
+   balloons. Titles drip like icing (Rubik Wet Paint). */
+[data-theme="birthday"] {
   color-scheme: light;
-  --color-ink-950: #f8f3ec; --color-ink-900: #ffffff; --color-ink-850: #fbf7f2; --color-ink-800: #f2eadf;
-  --color-ink-700: #e6dacb; --color-ink-600: #d2c0aa; --color-ink-500: #a8937a;
-  --color-mute: #7a6a58; --color-cream: #2b241e;
-  --color-gold: #a8794d; --color-gold-soft: #8a5f37; --color-gold-deep: #6e4a29; --color-accent2: #c0697a;
-  --color-a1: #c0607a; --color-a2: #5f8a6b; --color-a3: #b08647; --color-a4: #5f82aa;
-  --color-figure: #fff7ef; --color-silver: #b8b2ab; --color-bronze: #d6a98a;
+  --color-ink-950: #ffd9e4; --color-ink-900: #fff8fb; --color-ink-850: #ffeef3; --color-ink-800: #ffc9d8;
+  --color-ink-700: #f7a6bf; --color-ink-600: #e07a9f; --color-ink-500: #a65079;
+  --color-mute: #7c3f6c; --color-cream: #3b0f3a;
+  --color-gold: #7a2ff0; --color-gold-soft: #6a1fd8; --color-gold-deep: #3b0f3a; --color-accent2: #ff3b6b;
+  --color-a1: #ff3b5c; --color-a2: #7a4dff; --color-a3: #ffc21a; --color-a4: #10c79a;
+  --color-figure: #fff3ea; --color-silver: #e5d8f5; --color-bronze: #ffb38a;
+  --font-display: var(--font-rubik), "Rubik", system-ui, sans-serif;
+  --font-hero: var(--font-wetpaint), var(--font-rubik), system-ui, sans-serif;
+  --hero-weight: 400;
+  --bg-top: #ffeaf1;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170'><g fill-opacity='.75'><rect x='14' y='20' width='14' height='5' rx='2.5' fill='%23ff3b5c' transform='rotate(30 21 22)'/><rect x='92' y='18' width='14' height='5' rx='2.5' fill='%237a4dff' transform='rotate(-40 99 20)'/><rect x='130' y='84' width='14' height='5' rx='2.5' fill='%2310c79a' transform='rotate(70 137 86)'/><rect x='38' y='106' width='14' height='5' rx='2.5' fill='%23ffc21a' transform='rotate(-15 45 108)'/><rect x='80' y='146' width='14' height='5' rx='2.5' fill='%23ffffff' transform='rotate(55 87 148)'/><rect x='146' y='144' width='14' height='5' rx='2.5' fill='%23ff3b5c' transform='rotate(-65 153 146)'/><rect x='66' y='66' width='14' height='5' rx='2.5' fill='%23ffffff' transform='rotate(10 73 68)'/></g></svg>");
+  --art-size: 170px 170px;
+  --glow-1: rgb(255 255 255 / 0.75); --glow-2: rgb(255 194 26 / 0.28);
+  --line: #3b0f3a; --line-w: max(2px, 0.28vh);
+  --card-bg: #fff8fb; --card-border: var(--line-w) solid var(--line); --card-shadow: 0 max(4px, 0.55vh) 0 var(--line);
+  --card-blur: none; --card-outline: 0 solid transparent; --card-outline-offset: 0px; --field-line: var(--line);
+  --tile-fill: 100%; --tile-bw: var(--line-w); --tile-line-mix: 0%; --tile-edge: max(4px, 0.6vh); --tile-edge-mix: 0%;
+  --tile-glow: 0px; --tile-gloss: 0.4; --tile-gloss-y: max(2px, 0.35vh); --tile-gloss-b: 0px;
+  --tile-shade: 0; --tile-shade-y: 0px; --tile-shade-b: 0px; --tile-cdrop-y: 0px; --tile-cdrop-b: 0px;
+  --tile-ring-gap: 0px; --tile-ring-w: 0px; --tile-ring-a: 0; --tile-drop: 0 0 0 transparent; --tile-tshadow: none;
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #3b0f3a; --a4-ink: #fff;
+  --btn-bg: #ffc21a; --btn-ink: #3b0f3a; --btn-bw: var(--line-w); --btn-line: var(--line); --btn-edge-c: var(--line);
+  --btn-glow: 0 0 0 transparent; --ghost-bg: #fff8fb; --ghost-hover: #ffffff; --ghost-edge: var(--line); --ghost-line: var(--line);
+  --chip-bg: #fff8fb; --chip-ink: var(--color-cream); --chip-border: max(1.5px, 0.2vh) solid var(--line);
+  --hero-ink: #ffffff; --hero-bg: none; --hero-stroke: 0.07em var(--line);
+  --hero-fx: 0 0.08em 0 var(--line), 0.04em 0.12em 0 var(--color-a1); --hero-filter: none; --hero-track: 0.01em;
+}
+
+/* Kid's birthday: "toy box". Sky blue, puffy clouds, primary-color toys
+   with thick navy outlines. Bubble-letter titles. */
+[data-theme="kids_birthday"] {
+  color-scheme: light;
+  --color-ink-950: #74cdff; --color-ink-900: #ffffff; --color-ink-850: #eaf7ff; --color-ink-800: #c9ecff;
+  --color-ink-700: #98d8ff; --color-ink-600: #4fb4ee; --color-ink-500: #2a7fbd;
+  --color-mute: #1c3d78; --color-cream: #0f1d4a;
+  --color-gold: #ff3d68; --color-gold-soft: #b8003c; --color-gold-deep: #0f1d4a; --color-accent2: #ffd23f;
+  --color-a1: #ff4757; --color-a2: #6c5cff; --color-a3: #ffd23f; --color-a4: #2ed573;
+  --color-figure: #ffe9d6; --color-silver: #c9ecff; --color-bronze: #ffb38a;
+  --font-display: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
+  --font-hero: var(--font-bubbles), var(--font-fredoka), system-ui, sans-serif;
+  --hero-weight: 400;
+  --bg-top: #a8e0ff;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><g fill='%23ffffff' fill-opacity='.55'><path d='M30 20l3 8 8 3-8 3-3 8-3-8-8-3 8-3z'/><path d='M150 120l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/><circle cx='100' cy='50' r='3'/><circle cx='40' cy='150' r='4'/><circle cx='180' cy='30' r='2.5'/><circle cx='120' cy='180' r='3'/></g></svg>");
+  --art-size: 200px 200px;
+  --glow-1: rgb(255 255 255 / 0.65); --glow-2: rgb(255 210 63 / 0.25);
+  --line: #0f1d4a; --line-w: max(2px, 0.3vh);
+  --card-bg: #ffffff; --card-border: var(--line-w) solid var(--line); --card-shadow: 0 max(4px, 0.6vh) 0 var(--line);
+  --card-blur: none; --card-outline: 0 solid transparent; --card-outline-offset: 0px; --field-line: var(--line);
+  --tile-fill: 100%; --tile-bw: var(--line-w); --tile-line-mix: 0%; --tile-edge: max(5px, 0.7vh); --tile-edge-mix: 0%;
+  --tile-glow: 0px; --tile-gloss: 0.45; --tile-gloss-y: max(3px, 0.45vh); --tile-gloss-b: 0px;
+  --tile-shade: 0.12; --tile-shade-y: max(3px, 0.45vh); --tile-shade-b: 0px; --tile-cdrop-y: 0px; --tile-cdrop-b: 0px;
+  --tile-ring-gap: 0px; --tile-ring-w: 0px; --tile-ring-a: 0; --tile-drop: 0 0 0 transparent; --tile-tshadow: none;
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #0f1d4a; --a4-ink: #0f1d4a;
+  --btn-bg: #ffd23f; --btn-ink: #0f1d4a; --btn-bw: var(--line-w); --btn-line: var(--line); --btn-edge-c: var(--line);
+  --btn-glow: 0 0 0 transparent; --ghost-bg: #ffffff; --ghost-hover: #f2faff; --ghost-edge: var(--line); --ghost-line: var(--line);
+  --chip-bg: #ffffff; --chip-ink: var(--color-cream); --chip-border: max(1.5px, 0.22vh) solid var(--line);
+  --hero-ink: #ffd23f; --hero-bg: none; --hero-stroke: 0.06em var(--line);
+  --hero-fx: 0 0.08em 0 var(--line); --hero-filter: none; --hero-track: 0.01em;
+}
+
+/* Kids: "space adventure". Deep night, chunky game-UI panels with dark
+   outlines, twinkling stars, planets, rockets. Moon-rock titles. */
+[data-theme="kids"] {
+  color-scheme: dark;
+  --color-ink-950: #0d1640; --color-ink-900: #1a2a6c; --color-ink-850: #172463; --color-ink-800: #22358a;
+  --color-ink-700: #2e46a8; --color-ink-600: #4562c9; --color-ink-500: #6f8ae0;
+  --color-mute: #b9c6f5; --color-cream: #ffffff;
+  --color-gold: #ffb627; --color-gold-soft: #ffd36b; --color-gold-deep: #a35a00; --color-accent2: #00e5c0;
+  --color-a1: #ff5a3c; --color-a2: #19b8ff; --color-a3: #a35cff; --color-a4: #19d18b;
+  --color-figure: #ffe9d6; --color-silver: #8fd3ff; --color-bronze: #ff9a6b;
+  --font-display: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
+  --font-hero: var(--font-moonrocks), var(--font-fredoka), system-ui, sans-serif;
+  --hero-weight: 400;
+  --bg-top: #1d2f80;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><g fill='%23ffffff'><circle cx='20' cy='30' r='1.2' fill-opacity='.6'/><circle cx='120' cy='16' r='.9' fill-opacity='.5'/><circle cx='170' cy='90' r='1.4' fill-opacity='.5'/><circle cx='60' cy='120' r='.9' fill-opacity='.4'/><circle cx='100' cy='180' r='1.2' fill-opacity='.5'/><circle cx='186' cy='170' r='.9' fill-opacity='.35'/><circle cx='80' cy='70' r='.8' fill-opacity='.4'/></g></svg>");
+  --art-size: 200px 200px;
+  --glow-1: rgb(163 92 255 / 0.38); --glow-2: rgb(0 229 192 / 0.22);
+  --line: #050a24; --line-w: max(2px, 0.3vh);
+  --card-bg: linear-gradient(180deg, #22358a, #1a2a6c); --card-border: var(--line-w) solid var(--line);
+  --card-shadow: inset 0 max(2px, 0.3vh) 0 rgb(255 255 255 / 0.14), 0 max(4px, 0.6vh) 0 var(--line);
+  --card-blur: none; --card-outline: 0 solid transparent; --card-outline-offset: 0px; --field-line: #4562c9;
+  --tile-fill: 100%; --tile-bw: var(--line-w); --tile-line-mix: 0%; --tile-edge: max(5px, 0.7vh); --tile-edge-mix: 55%;
+  --tile-glow: 0px; --tile-gloss: 0.32; --tile-gloss-y: max(3px, 0.45vh); --tile-gloss-b: 0px;
+  --tile-shade: 0.18; --tile-shade-y: max(3px, 0.45vh); --tile-shade-b: 0px; --tile-cdrop-y: 0px; --tile-cdrop-b: 0px;
+  --tile-ring-gap: 0px; --tile-ring-w: 0px; --tile-ring-a: 0; --tile-drop: 0 max(5px, 0.7vh) 0 var(--line);
+  --tile-tshadow: 0 max(1px, 0.2vh) 0 rgb(0 0 0 / 0.35);
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #fff; --a4-ink: #fff;
+  --btn-bg: linear-gradient(180deg, #ffd36b, #ffb627); --btn-ink: #3a1d00; --btn-bw: var(--line-w); --btn-line: var(--line); --btn-edge-c: var(--line);
+  --btn-glow: 0 0 0 transparent; --ghost-bg: #2e46a8; --ghost-hover: #3651bd; --ghost-edge: var(--line); --ghost-line: var(--line);
+  --chip-bg: #22358a; --chip-ink: var(--color-mute); --chip-border: max(1.5px, 0.22vh) solid var(--line);
+  --hero-ink: #ffd36b; --hero-bg: none; --hero-stroke: 0.06em var(--line);
+  --hero-fx: 0 0.08em 0 var(--line), 0 0.3em 0.6em rgb(0 0 0 / 0.35); --hero-filter: none; --hero-track: 0.02em;
+}
+
+/* Wedding: "editorial". Ivory paper, forest-green ink, gold-foil serif
+   titles, hairline frames, falling petals. Nothing chunky. */
+[data-theme="wedding"] {
+  color-scheme: light;
+  --color-ink-950: #f6f0e6; --color-ink-900: #fffdf8; --color-ink-850: #faf5ec; --color-ink-800: #efe6d6;
+  --color-ink-700: #e2d4bd; --color-ink-600: #cbb592; --color-ink-500: #9c8562;
+  --color-mute: #6e6250; --color-cream: #1f2e26;
+  --color-gold: #a9814a; --color-gold-soft: #87622f; --color-gold-deep: #5d4220; --color-accent2: #c9848f;
+  --color-a1: #b85c6e; --color-a2: #4f7a5f; --color-a3: #a47a3f; --color-a4: #50708f;
+  --color-figure: #fff7ef; --color-silver: #c9c3ba; --color-bronze: #d6a98a;
   --font-display: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
-  --art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='none' stroke='%23b08960' stroke-opacity='.16' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M30 60c10-18 26-22 40-14M48 50c-2-8 2-14 8-16M58 54c4-6 10-8 16-6'/%3E%3Cpath d='M150 170c10-18 26-22 40-14M168 160c-2-8 2-14 8-16M178 164c4-6 10-8 16-6'/%3E%3C/g%3E%3Cg fill='%23b08960' fill-opacity='.12'%3E%3Ccircle cx='120' cy='40' r='2'/%3E%3Ccircle cx='40' cy='170' r='1.6'/%3E%3Ccircle cx='190' cy='90' r='1.4'/%3E%3C/g%3E%3C/svg%3E"); --art-size: 220px 220px;
-  --glow-1: rgb(192 105 122 / 0.14); --glow-2: rgb(95 138 107 / 0.14);
-  --card-border: rgb(110 74 41 / 0.10);
-  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 18px 40px -22px rgb(110 74 41 / 0.35);
+  --font-hero: var(--font-bellefair), var(--font-frank), Georgia, serif;
+  --hero-weight: 400;
+  --bg-top: #fbf7f0;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g fill='none' stroke='%234f7a5f' stroke-opacity='.16' stroke-width='1.3' stroke-linecap='round'><path d='M30 70c14-24 36-30 56-18'/><path d='M50 56c-4-10 2-18 10-21M62 61c5-8 13-10 20-8M42 64c-8-2-12 2-14 8'/><path d='M180 210c14-24 36-30 56-18'/><path d='M200 196c-4-10 2-18 10-21M212 201c5-8 13-10 20-8'/></g><g fill='%23a9814a' fill-opacity='.18'><circle cx='140' cy='40' r='1.8'/><circle cx='40' cy='200' r='1.5'/><circle cx='220' cy='110' r='1.3'/><circle cx='120' cy='150' r='1.1'/></g></svg>");
+  --art-size: 260px 260px;
+  --glow-1: rgb(201 132 143 / 0.16); --glow-2: rgb(79 122 95 / 0.12);
+  --line: #a9814a; --line-w: 1px;
+  --card-bg: #fffdf8; --card-border: 1px solid rgb(169 129 74 / 0.38);
+  --card-shadow: 0 2.2vh 4.5vh -2.6vh rgb(80 60 30 / 0.35);
+  --card-blur: none; --card-outline: 1px solid rgb(169 129 74 / 0.30); --card-outline-offset: calc(-1 * max(6px, 0.8vh)); --field-line: #d9c7a8;
+  --tile-fill: 100%; --tile-bw: 0px; --tile-line-mix: 100%; --tile-edge: 0px; --tile-edge-mix: 100%;
+  --tile-glow: 0px; --tile-gloss: 0; --tile-gloss-y: 0px; --tile-gloss-b: 0px;
+  --tile-shade: 0; --tile-shade-y: 0px; --tile-shade-b: 0px; --tile-cdrop-y: max(8px, 1.2vh); --tile-cdrop-b: max(16px, 2.4vh);
+  --tile-ring-gap: max(5px, 0.65vh); --tile-ring-w: 1px; --tile-ring-a: 0.55; --tile-drop: 0 0 0 transparent; --tile-tshadow: none;
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #fff; --a4-ink: #fff;
+  --btn-bg: #1f2e26; --btn-ink: #f6f0e6; --btn-bw: 0px; --btn-line: transparent; --btn-edge-c: #0c140f;
+  --btn-glow: 0 1.2vh 2vh -1.2vh rgb(31 46 38 / 0.6); --ghost-bg: #fffdf8; --ghost-hover: #ffffff; --ghost-edge: #e2d4bd; --ghost-line: rgb(169 129 74 / 0.45);
+  --chip-bg: rgb(169 129 74 / 0.10); --chip-ink: var(--color-gold-soft); --chip-border: 1px solid rgb(169 129 74 / 0.32);
+  --hero-ink: transparent; --hero-bg: linear-gradient(100deg, #7d5a2b 0%, #d2ad6e 30%, #8a6532 52%, #c9a467 76%, #7d5a2b 100%);
+  --hero-stroke: 0 transparent; --hero-fx: none; --hero-filter: drop-shadow(0 0.04em 0.04em rgb(93 66 32 / 0.25)); --hero-track: 0.01em;
 }
-html[data-theme="mitzvah"] {
-  --color-ink-950: #07142e; --color-ink-900: #0c1d40; --color-ink-850: #10244d; --color-ink-800: #152c5c;
-  --color-ink-700: #1f3c77; --color-ink-600: #2c5094; --color-ink-500: #4b6fb3;
-  --color-mute: #a9bcdc; --color-cream: #f4f8ff;
-  --color-gold: #5cc8ff; --color-gold-soft: #a8e2ff; --color-gold-deep: #1f93d6; --color-accent2: #f2c14e;
-  --color-a1: #2f6bff; --color-a2: #0aa0d8; --color-a3: #d19a2a; --color-a4: #8b5cf6;
-  --color-figure: #f2f7ff; --color-silver: #c0c8d4; --color-bronze: #f2c14e;
-  --font-display: var(--font-secular), "Secular One", system-ui, sans-serif;
-  --art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.08' stroke-width='1.6'%3E%3Cpath d='M30 18l9 15.6H21z'/%3E%3Cpath d='M30 38.8l-9-15.6h18z'/%3E%3Cpath d='M125 100l7 12.1h-14z'/%3E%3Cpath d='M125 116.2l-7-12.1h14z'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='.12'%3E%3Ccircle cx='90' cy='40' r='1.5'/%3E%3Ccircle cx='50' cy='130' r='1.2'/%3E%3Ccircle cx='150' cy='30' r='1'/%3E%3C/g%3E%3C/svg%3E"); --art-size: 170px 170px;
-  --glow-1: rgb(92 200 255 / 0.22); --glow-2: rgb(242 193 78 / 0.16);
+
+/* Bar / Bat Mitzvah: "royal night". Navy and gold leaf, geometric stars,
+   light rays, fireworks. */
+[data-theme="mitzvah"] {
+  color-scheme: dark;
+  --color-ink-950: #0a1430; --color-ink-900: #111f47; --color-ink-850: #0f1b3e; --color-ink-800: #182a5c;
+  --color-ink-700: #233a78; --color-ink-600: #34509a; --color-ink-500: #5873bd;
+  --color-mute: #aab9de; --color-cream: #f6f1e3;
+  --color-gold: #e8b64c; --color-gold-soft: #f3d48a; --color-gold-deep: #a67a1f; --color-accent2: #5cc8ff;
+  --color-a1: #2f6bff; --color-a2: #0098c2; --color-a3: #d99a26; --color-a4: #7f55e0;
+  --color-figure: #f2f7ff; --color-silver: #c0c8d4; --color-bronze: #e8b64c;
+  --font-display: var(--font-suez), "Suez One", Georgia, serif;
+  --font-hero: var(--font-suez), "Suez One", Georgia, serif;
+  --hero-weight: 400;
+  --bg-top: #142a62;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><g fill='none' stroke='%23e8b64c' stroke-opacity='.10' stroke-width='1.2'><path d='M60 34l13 22.5H47z'/><path d='M60 71l-13-22.5h26z'/><path d='M0 0l20 20M120 0l-20 20M0 120l20-20M120 120l-20-20'/></g></svg>");
+  --art-size: 120px 120px;
+  --glow-1: rgb(232 182 76 / 0.20); --glow-2: rgb(92 200 255 / 0.16);
+  --line: #e8b64c; --line-w: max(1.5px, 0.16vh);
+  --card-bg: linear-gradient(180deg, #16295a, #0f1d44); --card-border: var(--line-w) solid rgb(232 182 76 / 0.55);
+  --card-shadow: 0 0 0 max(4px, 0.5vh) rgb(232 182 76 / 0.07), inset 0 0 3vh rgb(232 182 76 / 0.07), 0 2vh 4vh -2vh rgb(0 0 0 / 0.6);
+  --card-blur: none; --card-outline: 0 solid transparent; --card-outline-offset: 0px; --field-line: #34509a;
+  --tile-fill: 100%; --tile-bw: var(--line-w); --tile-line-mix: 0%; --tile-edge: 0px; --tile-edge-mix: 100%;
+  --tile-glow: 0px; --tile-gloss: 0.22; --tile-gloss-y: max(2px, 0.3vh); --tile-gloss-b: 0px;
+  --tile-shade: 0.18; --tile-shade-y: max(4px, 0.6vh); --tile-shade-b: max(8px, 1.2vh); --tile-cdrop-y: 0px; --tile-cdrop-b: 0px;
+  --tile-ring-gap: max(5px, 0.6vh); --tile-ring-w: 1px; --tile-ring-a: 0.35; --tile-drop: 0 1.4vh 2.6vh -1.2vh rgb(0 0 0 / 0.6);
+  --tile-tshadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #1a1200; --a4-ink: #fff;
+  --btn-bg: linear-gradient(180deg, #f6d98d, #e0a93c); --btn-ink: #1a1200; --btn-bw: 0px; --btn-line: transparent; --btn-edge-c: #8a6014;
+  --btn-glow: 0 0 2.4vh rgb(232 182 76 / 0.35); --ghost-bg: #182a5c; --ghost-hover: #1f3570; --ghost-edge: #08112a; --ghost-line: rgb(232 182 76 / 0.35);
+  --chip-bg: rgb(232 182 76 / 0.12); --chip-ink: var(--color-gold-soft); --chip-border: 1px solid rgb(232 182 76 / 0.35);
+  --hero-ink: transparent; --hero-bg: linear-gradient(180deg, #fff1c4 0%, #f3cf78 40%, #c8902a 62%, #f6d98d 100%);
+  --hero-stroke: 0 transparent; --hero-fx: none; --hero-filter: drop-shadow(0 0.05em 0 #5c3f08) drop-shadow(0 0.15em 0.3em rgb(0 0 0 / 0.5)); --hero-track: 0.01em;
 }
-html[data-theme="baby_shower"] {
+
+/* Baby shower: "soft clay". Pastel sky, puffy clay surfaces with soft
+   inner light, floating soap bubbles and clouds. */
+[data-theme="baby_shower"] {
   color-scheme: light;
-  --color-ink-950: #eef4fd; --color-ink-900: #ffffff; --color-ink-850: #f7faff; --color-ink-800: #e9f0fa;
-  --color-ink-700: #d6e2f3; --color-ink-600: #b8c9e2; --color-ink-500: #8b9bb6;
-  --color-mute: #5b6880; --color-cream: #263045;
-  --color-gold: #e0688d; --color-gold-soft: #c24f74; --color-gold-deep: #a33b5d; --color-accent2: #5aa9e6;
-  --color-a1: #e86a95; --color-a2: #4b9be0; --color-a3: #9b7ef5; --color-a4: #23b391;
-  --color-figure: #ffffff; --color-silver: #bde0fe; --color-bronze: #cdb4db;
+  --color-ink-950: #e8f1ff; --color-ink-900: #ffffff; --color-ink-850: #f5f9ff; --color-ink-800: #e1ebfb;
+  --color-ink-700: #cddbf3; --color-ink-600: #aebfe0; --color-ink-500: #8494b8;
+  --color-mute: #56627f; --color-cream: #2a3352;
+  --color-gold: #f7799c; --color-gold-soft: #c8436f; --color-gold-deep: #b23a62; --color-accent2: #6fb6ff;
+  --color-a1: #f7799c; --color-a2: #5fa8f5; --color-a3: #a58cf5; --color-a4: #3fc4a0;
+  --color-figure: #ffffff; --color-silver: #cfe6ff; --color-bronze: #e6cff2;
   --font-display: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
-  --art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='200'%3E%3Cg fill='%23ffffff' fill-opacity='.9'%3E%3Cpath d='M40 60a14 14 0 0 1 26-6 11 11 0 0 1 17 9 9 9 0 0 1-1 18H44a11 11 0 0 1-4-21z'/%3E%3Cpath d='M150 140a12 12 0 0 1 22-5 9 9 0 0 1 14 8 8 8 0 0 1-1 15h-32a9 9 0 0 1-3-18z'/%3E%3C/g%3E%3Cg fill='%23e98aa4' fill-opacity='.18'%3E%3Ccircle cx='200' cy='40' r='3'/%3E%3Ccircle cx='100' cy='170' r='2.5'/%3E%3Ccircle cx='20' cy='150' r='2'/%3E%3C/g%3E%3C/svg%3E"); --art-size: 240px 200px;
-  --glow-1: rgb(232 106 149 / 0.18); --glow-2: rgb(75 155 224 / 0.18);
-  --card-border: rgb(38 48 69 / 0.08);
-  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 18px 40px -22px rgb(38 48 69 / 0.30);
+  --font-hero: var(--font-fredoka), "Fredoka", system-ui, sans-serif;
+  --hero-weight: 700;
+  --bg-top: #fdf3fa;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><g fill='%23ffffff' fill-opacity='.85'><circle cx='20' cy='20' r='4'/><circle cx='80' cy='60' r='4'/></g><g fill='%23f7799c' fill-opacity='.14'><circle cx='80' cy='20' r='3'/><circle cx='20' cy='80' r='3'/></g><g fill='%235fa8f5' fill-opacity='.12'><circle cx='50' cy='100' r='2.5'/><circle cx='110' cy='100' r='2.5'/></g></svg>");
+  --art-size: 120px 120px;
+  --glow-1: rgb(247 121 156 / 0.18); --glow-2: rgb(95 168 245 / 0.20);
+  --line: transparent; --line-w: 0px;
+  --card-bg: #ffffff; --card-border: 0 solid transparent;
+  --card-shadow: inset 0 calc(-1 * max(6px, 0.8vh)) max(12px, 1.6vh) rgb(120 140 200 / 0.12), inset 0 max(4px, 0.6vh) max(8px, 1vh) #fff, 0 2.4vh 4vh -2vh rgb(90 110 170 / 0.35);
+  --card-blur: none; --card-outline: 0 solid transparent; --card-outline-offset: 0px; --field-line: #cddbf3;
+  --tile-fill: 100%; --tile-bw: 0px; --tile-line-mix: 100%; --tile-edge: 0px; --tile-edge-mix: 100%;
+  --tile-glow: 0px; --tile-gloss: 0.5; --tile-gloss-y: max(5px, 0.8vh); --tile-gloss-b: max(8px, 1.2vh);
+  --tile-shade: 0.16; --tile-shade-y: max(5px, 0.8vh); --tile-shade-b: max(8px, 1.2vh); --tile-cdrop-y: max(8px, 1.2vh); --tile-cdrop-b: max(16px, 2.4vh);
+  --tile-ring-gap: 0px; --tile-ring-w: 0px; --tile-ring-a: 0; --tile-drop: 0 0 0 transparent;
+  --tile-tshadow: 0 1px 2px rgb(60 40 90 / 0.25);
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #fff; --a4-ink: #fff;
+  --btn-bg: #f7799c; --btn-ink: #fff; --btn-bw: 0px; --btn-line: transparent; --btn-edge-c: #d95a83;
+  --btn-glow: 0 1.4vh 2.4vh -1.2vh rgb(247 121 156 / 0.65); --ghost-bg: #ffffff; --ghost-hover: #f7faff; --ghost-edge: #cddbf3; --ghost-line: transparent;
+  --chip-bg: #ffffff; --chip-ink: var(--color-mute); --chip-border: 0 solid transparent;
+  --hero-ink: #ffffff; --hero-bg: none; --hero-stroke: 0.09em #f7799c;
+  --hero-fx: 0 0.1em 0.2em rgb(178 58 98 / 0.25); --hero-filter: none; --hero-track: 0.01em;
 }
-html[data-theme="anniversary"] {
-  --color-ink-950: #1d0912; --color-ink-900: #2a0f1b; --color-ink-850: #331322; --color-ink-800: #3f182a;
-  --color-ink-700: #56223a; --color-ink-600: #73304f; --color-ink-500: #95506e;
-  --color-mute: #dcb4c4; --color-cream: #fff3f6;
-  --color-gold: #f0c27b; --color-gold-soft: #f7dcaf; --color-gold-deep: #c9913f; --color-accent2: #e0738f;
-  --color-a1: #c0305f; --color-a2: #d9607f; --color-a3: #c08a35; --color-a4: #7d3c98;
+
+/* Anniversary: "art deco". Wine, champagne and candlelight, double-line
+   deco frames, rising champagne bubbles and hearts. */
+[data-theme="anniversary"] {
+  color-scheme: dark;
+  --color-ink-950: #1f0a14; --color-ink-900: #2c0f1d; --color-ink-850: #261019; --color-ink-800: #3a1527;
+  --color-ink-700: #521f37; --color-ink-600: #6f2f4c; --color-ink-500: #94506e;
+  --color-mute: #d8b3c2; --color-cream: #fbeee6;
+  --color-gold: #e9c58a; --color-gold-soft: #f5dcb0; --color-gold-deep: #a87b3a; --color-accent2: #e46a8a;
+  --color-a1: #b3214f; --color-a2: #d4607e; --color-a3: #c8963e; --color-a4: #6d3a8e;
   --color-figure: #fff3f6; --color-silver: #d9d0d4; --color-bronze: #c48a6c;
   --font-display: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
-  --art: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23ff9fbd' fill-opacity='.10'%3E%3Cpath d='M30 40c-6-8-18-2-12 8l12 10 12-10c6-10-6-16-12-8z'/%3E%3Cpath d='M130 120c-4-5-12-1-8 5l8 7 8-7c4-6-4-10-8-5z'/%3E%3C/g%3E%3Cg fill='%23ffd9a0' fill-opacity='.12'%3E%3Ccircle cx='100' cy='30' r='1.6'/%3E%3Ccircle cx='40' cy='140' r='1.3'/%3E%3Ccircle cx='160' cy='70' r='1.8'/%3E%3C/g%3E%3C/svg%3E"); --art-size: 180px 180px;
-  --glow-1: rgb(224 115 143 / 0.22); --glow-2: rgb(240 194 123 / 0.14);
+  --font-hero: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
+  --hero-weight: 900;
+  --bg-top: #3a1226;
+  --art: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><g fill='none' stroke='%23e9c58a' stroke-opacity='.08' stroke-width='1.2'><path d='M0 60a60 60 0 0 1 120 0'/><path d='M15 60a45 45 0 0 1 90 0'/><path d='M30 60a30 30 0 0 1 60 0'/><path d='M60 0v60'/></g></svg>");
+  --art-size: 120px 60px;
+  --glow-1: rgb(228 106 138 / 0.24); --glow-2: rgb(233 197 138 / 0.16);
+  --line: #e9c58a; --line-w: 1px;
+  --card-bg: #2c0f1d; --card-border: 1px solid rgb(233 197 138 / 0.55);
+  --card-shadow: 0 0 0 max(4px, 0.45vh) #1f0a14, 0 0 0 calc(max(4px, 0.45vh) + 1px) rgb(233 197 138 / 0.35), 0 2vh 4vh -2vh rgb(0 0 0 / 0.6);
+  --card-blur: none; --card-outline: 0 solid transparent; --card-outline-offset: 0px; --field-line: #6f2f4c;
+  --tile-fill: 100%; --tile-bw: 1px; --tile-line-mix: 0%; --tile-edge: 0px; --tile-edge-mix: 100%;
+  --tile-glow: 0px; --tile-gloss: 0.14; --tile-gloss-y: max(2px, 0.3vh); --tile-gloss-b: 0px;
+  --tile-shade: 0.2; --tile-shade-y: max(4px, 0.6vh); --tile-shade-b: max(8px, 1.2vh); --tile-cdrop-y: 0px; --tile-cdrop-b: 0px;
+  --tile-ring-gap: max(4px, 0.5vh); --tile-ring-w: 1px; --tile-ring-a: 0.4; --tile-drop: 0 1.4vh 2.6vh -1.2vh rgb(0 0 0 / 0.6);
+  --tile-tshadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #1f0a14; --a4-ink: #fff;
+  --btn-bg: linear-gradient(180deg, #f7e0b5, #dcb06c); --btn-ink: #2c0f1d; --btn-bw: 0px; --btn-line: transparent; --btn-edge-c: #8a6230;
+  --btn-glow: 0 0 2.4vh rgb(233 197 138 / 0.3); --ghost-bg: #3a1527; --ghost-hover: #46192f; --ghost-edge: #160710; --ghost-line: rgb(233 197 138 / 0.35);
+  --chip-bg: rgb(233 197 138 / 0.10); --chip-ink: var(--color-gold-soft); --chip-border: 1px solid rgb(233 197 138 / 0.35);
+  --hero-ink: transparent; --hero-bg: linear-gradient(180deg, #fff3dc 0%, #ecc98e 45%, #b88a45 65%, #f5dcb0 100%);
+  --hero-stroke: 0 transparent; --hero-fx: none; --hero-filter: drop-shadow(0 0.05em 0 #4a1a2c) drop-shadow(0 0.15em 0.3em rgb(0 0 0 / 0.5)); --hero-track: 0;
 }
-html[data-theme="party"] {
-  --color-ink-950: #07071a; --color-ink-900: #0f0f29; --color-ink-850: #141435; --color-ink-800: #1a1a42;
-  --color-ink-700: #26265c; --color-ink-600: #36367c; --color-ink-500: #5555a6;
-  --color-mute: #b6b6e6; --color-cream: #f6f6ff;
-  --color-gold: #22f0c8; --color-gold-soft: #9cf8e6; --color-gold-deep: #0cb894; --color-accent2: #ff3dbb;
-  --color-a1: #f0249a; --color-a2: #0ab4e6; --color-a3: #f08a1c; --color-a4: #7b61ff;
-  --color-figure: #f6f6ff; --color-silver: #ff3dbb; --color-bronze: #ffe14f;
+
+/* Party: "neon club". Black room, glowing neon-tube outlines, lasers,
+   moving spotlights and an equalizer. Neon-sign titles. */
+[data-theme="party"] {
+  color-scheme: dark;
+  --color-ink-950: #07040f; --color-ink-900: #110a22; --color-ink-850: #0d0819; --color-ink-800: #1a1033;
+  --color-ink-700: #281a4d; --color-ink-600: #3b2a6e; --color-ink-500: #5e4aa0;
+  --color-mute: #b9aee6; --color-cream: #f7f3ff;
+  --color-gold: #2ff3e0; --color-gold-soft: #9ffbf1; --color-gold-deep: #0e8f84; --color-accent2: #ff2fb4;
+  --color-a1: #ff2f92; --color-a2: #22b8ff; --color-a3: #ffb020; --color-a4: #9b5bff;
+  --color-figure: #f7f3ff; --color-silver: #ff63c8; --color-bronze: #ffe14f;
   --font-display: var(--font-secular), "Secular One", system-ui, sans-serif;
-  --art: linear-gradient(rgb(34 240 200 / 0.06) 1px, transparent 1px), linear-gradient(90deg, rgb(255 61 187 / 0.05) 1px, transparent 1px);
-  --art-size: 56px 56px;
-  --glow-1: rgb(255 61 187 / 0.28); --glow-2: rgb(34 240 200 / 0.20);
+  --font-hero: var(--font-vinyl), var(--font-secular), system-ui, sans-serif;
+  --hero-weight: 400;
+  --bg-top: #160a2e;
+  --art: linear-gradient(rgb(47 243 224 / 0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(255 47 180 / 0.045) 1px, transparent 1px);
+  --art-size: 6vh 6vh;
+  --glow-1: rgb(255 47 180 / 0.26); --glow-2: rgb(47 243 224 / 0.18);
+  --line: #2ff3e0; --line-w: max(2px, 0.22vh);
+  --card-bg: rgb(17 10 34 / 0.78); --card-border: var(--line-w) solid rgb(47 243 224 / 0.55);
+  --card-shadow: 0 0 2.4vh rgb(47 243 224 / 0.25), inset 0 0 2vh rgb(47 243 224 / 0.08);
+  --card-blur: blur(8px); --card-outline: 0 solid transparent; --card-outline-offset: 0px; --field-line: #3b2a6e;
+  --tile-fill: 24%; --tile-bw: max(2px, 0.28vh); --tile-line-mix: 100%; --tile-edge: 0px; --tile-edge-mix: 100%;
+  --tile-glow: max(12px, 2vh); --tile-gloss: 0; --tile-gloss-y: 0px; --tile-gloss-b: 0px;
+  --tile-shade: 0; --tile-shade-y: 0px; --tile-shade-b: 0px; --tile-cdrop-y: 0px; --tile-cdrop-b: 0px;
+  --tile-ring-gap: 0px; --tile-ring-w: 0px; --tile-ring-a: 0; --tile-drop: 0 0 0 transparent;
+  --tile-tshadow: 0 0 0.5em rgb(255 255 255 / 0.55);
+  --a1-ink: #fff; --a2-ink: #fff; --a3-ink: #fff; --a4-ink: #fff;
+  --btn-bg: #2ff3e0; --btn-ink: #07040f; --btn-bw: 0px; --btn-line: transparent; --btn-edge-c: #0e8f84;
+  --btn-glow: 0 0 2.6vh rgb(47 243 224 / 0.55); --ghost-bg: #1a1033; --ghost-hover: #24164a; --ghost-edge: #050209; --ghost-line: rgb(255 255 255 / 0.12);
+  --chip-bg: rgb(255 255 255 / 0.06); --chip-ink: var(--color-mute); --chip-border: 1px solid rgb(255 255 255 / 0.14);
+  --hero-ink: #fff0fb; --hero-bg: none; --hero-stroke: 0 transparent;
+  --hero-fx: 0 0 0.06em #fff, 0 0 0.2em #ff2fb4, 0 0 0.5em #ff2fb4, 0 0 1em #b0157a; --hero-filter: none; --hero-track: 0.02em;
 }
-html[data-theme="wedding"], html[data-theme="baby_shower"] { color-scheme: light; }
 
 /* ------------------------------------------------------------------ base -- */
 
@@ -164,28 +413,31 @@ h1, h2, h3, .font-display {
   color: var(--color-ink-950);
 }
 
-/* The themed backdrop: the template's pattern over two soft glows and a gradient. */
+/* The themed backdrop: the theme's pattern over two soft glows and a gradient. */
 .stage-bg {
   background:
     var(--art) 0 0 / var(--art-size),
     radial-gradient(ellipse 70% 55% at 85% -5%, var(--glow-1), transparent 70%),
     radial-gradient(ellipse 60% 50% at 0% 105%, var(--glow-2), transparent 70%),
-    linear-gradient(180deg, color-mix(in oklab, var(--color-ink-950) 92%, white) 0%, var(--color-ink-950) 60%);
+    linear-gradient(180deg, var(--bg-top) 0%, var(--color-ink-950) 62%);
+  color: var(--color-cream);
 }
 
-/* Cards: one surface style everywhere. */
+/* Cards: one surface style per theme. */
 .card {
-  background: color-mix(in oklab, var(--color-ink-900) 88%, transparent);
-  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  border: var(--card-border);
   box-shadow: var(--card-shadow);
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--card-blur);
+  outline: var(--card-outline);
+  outline-offset: var(--card-outline-offset);
 }
 
 /* Text fields. */
 .field {
   width: 100%;
   border-radius: 1rem;
-  border: 2px solid var(--color-ink-700);
+  border: 2px solid var(--field-line);
   background: var(--color-ink-850);
   padding: 0.75rem 1rem;
   font-size: 1.125rem;
@@ -199,11 +451,11 @@ h1, h2, h3, .font-display {
   box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-gold) 22%, transparent);
 }
 
-/* Buttons with a bottom edge they press into. */
+/* Buttons with an edge they press into. */
 .btn-press {
-  --edge: 5px;
+  --edge: max(4px, 0.5vh);
   transform: translateY(0);
-  box-shadow: 0 var(--edge) 0 var(--btn-edge), 0 calc(var(--edge) + 6px) 18px -8px rgb(0 0 0 / 0.45);
+  box-shadow: 0 var(--edge) 0 var(--btn-edge), var(--btn-glow);
 }
 .btn-press:active:not(:disabled) {
   transform: translateY(calc(var(--edge) - 1px));
@@ -211,23 +463,21 @@ h1, h2, h3, .font-display {
 }
 .btn-press:disabled { box-shadow: none; transform: none; }
 .btn-primary {
-  --btn-edge: var(--color-gold-deep);
-  background: linear-gradient(180deg, var(--color-gold-soft) -40%, var(--color-gold) 60%);
-  color: var(--color-ink-950);
+  --btn-edge: var(--btn-edge-c);
+  background: var(--btn-bg);
+  color: var(--btn-ink);
+  border: var(--btn-bw) solid var(--btn-line);
 }
-html[data-theme="wedding"] .btn-primary,
-html[data-theme="baby_shower"] .btn-primary { color: #fff; background: linear-gradient(180deg, color-mix(in oklab, var(--color-gold) 80%, white), var(--color-gold)); }
-.btn-primary:hover:not(:disabled) { filter: brightness(1.06); }
-.btn-primary:disabled { background: var(--color-ink-700); color: var(--color-mute); }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.05) saturate(1.05); }
+.btn-primary:disabled { background: var(--color-ink-700); color: var(--color-mute); border-color: transparent; }
 .btn-ghost {
-  --edge: 4px;
-  --btn-edge: color-mix(in oklab, var(--color-ink-800) 55%, black);
-  background: var(--color-ink-800);
+  --edge: max(3px, 0.42vh);
+  --btn-edge: var(--ghost-edge);
+  background: var(--ghost-bg);
   color: var(--color-cream);
+  border: var(--btn-bw) solid var(--ghost-line);
 }
-html[data-theme="wedding"] .btn-ghost,
-html[data-theme="baby_shower"] .btn-ghost { --btn-edge: var(--color-ink-700); }
-.btn-ghost:hover:not(:disabled) { background: var(--color-ink-700); }
+.btn-ghost:hover:not(:disabled) { background: var(--ghost-hover); }
 .btn-ghost:disabled { color: var(--color-ink-500); background: var(--color-ink-850); }
 
 /* Small rounded label. */
@@ -238,24 +488,53 @@ html[data-theme="baby_shower"] .btn-ghost { --btn-edge: var(--color-ink-700); }
   border-radius: 999px;
   padding: 0.25em 0.8em;
   font-weight: 700;
-  background: color-mix(in oklab, var(--color-cream) 9%, transparent);
-  color: var(--color-mute);
+  background: var(--chip-bg);
+  color: var(--chip-ink);
+  border: var(--chip-border);
 }
 
-/* Answer tiles: the four answer colors, with a pressed-down edge. */
-.tile-0 { --tile: var(--color-a1); }
-.tile-1 { --tile: var(--color-a2); }
-.tile-2 { --tile: var(--color-a3); }
-.tile-3 { --tile: var(--color-a4); }
+/* Answer tiles: the four answer colors, drawn in the theme's style
+   (sticker edge, neon tube, clay, foil frame…). Every knob is a plain value
+   set by the theme, so the formula itself resolves --tile on the tile. */
+.tile-0 { --tile: var(--color-a1); --tile-ink: var(--a1-ink); }
+.tile-1 { --tile: var(--color-a2); --tile-ink: var(--a2-ink); }
+.tile-2 { --tile: var(--color-a3); --tile-ink: var(--a3-ink); }
+.tile-3 { --tile: var(--color-a4); --tile-ink: var(--a4-ink); }
 .tile {
-  background: linear-gradient(180deg, color-mix(in oklab, var(--tile) 100%, white 8%), var(--tile));
-  box-shadow: 0 0.35em 0 color-mix(in oklab, var(--tile) 70%, black), 0 0.6em 1.4em -0.4em rgb(0 0 0 / 0.45);
-  color: #fff;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  --fill: color-mix(in oklab, var(--tile) var(--tile-fill), var(--color-ink-950));
+  background: linear-gradient(180deg, color-mix(in oklab, var(--fill), white 6%), var(--fill) 70%);
+  border: var(--tile-bw) solid color-mix(in oklab, var(--tile) var(--tile-line-mix), var(--line));
+  box-shadow:
+    inset 0 0 0 var(--tile-ring-gap) var(--fill),
+    inset 0 0 0 calc(var(--tile-ring-gap) + var(--tile-ring-w)) rgb(255 255 255 / var(--tile-ring-a)),
+    inset 0 var(--tile-gloss-y) var(--tile-gloss-b) rgb(255 255 255 / var(--tile-gloss)),
+    inset 0 calc(-1 * var(--tile-shade-y)) var(--tile-shade-b) rgb(0 0 0 / var(--tile-shade)),
+    inset 0 0 calc(var(--tile-glow) * 0.6) color-mix(in oklab, var(--tile) 45%, transparent),
+    0 var(--tile-edge) 0 color-mix(in oklab, var(--tile) var(--tile-edge-mix), var(--line)),
+    0 0 var(--tile-glow) color-mix(in oklab, var(--tile) 75%, transparent),
+    0 var(--tile-cdrop-y) var(--tile-cdrop-b) calc(var(--tile-cdrop-b) * -0.5) color-mix(in oklab, var(--tile) 55%, transparent),
+    var(--tile-drop);
+  color: var(--tile-ink);
+  text-shadow: var(--tile-tshadow);
 }
 .tile-dim {
-  filter: saturate(0.25) brightness(0.7);
-  opacity: 0.55;
+  filter: saturate(0.25) brightness(0.8);
+  opacity: 0.5;
+}
+
+/* Big titles (game title, winner, finale): each theme's signature lettering. */
+.hero-title {
+  font-family: var(--font-hero);
+  font-weight: var(--hero-weight);
+  color: var(--hero-ink);
+  background: var(--hero-bg);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: var(--hero-stroke);
+  paint-order: stroke fill;
+  text-shadow: var(--hero-fx);
+  filter: var(--hero-filter);
+  letter-spacing: var(--hero-track);
 }
 
 .gold-rule {
@@ -264,6 +543,93 @@ html[data-theme="baby_shower"] .btn-ghost { --btn-edge: var(--color-ink-700); }
   background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
   opacity: 0.7;
 }
+
+/* -------------------------------------------------- ambient animations -- */
+/* Used by components/theme/Ambient.tsx. Only transform and opacity move. */
+.amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; contain: strict; }
+.amb > * { position: absolute; will-change: transform; }
+
+.amb-rise { bottom: -24vh; animation: amb-rise var(--d) linear var(--delay) infinite; }
+.amb-fall { top: -12vh; animation: amb-fall var(--d) linear var(--delay) infinite; }
+.amb-drift { animation: amb-drift var(--d) linear var(--delay) infinite; }
+.amb-twinkle { animation: amb-twinkle var(--d) ease-in-out var(--delay) infinite; }
+.amb-bob { animation: amb-bob var(--d) ease-in-out var(--delay) infinite alternate; }
+.amb-sway { animation: amb-sway var(--sw, 4s) ease-in-out infinite alternate; transform-origin: 50% 0; }
+.amb-spin { animation: amb-spin var(--d) linear infinite; }
+.amb-flutter { animation: amb-flutter var(--sw, 3s) ease-in-out infinite alternate; }
+.amb-shoot { animation: amb-shoot var(--d) ease-in var(--delay) infinite; }
+.amb-cross { animation: amb-cross var(--d) linear var(--delay) infinite; }
+.amb-laser { bottom: -6vh; transform-origin: 50% 100%; animation: amb-laser var(--d) ease-in-out var(--delay) infinite alternate; }
+.amb-spot { animation: amb-spot var(--d) ease-in-out var(--delay) infinite alternate; }
+.amb-eq { bottom: 0; transform-origin: 50% 100%; animation: amb-eq var(--d) ease-in-out var(--delay) infinite alternate; }
+.amb-bloom { animation: amb-bloom var(--d) ease-out var(--delay) infinite; }
+.amb-flicker { animation: amb-flicker var(--d) ease-in-out var(--delay) infinite alternate; }
+.amb-flame { animation: amb-flame 0.18s ease-in-out infinite alternate; transform-origin: 50% 0; }
+
+@keyframes amb-rise { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(var(--dx, 0), -150vh, 0); } }
+@keyframes amb-fall {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(var(--dx, 4vw), 32vh, 0); }
+  50% { transform: translate3d(calc(var(--dx, 4vw) * -0.4), 64vh, 0); }
+  75% { transform: translate3d(var(--dx, 4vw), 96vh, 0); }
+  100% { transform: translate3d(0, 128vh, 0); }
+}
+@keyframes amb-drift { from { transform: translate3d(-40vw, 0, 0); } to { transform: translate3d(140vw, 0, 0); } }
+@keyframes amb-twinkle { 0%, 100% { opacity: 0.15; transform: scale(0.6); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes amb-bob { from { transform: translate3d(0, 0, 0) rotate(var(--r0, -8deg)); } to { transform: translate3d(0, var(--bob, -3vh), 0) rotate(var(--r1, 8deg)); } }
+@keyframes amb-sway { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+@keyframes amb-spin { to { transform: rotate(360deg); } }
+@keyframes amb-flutter { from { transform: rotate3d(1, 0.4, 0.2, -50deg) rotate(-20deg); } to { transform: rotate3d(1, 0.4, 0.2, 50deg) rotate(40deg); } }
+@keyframes amb-shoot {
+  0%, 82% { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--rot, 25deg)); }
+  84% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--sx, -40vw), var(--sy, 22vh), 0) rotate(var(--rot, 25deg)); }
+}
+@keyframes amb-cross {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(var(--rot, 40deg)); }
+  38% { opacity: 1; transform: translate3d(var(--sx, 120vw), var(--sy, -70vh), 0) rotate(var(--rot, 40deg)); }
+  38.1%, 100% { opacity: 0; transform: translate3d(var(--sx, 120vw), var(--sy, -70vh), 0) rotate(var(--rot, 40deg)); }
+}
+@keyframes amb-laser { from { transform: rotate(var(--r0, -35deg)); } to { transform: rotate(var(--r1, 35deg)); } }
+@keyframes amb-spot { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(var(--sx, 30vw), var(--sy, 20vh), 0); } }
+@keyframes amb-eq { from { transform: scaleY(0.15); } to { transform: scaleY(1); } }
+@keyframes amb-bloom {
+  0% { opacity: 0; transform: scale(0.1); }
+  6% { opacity: 1; }
+  30% { opacity: 0; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+@keyframes amb-flicker { 0% { opacity: 0.55; transform: scale(1); } 40% { opacity: 0.8; } 70% { opacity: 0.6; transform: scale(1.04); } 100% { opacity: 0.9; transform: scale(0.98); } }
+@keyframes amb-flame { from { transform: scaleY(0.75) scaleX(0.95); } to { transform: scaleY(1.15) scaleX(1.05); } }
+
+/* One-shot "moments" when something great happens (see Ambient's Moment). */
+.mom-release { bottom: -26vh; animation: mom-release var(--d) cubic-bezier(0.45, 0, 0.8, 0.6) var(--delay) both; }
+.mom-pop { animation: mom-pop var(--d) cubic-bezier(0.15, 0.7, 0.3, 1) var(--delay) both; }
+.mom-rocket { animation: mom-rocket 2.6s cubic-bezier(0.55, 0, 0.85, 0.4) 0.1s both; }
+.mom-puff { animation: mom-puff 1.8s ease-out var(--delay) both; }
+.mom-sweep { animation: mom-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) var(--delay) both; }
+.mom-strobe { animation: mom-strobe 1.2s steps(1) var(--delay) both; }
+.mom-bloom { animation: mom-bloom 1.6s ease-out var(--delay) both; }
+.mom-spark { animation: mom-spark 1.4s ease-out var(--delay) both; }
+
+@keyframes mom-release { from { transform: translate3d(0, 0, 0) rotate(0); } to { transform: translate3d(var(--dx, 0), -150vh, 0) rotate(var(--r, 8deg)); } }
+@keyframes mom-pop {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.2) rotate(0); }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) scale(1) rotate(var(--r, 180deg)); }
+}
+@keyframes mom-rocket {
+  0% { transform: translate3d(-50%, 0, 0); }
+  12% { transform: translate3d(calc(-50% - 0.4vw), -2vh, 0); }
+  16% { transform: translate3d(calc(-50% + 0.4vw), -3vh, 0); }
+  100% { transform: translate3d(-50%, -150vh, 0); }
+}
+@keyframes mom-puff { 0% { opacity: 0; transform: scale(0.3); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translate3d(var(--dx, 0), -4vh, 0) scale(1.6); } }
+@keyframes mom-sweep { from { transform: translate3d(-120%, 0, 0); } to { transform: translate3d(120%, 0, 0); } }
+@keyframes mom-strobe { 0%, 24%, 48%, 72% { opacity: 1; } 12%, 36%, 60%, 84%, 100% { opacity: 0; } }
+@keyframes mom-bloom { 0% { opacity: 1; transform: scale(0.05); } 60% { opacity: 1; } 100% { opacity: 0; transform: scale(1); } }
+@keyframes mom-spark { 0% { opacity: 0; transform: scale(0.2) rotate(0); } 30% { opacity: 1; transform: scale(1.1) rotate(45deg); } 100% { opacity: 0; transform: scale(0.4) rotate(90deg); } }
 
 /* ------------------------------------------------- figure animations -- */
 /* Pivots are in the figure's viewBox coordinates (0 0 100 190). */
@@ -299,6 +665,8 @@ html[data-theme="baby_shower"] .btn-ghost { --btn-edge: var(--color-ink-700); }
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .amb, .amb-moment { display: none; }
 }

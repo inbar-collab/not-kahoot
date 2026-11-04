@@ -79,7 +79,7 @@ export function FinaleStage({
               // The big moment: the winner alone, centered.
               <div className="flex flex-1 flex-col items-center justify-center text-center">
                 {winners.length === 0 ? (
-                  <h1 className="font-display text-[min(8vh,7vw)] font-bold text-gold-soft">{s.scrFinaleNone}</h1>
+                  <h1 className="hero-title text-[min(8vh,7vw)]">{s.scrFinaleNone}</h1>
                 ) : (
                   <>
                     <div className="mb-[4vh] flex gap-[2vw]">
@@ -104,7 +104,7 @@ export function FinaleStage({
                     </motion.p>
                     {winners.length > 1 && <p className="font-display text-[min(4vh,4vw)] text-mute">{s.scrFinaleTie}</p>}
                     <motion.h1
-                      className="font-display text-[min(12vh,9vw)] font-black leading-tight text-gold"
+                      className="hero-title text-[min(12vh,9vw)] leading-tight"
                       initial={{ scale: 0.6, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.2 }}
@@ -120,7 +120,7 @@ export function FinaleStage({
                 <motion.h1
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center font-display text-[min(6vh,5vw)] font-black text-gold"
+                  className="hero-title text-center text-[min(6.4vh,5.2vw)]"
                 >
                   {winners.length === 0 ? s.scrFinaleNone : <>🏆 <WinnerNames winners={winners} /></>}
                 </motion.h1>

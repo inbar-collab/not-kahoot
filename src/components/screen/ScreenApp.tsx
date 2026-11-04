@@ -6,10 +6,10 @@ import { useTheme } from "@/hooks/useTheme";
 import { api, gamePath } from "@/lib/api";
 import { audioReady, play, unlockAudio, type SoundName } from "@/lib/sound";
 import { getStrings } from "@/lib/strings";
-import type { ScreenSnapshot } from "@/lib/types";
+import type { ScreenSnapshot, TemplateId } from "@/lib/types";
 import { CenterMessage, ConnectionPill, Loading } from "../ui/Status";
 import type { Reaction } from "@/lib/reactions";
-import { Decor } from "./Decor";
+import { Ambient } from "../theme/Ambient";
 import { Reactions } from "./Reactions";
 import { FinaleStage } from "./FinaleStage";
 import { IntroStage } from "./IntroStage";
@@ -105,18 +105,11 @@ export function ScreenApp({ params, baseUrl }: { params: Promise<{ code: string 
     : `${game.state === "QUESTION_OPEN" || game.state === "QUESTION_CLOSED" || game.state === "WAITING_FOR_BIRTHDAY" ? "Q" : game.state}-${game.currentIndex}`;
 
   return (
-    <main className="stage-bg relative h-dvh w-full overflow-hidden">
+    <main className="stage-bg relative isolate h-dvh w-full overflow-hidden">
       <ConnectionPill state={connection} label={s.reconnecting} />
-      {(game.state === "LOBBY" || game.state === "INTRO" || game.state === "FINISHED") && <Decor id={game.template} />}
+      <Ambient id={game.template} level={game.state === "LOBBY" || game.state === "INTRO" || game.state === "FINISHED" ? "full" : "calm"} />
       <AnimatePresence mode="wait">
-        <motion.div
-          key={key}
-          className="absolute inset-0"
-          initial={{ opacity: 0, scale: 0.985 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.01 }}
-          transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
-        >
+        <motion.div key={key} className="absolute inset-0" {...sceneMotion(game.template)}>
           {stage}
         </motion.div>
       </AnimatePresence>
@@ -134,4 +127,57 @@ export function ScreenApp({ params, baseUrl }: { params: Promise<{ code: string 
       )}
     </main>
   );
+}
+
+/** Each theme changes scenes its own way: pop, float, dissolve, zoom… */
+function sceneMotion(id: TemplateId) {
+  const ease = [0.2, 0.8, 0.2, 1] as const;
+  switch (id) {
+    case "wedding":
+    case "anniversary":
+      // a slow, soft dissolve
+      return {
+        initial: { opacity: 0, filter: "blur(10px)" },
+        animate: { opacity: 1, filter: "blur(0px)" },
+        exit: { opacity: 0, filter: "blur(10px)" },
+        transition: { duration: 0.8, ease },
+      };
+    case "mitzvah":
+      return {
+        initial: { opacity: 0, scale: 1.06 },
+        animate: { opacity: 1, scale: 1 },
+        exit: { opacity: 0, scale: 0.97 },
+        transition: { duration: 0.6, ease },
+      };
+    case "baby_shower":
+      // drifts up like a bubble
+      return {
+        initial: { opacity: 0, y: 40 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -40 },
+        transition: { duration: 0.7, ease },
+      };
+    case "kids":
+      // blasts off upward
+      return {
+        initial: { opacity: 0, y: "12vh", scale: 0.96 },
+        animate: { opacity: 1, y: 0, scale: 1, transition: { type: "spring" as const, stiffness: 170, damping: 18 } },
+        exit: { opacity: 0, y: "-14vh", transition: { duration: 0.35, ease: "easeIn" as const } },
+      };
+    case "party":
+      // a hard zoom like a beat drop
+      return {
+        initial: { opacity: 0, scale: 1.18, filter: "brightness(2.2)" },
+        animate: { opacity: 1, scale: 1, filter: "brightness(1)" },
+        exit: { opacity: 0, scale: 0.9, filter: "brightness(0.4)" },
+        transition: { duration: 0.4, ease },
+      };
+    default:
+      // birthday, kid's birthday: a bouncy pop
+      return {
+        initial: { opacity: 0, scale: 0.9, rotate: -1.5 },
+        animate: { opacity: 1, scale: 1, rotate: 0, transition: { type: "spring" as const, stiffness: 260, damping: 17 } },
+        exit: { opacity: 0, scale: 1.04, transition: { duration: 0.25 } },
+      };
+  }
 }

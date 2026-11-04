@@ -24,7 +24,7 @@ export function IntroStage({ snap, s }: { snap: ScreenSnapshot; s: Strings }) {
         {s.scrIntroLine1}
       </motion.p>
       <motion.h1
-        className="mt-[1vh] font-display text-[min(8vh,7vw)] font-black leading-tight text-gold-soft"
+        className="hero-title mt-[1vh] text-[min(9vh,7.4vw)] leading-tight"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.1 }}

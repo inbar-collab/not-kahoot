@@ -1,4 +1,5 @@
 "use client";
+import { Ambient } from "../theme/Ambient";
 import { use, useCallback, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useLiveGame } from "@/hooks/useLiveGame";
@@ -108,7 +109,8 @@ export function BirthdayApp({
   }
 
   return (
-    <main className="stage-bg flex min-h-dvh flex-col">
+    <main className="stage-bg relative isolate flex min-h-dvh flex-col">
+      <Ambient id={game.template} level="phone" />
       <ConnectionPill state={connection} label={s.reconnecting} />
       <AnimatePresence mode="wait">
         <motion.div
@@ -216,7 +218,7 @@ function AnswerFlow({
               onClick={() => toggle(i)}
               whileTap={{ scale: 0.97 }}
               className={`tile tile-${i} relative flex min-h-[80px] items-center gap-4 rounded-[1.4rem] px-5 py-3 text-start text-[1.4rem] font-bold leading-tight transition ${
-                on ? "ring-4 ring-white ring-offset-2 ring-offset-ink-950" : "opacity-85"
+                on ? "outline-[5px] outline-offset-[3px] outline-cream [outline-style:solid]" : "saturate-[.75]"
               }`}
             >
               <AnswerShape index={i} className="h-9 w-9 shrink-0" />

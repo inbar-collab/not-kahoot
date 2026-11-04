@@ -69,7 +69,7 @@ export function LobbyStage({ snap, s, joinUrl }: { snap: ScreenSnapshot; s: Stri
           <p className="chip mb-[1.2vh] px-[1.2vw] py-[0.6vh] text-[min(2.4vh,2vw)]">
             {t.emoji} {t.name[game.locale]}
           </p>
-          <h1 className="font-display text-[min(7vh,5.4vw)] font-black leading-[1.05]">{game.title}</h1>
+          <h1 className="hero-title text-[min(7.4vh,5.6vw)] leading-[1.12]">{game.title}</h1>
           <p className="mt-[1vh] font-display text-[min(3.8vh,3.2vw)] font-bold text-gold-soft">
             <bdi>{game.birthdayName}</bdi>
             {game.birthdayAge ? <span className="text-mute"> · {s.age(game.birthdayAge)}</span> : null}

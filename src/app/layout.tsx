@@ -1,5 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Frank_Ruhl_Libre, Fredoka, Rubik, Secular_One } from "next/font/google";
+import {
+  Bellefair,
+  Frank_Ruhl_Libre,
+  Fredoka,
+  Rubik,
+  Rubik_Bubbles,
+  Rubik_Moonrocks,
+  Rubik_Vinyl,
+  Rubik_Wet_Paint,
+  Secular_One,
+  Suez_One,
+} from "next/font/google";
 import "./globals.css";
 
 // Rubik is the app's typeface (Hebrew + Latin). The others are template
@@ -14,6 +25,13 @@ const frank = Frank_Ruhl_Libre({
 });
 const fredoka = Fredoka({ subsets: ["hebrew", "latin"], variable: "--font-fredoka", display: "swap", preload: false });
 const secular = Secular_One({ subsets: ["hebrew", "latin"], weight: "400", variable: "--font-secular", display: "swap", preload: false });
+// Signature title lettering, one per theme (only the big titles use these).
+const wetpaint = Rubik_Wet_Paint({ subsets: ["hebrew", "latin"], weight: "400", variable: "--font-wetpaint", display: "swap", preload: false });
+const bubbles = Rubik_Bubbles({ subsets: ["hebrew", "latin"], weight: "400", variable: "--font-bubbles", display: "swap", preload: false });
+const moonrocks = Rubik_Moonrocks({ subsets: ["hebrew", "latin"], weight: "400", variable: "--font-moonrocks", display: "swap", preload: false });
+const vinyl = Rubik_Vinyl({ subsets: ["hebrew", "latin"], weight: "400", variable: "--font-vinyl", display: "swap", preload: false });
+const bellefair = Bellefair({ subsets: ["hebrew", "latin"], weight: "400", variable: "--font-bellefair", display: "swap", preload: false });
+const suez = Suez_One({ subsets: ["hebrew", "latin"], weight: "400", variable: "--font-suez", display: "swap", preload: false });
 
 export const metadata: Metadata = {
   title: { default: "Event Quiz – the party quiz everyone plays from their phone", template: "%s · Event Quiz" },
@@ -24,7 +42,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#120b2e",
+  themeColor: "#fff4e2",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -32,9 +50,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="he"
       dir="rtl"
-      data-theme="birthday"
+      data-theme="site"
       suppressHydrationWarning
-      className={`${rubik.variable} ${frank.variable} ${fredoka.variable} ${secular.variable}`}
+      className={[rubik, frank, fredoka, secular, wetpaint, bubbles, moonrocks, vinyl, bellefair, suez].map((f) => f.variable).join(" ")}
     >
       <body className="antialiased">{children}</body>
     </html>

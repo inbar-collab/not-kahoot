@@ -1,4 +1,5 @@
 "use client";
+import { Ambient } from "../theme/Ambient";
 import { useState } from "react";
 import { motion } from "motion/react";
 import { api, ClientApiError, gamePath } from "@/lib/api";
@@ -56,13 +57,14 @@ export function JoinForm({
   const late = game.state !== "LOBBY";
 
   return (
-    <main className="stage-bg min-h-dvh px-5 pb-10 pt-8">
+    <main className="stage-bg relative isolate min-h-dvh px-5 pb-10 pt-8">
+      <Ambient id={game.template} level="phone" />
       <form onSubmit={submit} className="card mx-auto flex max-w-md flex-col items-center gap-6 rounded-[2rem] p-5 sm:p-7" noValidate>
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
           <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size={150} />
         </motion.div>
         <div className="text-center">
-          <h1 className="font-display text-[2rem] font-black leading-tight text-cream">{game.title}</h1>
+          <h1 className="hero-title text-[2.2rem] leading-tight">{game.title}</h1>
           <p className="mt-2 text-xl text-mute">{s.joinSubtitle}</p>
         </div>
 

@@ -19,7 +19,7 @@ import { SiteHeader } from "./SiteHeader";
 /** The signed-in host's quizzes, with every link they need to send out. */
 export function DashboardApp({ baseUrl }: { baseUrl: string }) {
   const [locale, setLocale] = useSiteLocale();
-  useTheme("birthday", locale);
+  useTheme("site", locale);
   const s = getStrings({ locale });
   const router = useRouter();
   const [games, setGames] = useState<MyGame[] | null>(null);
@@ -114,7 +114,6 @@ export function DashboardApp({ baseUrl }: { baseUrl: string }) {
 
 function GameCard({ g, base, s, onDelete }: { g: MyGame; base: string; s: Strings; onDelete: () => void }) {
   const t = TEMPLATES[g.template];
-  const [bg, surface, accent, text] = t.swatch;
   // Links speak the quiz's own language (its star's pronoun and name).
   const gs = getStrings({ locale: g.locale, birthdayGender: g.birthdayGender, birthdayName: g.birthdayName, template: g.template });
   const admin = `/admin/${g.code}?token=${encodeURIComponent(g.adminToken)}`;
@@ -123,17 +122,17 @@ function GameCard({ g, base, s, onDelete }: { g: MyGame; base: string; s: String
   const star = `${base}/star/${g.code}?token=${encodeURIComponent(g.birthdayToken)}`;
   return (
     <motion.li layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} className="overflow-hidden rounded-3xl card">
-      <div className="flex items-center gap-4 p-5" style={{ background: `linear-gradient(135deg, ${surface}, ${bg})`, color: text }}>
+      <div data-theme={g.template} className="stage-bg flex items-center gap-4 border-b-[length:var(--line-w)] border-[var(--line)] p-5">
         {g.photoUrl ? (
-          <img src={g.photoUrl} alt="" className="h-16 w-16 shrink-0 rounded-full object-cover" style={{ boxShadow: `0 0 0 3px ${accent}` }} />
+          <img src={g.photoUrl} alt="" className="h-16 w-16 shrink-0 rounded-full object-cover" style={{ boxShadow: "0 0 0 3px var(--color-gold)" }} />
         ) : (
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-4xl" style={{ background: bg, boxShadow: `0 0 0 3px ${accent}` }}>
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-4xl" style={{ background: "var(--color-ink-900)", boxShadow: "0 0 0 3px var(--color-gold)" }}>
             {t.emoji}
           </span>
         )}
         <div className="min-w-0 flex-1" dir={g.locale === "he" ? "rtl" : "ltr"}>
-          <p className="truncate text-xl font-bold">{g.title}</p>
-          <p className="truncate text-sm opacity-80">
+          <p className="hero-title truncate text-2xl leading-tight">{g.title}</p>
+          <p className="truncate text-sm text-mute">
             {t.emoji} {t.name[g.locale]} · <bdi>{g.birthdayName}</bdi>
           </p>
         </div>
@@ -146,7 +145,7 @@ function GameCard({ g, base, s, onDelete }: { g: MyGame; base: string; s: String
         <span className="rounded-full bg-ink-800 px-3 py-1 text-mute" dir="ltr">{g.code}</span>
       </div>
       <div className="flex flex-col gap-3 p-5">
-        <Link href={admin} className="inline-flex min-h-[56px] items-center justify-center rounded-2xl bg-gold px-5 text-lg font-bold text-ink-950 hover:bg-gold-soft">
+        <Link href={admin} className="btn-press btn-primary inline-flex min-h-[56px] items-center justify-center rounded-2xl px-5 text-lg font-extrabold">
           {s.dashManage}
         </Link>
         <details className="rounded-2xl bg-ink-850 px-4">
