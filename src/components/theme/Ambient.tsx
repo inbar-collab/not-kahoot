@@ -71,7 +71,7 @@ type Pick = (full: number, calm: number, phone: number) => number;
 
 // --------------------------------------------------------------- shapes --
 
-function Balloon({ i, outline }: { i: number; outline: boolean }) {
+export function Balloon({ i, outline }: { i: number; outline: boolean }) {
   const stroke = outline ? { stroke: "var(--line)", strokeWidth: 2 } : {};
   return (
     <svg viewBox="0 0 40 80" className="h-full w-full overflow-visible">
@@ -106,7 +106,7 @@ function Toy({ i }: { i: number }) {
   );
 }
 
-function Cloud({ outline }: { outline?: boolean }) {
+export function Cloud({ outline }: { outline?: boolean }) {
   return (
     <svg viewBox="0 0 64 36" className="h-full w-full overflow-visible">
       <path
@@ -131,7 +131,7 @@ function Svg({ d, fill, className = "" }: { d: string; fill: string; className?:
   );
 }
 
-function Rocket() {
+export function Rocket() {
   return (
     <svg viewBox="0 0 40 96" className="h-full w-full overflow-visible">
       <g className="amb-flame" style={{ transformBox: "fill-box" }}>
@@ -165,7 +165,7 @@ function Planet() {
   );
 }
 
-function Firework({ hue }: { hue: string }) {
+export function Firework({ hue }: { hue: string }) {
   return (
     <svg viewBox="0 0 100 100" className="h-full w-full overflow-visible">
       {range(14).map((k) => {

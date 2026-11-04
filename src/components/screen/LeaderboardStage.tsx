@@ -9,10 +9,10 @@ import { template } from "@/lib/templates";
 import { LB_DONE_MS, LB_RACE_MS, LB_STRIKE_MS } from "@/lib/timing";
 import type { ScreenSnapshot, Standing } from "@/lib/types";
 import { Figure, RUNNER_COLORS } from "../finale/Figure";
+import { ThemeShow } from "../shows/ThemeShow";
 
 const MAX_LANES = 8;
 const OPENERS = ["lights", "bowling", "drumroll", "balloon"] as const;
-const SHOWS = ["race", "rockets"] as const;
 
 /**
  * The leaderboard as a little show, different each time: a short opener
@@ -39,7 +39,11 @@ export function LeaderboardStage({
   // A different mix each time: one of four openers, then one of two shows.
   const h = snap.game.currentIndex * 7 + 3;
   const opener = OPENERS[h % OPENERS.length];
-  const show = SHOWS[Math.floor(h / OPENERS.length) % SHOWS.length];
+  // Mostly the event's own show (cake climb, aisle walk, hora…), and every
+  // third time one of the classic ones, for variety.
+  const i = snap.game.currentIndex;
+  const classic = i % 3 === 2 ? (Math.floor(i / 3) % 2 === 0 || snap.game.template === "kids" ? "race" : "rockets") : null;
+  const show = classic ?? "theme";
 
   // Watching it happen (not a refresh in the middle): play sounds and animate.
   // (The TV's scene change takes a moment, so allow some slack.)
@@ -77,7 +81,16 @@ export function LeaderboardStage({
           </motion.div>
         ) : (
           <motion.div key="race" className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {show === "race" ? (
+            {show === "theme" ? (
+              <ThemeShow
+                template={snap.game.template}
+                standings={standings}
+                s={s}
+                elapsed={Math.max(0, elapsed - LB_STRIKE_MS)}
+                duration={(LB_RACE_MS - LB_STRIKE_MS) / 1000}
+                animate={live}
+              />
+            ) : show === "race" ? (
               <Race s={s} standings={standings} elapsed={elapsed} animate={live} />
             ) : (
               <Rockets s={s} standings={standings} elapsed={elapsed} animate={live} />

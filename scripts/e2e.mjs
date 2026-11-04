@@ -203,7 +203,7 @@ const shot = (page, name, fullPage = false) => (OUT ? page.screenshot({ path: OU
   await admin.getByRole('button', { name: '✨ חשיפה' }).click();
   await screen.getByText('כל ה-3 הכירו אותה').waitFor({ timeout: 10000 });
   await admin.getByRole('button', { name: 'טבלת מובילים' }).click();
-  await screen.getByText(/המרוץ לצמרת|מי טס הכי גבוה/).waitFor({ timeout: 15000 });
+  await screen.getByText(/המרוץ לצמרת|מי טס הכי גבוה|מי יטפס הכי גבוה על העוגה/).waitFor({ timeout: 15000 });
   await screen.waitForTimeout(5000);
   await shot(screen, '17-screen-leaderboard.png');
   log('leaderboard ok');

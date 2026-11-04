@@ -1,18 +1,17 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useElapsed } from "@/hooks/useElapsed";
 import { celebrate } from "@/lib/confetti";
 import type { SoundName } from "@/lib/sound";
 import type { Strings } from "@/lib/strings";
-import { FINALE_LIST_MS, FINALE_PODIUM_MS, FINALE_TEASE_MS } from "@/lib/timing";
+import { FINALE_ARRIVE_MS, FINALE_LIST_MS, FINALE_SHOW_S, FINALE_TEASE_MS } from "@/lib/timing";
 import type { ScreenSnapshot } from "@/lib/types";
-import { Podium } from "../finale/Podium";
 import { Ranking } from "../finale/Ranking";
-import { Avatar } from "../ui/Avatar";
+import { ThemeShow } from "../shows/ThemeShow";
 import { Portrait } from "../ui/Portrait";
 
-/** Pause, "The person who knows her best is...", winner, podium, full ranking. */
+/** Pause, "The person who knows her best is...", the event's own show up to the winner, then the full ranking. */
 export function FinaleStage({
   snap,
   s,
@@ -28,16 +27,16 @@ export function FinaleStage({
   const standings = snap.standings ?? [];
   const elapsed = useElapsed(msInState, FINALE_LIST_MS + 100, game.stateChangedAt);
   const teasing = elapsed < FINALE_TEASE_MS;
-  const showPodium = elapsed >= FINALE_PODIUM_MS;
+  const arrived = elapsed >= FINALE_ARRIVE_MS;
   const showList = elapsed >= FINALE_LIST_MS;
 
   const winners = standings.filter((x) => x.rank === 1 && x.score > 0);
-  const live = useRef(elapsed < FINALE_TEASE_MS);
+  const [live] = useState(() => elapsed < FINALE_TEASE_MS);
   const done = useRef(false);
   useEffect(() => {
-    if (!teasing && !done.current) {
+    if (arrived && !done.current) {
       done.current = true;
-      if (live.current && winners.length > 0) {
+      if (live && winners.length > 0) {
         sound("winner");
         celebrate(3000);
       }
@@ -55,7 +54,7 @@ export function FinaleStage({
           >
             <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(24vh, 26vw)" />
             <motion.h1
-              className="font-display text-[min(7vh,6vw)] font-bold"
+              className="hero-title text-[min(7vh,6vw)]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
@@ -74,71 +73,64 @@ export function FinaleStage({
             </div>
           </motion.div>
         ) : (
-          <motion.div key="reveal" className="flex min-h-0 flex-1 flex-col" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {!showPodium ? (
-              // The big moment: the winner alone, centered.
-              <div className="flex flex-1 flex-col items-center justify-center text-center">
-                {winners.length === 0 ? (
-                  <h1 className="hero-title text-[min(8vh,7vw)]">{s.scrFinaleNone}</h1>
-                ) : (
-                  <>
-                    <div className="mb-[4vh] flex gap-[2vw]">
-                      {winners.slice(0, 4).map((w) => (
-                        <motion.div
-                          key={w.player.id}
-                          initial={{ scale: 0.3, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: "spring", stiffness: 200, damping: 12 }}
-                        >
-                          <Avatar player={w.player} size={200} ring className="!h-[min(28vh,24vw)] !w-[min(28vh,24vw)]" />
-                        </motion.div>
+          // The event's own show (the cake climb, the aisle, the hora…) with
+          // the announcement and the full ranking beside it.
+          <motion.div key="show" className="grid min-h-0 flex-1 grid-cols-[1.8fr_1fr] gap-[2.5vw]" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="relative min-h-0">
+              <ThemeShow
+                template={game.template}
+                standings={standings}
+                s={s}
+                elapsed={Math.max(0, elapsed - FINALE_TEASE_MS)}
+                duration={FINALE_SHOW_S}
+                animate={live}
+                finale
+                hideTitle
+                maxLanes={7}
+              />
+            </div>
+            <div className="flex min-h-0 flex-col justify-center gap-[2.5vh] overflow-hidden">
+              <AnimatePresence mode="wait">
+                {!arrived ? (
+                  <motion.div key="wait" className="flex flex-col items-center gap-[2vh] text-center" exit={{ opacity: 0, y: -20 }}>
+                    <Portrait url={game.birthdayPhotoUrl} name={game.birthdayName} size="min(18vh, 14vw)" />
+                    <p className="font-display text-[min(3.6vh,2.8vw)] font-bold text-mute">{s.scrFinaleTease}</p>
+                    <div className="flex gap-[0.8vw]" aria-hidden>
+                      {[0, 1, 2].map((i) => (
+                        <motion.span key={i} className="h-[1.6vh] w-[1.6vh] rounded-full bg-gold" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.2 }} />
                       ))}
                     </div>
-                    <motion.p
-                      className="mb-[1vh] font-display text-[min(4.4vh,4.4vw)] font-bold text-gold-soft"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.9 }}
-                    >
-                      {s.scrCheer}
-                    </motion.p>
-                    {winners.length > 1 && <p className="font-display text-[min(4vh,4vw)] text-mute">{s.scrFinaleTie}</p>}
-                    <motion.h1
-                      className="hero-title text-[min(12vh,9vw)] leading-tight"
-                      initial={{ scale: 0.6, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.2 }}
-                    >
-                      <WinnerNames winners={winners} />
-                    </motion.h1>
-                  </>
-                )}
-              </div>
-            ) : (
-              // Podium on one side, the full ranking on the other.
-              <div className="flex min-h-0 flex-1 flex-col">
-                <motion.h1
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="hero-title text-center text-[min(6.4vh,5.2vw)]"
-                >
-                  {winners.length === 0 ? s.scrFinaleNone : <>🏆 <WinnerNames winners={winners} /></>}
-                </motion.h1>
-                <div className="grid min-h-0 flex-1 grid-cols-1 gap-[3vw] md:grid-cols-[1.7fr_1fr]">
-                  <div className="flex min-h-0 items-end">
-                    <Podium standings={standings} variant="tv" />
-                  </div>
-                  <div className="flex min-h-0 flex-col justify-center overflow-hidden">
-                    {showList && (
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="won"
+                    className="flex flex-col items-center text-center"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 180, damping: 13 }}
+                  >
+                    {winners.length === 0 ? (
+                      <h1 className="hero-title text-[min(6vh,4.6vw)] leading-tight">{s.scrFinaleNone}</h1>
+                    ) : (
                       <>
-                        <p className="mb-[1.5vh] font-display text-[min(3.4vh,3.4vw)] font-bold text-gold-soft">{s.scrFullRanking}</p>
-                        <Ranking standings={standings.slice(0, 12)} size="lg" />
+                        <span className="text-[min(9vh,7vw)] leading-none">🏆</span>
+                        {winners.length > 1 && <p className="mt-[1vh] font-display text-[min(3vh,2.4vw)] text-mute">{s.scrFinaleTie}</p>}
+                        <h1 className={`hero-title mt-[1vh] leading-tight [overflow-wrap:anywhere] ${winners.length > 1 ? "text-[min(5.5vh,3.8vw)]" : "text-[min(7.5vh,5vw)]"}`}>
+                          <WinnerNames winners={winners} s={s} />
+                        </h1>
+                        <p className="mt-[1vh] font-display text-[min(3.6vh,2.8vw)] font-bold text-gold-soft">{s.scrCheer}</p>
                       </>
                     )}
-                  </div>
-                </div>
-              </div>
-            )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {showList && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card min-h-0 overflow-hidden rounded-[2.4vh] p-[1.6vh]">
+                  <p className="mb-[1vh] font-display text-[min(2.8vh,2.4vw)] font-bold text-gold-soft">{s.scrFullRanking}</p>
+                  <Ranking standings={standings.slice(0, 6)} size="md" />
+                </motion.div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -146,15 +138,18 @@ export function FinaleStage({
   );
 }
 
-function WinnerNames({ winners }: { winners: { player: { id: string; name: string } }[] }) {
+function WinnerNames({ winners, s }: { winners: { player: { id: string; name: string } }[]; s: Strings }) {
+  // A big tie would not fit: the first three, then "and N more".
+  const named = winners.slice(0, 3);
   return (
     <>
-      {winners.map((w, i) => (
+      {named.map((w, i) => (
         <span key={w.player.id}>
           {i > 0 && " & "}
           <bdi>{w.player.name}</bdi>
         </span>
       ))}
+      {winners.length > 3 && <span className="text-[0.55em]"> {s.scrRaceMore(winners.length - 3)}</span>}
     </>
   );
 }
